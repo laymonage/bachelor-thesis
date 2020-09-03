@@ -328,6 +328,23 @@
 % Tambahkan berkas PDF ke dalam laporan.
 \newcommand{\putpdf}[1]{\includepdf[pages=-]{#1.pdf}}
 %
+% Lampirkan PDF sesuai aturan UI.
+\newcommand{\lampirpdf}[2]{
+	\fancypagestyle{appendix}{
+		\fancyhead[L]{\thepage}
+		\fancyhead[R]{#2}
+	}
+	\includepdf[pages=1,pagecommand={\thispagestyle{appendix}}]{#1.pdf}
+	\pdfximage{#1.pdf}
+	\ifnum\the\pdflastximagepages>1
+		\fancypagestyle{appendix}{
+			\fancyhead[L]{\thepage}
+			\fancyhead[R]{#2 \continued}
+		}
+		\includepdf[pages=2-,pagecommand={\thispagestyle{appendix}}]{#1.pdf}
+	\fi
+}
+%
 % Perintah untuk membuat perintah/variabel baru.
 \newcommand{\var}[2]{\newcommand{#1}{#2}}
 %
