@@ -61,6 +61,15 @@
 	}
 
 %
+% Use biblatex instead of standard bibtex.
+%
+\usepackage[
+	style=ieee,
+	urldate=comp,
+	backend=bibtex8]{biblatex}
+\addbibresource{references}
+
+%
 % The url package allows spacing and line breaks that result in intelligent
 % printing of email addresses, hypertext links, and path or directory addresses.
 % You must enter package commands in TeX fields. The address, link, path, or
@@ -316,9 +325,6 @@
 		\hline
 	\end{tabular}
     }
-%
-% Atur gaya sitasi.
-\usepackage[superscript,biblabel]{cite}
 %
 % Tambahkan berkas PDF ke dalam laporan dan gunakan style laporan
 % terhadap berkas ini.
