@@ -1,13 +1,81 @@
 %-----------------------------------------------------------------------------%
 \chapter{\babSatu}
 %-----------------------------------------------------------------------------%
-Pada bab ini, akan dijelaskan tentang latar belakang dan permasalahan yang diselesaikan pada penelitian ini.
 
+This chapter explains the background of this research and the problem to be
+solved by this research.
 
 %-----------------------------------------------------------------------------%
-\section{Latar Belakang}
+\section{Research Background}
 %-----------------------------------------------------------------------------%
-\todo{Tentukan latar belakang dari penelitian Anda di sini (\f{background}).}
+
+In the early days of web development, every part of a web application was coded
+manually. This required extensive knowledge of how the web works. Depending on
+the web application, this might include understanding of the Hypertext Transfer
+Protocol (HTTP), the Hypertext Markup Language (HTML), and other things such as
+databases. If not done correctly, this could lead to a lot of errors and
+security holes in the web application.
+
+Web frameworks aim to solve this problem by providing a standard way to build
+web applications. Web frameworks help eliminate the overhead of implementing
+common parts of web applications such as the HTTP layer, the database layer,
+and the view layer. This helps web developers build web applications more
+quickly and safely by focusing more on the business logic of the web
+application itself instead of the more intricate details.
+
+Among the widely-used web frameworks is Django, a free and open-source web
+framework written in Python. One of the main features of Django is an
+object-relational mapper (ORM) in the database layer. The ORM maps the data
+models, represented as Python classes, to tables in a relational database. The
+columns of a table are defined as attributes (called fields) inside the model
+class.
+
+While relational databases are useful in handling structured data, there has
+been an increase in the popularity of non-relational databases, commonly known
+as NoSQL databases. NoSQL encourages the simplicity of database design, which
+makes the process of scaling the database to multiple clusters of machines
+easier. NoSQL databases are also considered as more flexible due to its dynamic
+schema.
+
+However, NoSQL databases also have their own downsides. Most NoSQL databases
+disregard the Atomicity, Consistency, Isolation, and Durability (ACID)
+principles commonly found in relational database transactions. They also lack
+the ability to perform joins across tables, which makes it harder to deal with
+entity relations.
+
+Nowadays, some relational database systems have come up with their own
+solutions of providing a hybrid data model. This is done by combining
+structured data with some form of semi-structured data, most commonly in
+JavaScript Object Notation (JSON) format. This gives all the benefits of using
+a relational database, while still allowing the simplicity and dynamic nature
+of semi-structured data.
+
+From version 1.9 until version 3.0, Django had provided an implementation of
+JSONField. However, it was exclusively available for PostgreSQL. This JSONField
+allowed its users to store and query JSON data in a relational database column
+using the jsonb data type found only on PostgreSQL at the time.
+
+Django officially supports PostgreSQL, SQLite, MySQL, MariaDB, and Oracle
+Database backends. Over the years since the initial PostgreSQL JSONField
+implementation, those database systems have developed their own support for
+dealing with JSON data. However, Django had yet to implement JSONField for
+database backends other than PostgreSQL.
+
+The limited support for JSONField prompted the Django community to create their
+own JSONField implementations for other database backends. Some of them target
+one specific database backend and utilize various functions provided by the
+database system to add extended querying capabilities. Some other
+implementations focus on cross-database support, so they are only implemented
+as text-based fields that do not have any extended querying capabilities.
+
+The individual efforts for implementing JSONField results in the abundance of
+third-party JSONField packages on the Python Package Index. Some of them are
+very popular, such as the jsonfield package that has more than 1100 stars on
+GitHub. This indicates a popular demand for JSONField. However, it also
+indicates a fragmentation problem as people use different JSONField packages.
+Thus, there's a motivation to bring JSONField into Django's core model fields,
+with cross-database and extended querying support in mind, as well as
+compatibility with the previous implementation of JSONField.
 
 %-----------------------------------------------------------------------------%
 \section{Permasalahan}
@@ -31,7 +99,8 @@ Berikut ini adalah asumsi yang digunakan sebagai batasan penelitian ini:
 \begin{itemize}
 	\item Salah satu batasannya adalah, ini hanya \f{template}.
 \end{itemize}
-\todo{Umumnya ada asumsi atau batasan yang digunakan untuk menjawab pertanyaan-pertanyaan penelitian diatas.}
+\todo{Umumnya ada asumsi atau batasan yang digunakan untuk menjawab
+pertanyaan-pertanyaan penelitian diatas.}
 
 
 %-----------------------------------------------------------------------------%
@@ -39,7 +108,8 @@ Berikut ini adalah asumsi yang digunakan sebagai batasan penelitian ini:
 %-----------------------------------------------------------------------------%
 Berikut ini adalah tujuan penelitian yang dilakukan:
 \begin{itemize}
-	\item Untuk memberikan \f{template} yang dapat mempermudah skripsi orang lain.
+	\item Untuk memberikan \f{template} yang dapat mempermudah skripsi orang
+	lain.
 \end{itemize}
 \todo{Tuliskan tujuan penelitian Anda di bagian ini.}
 
@@ -47,7 +117,8 @@ Berikut ini adalah tujuan penelitian yang dilakukan:
 %-----------------------------------------------------------------------------%
 \section{Posisi Penelitian}
 %-----------------------------------------------------------------------------%
-\todo{Sebutkan posisi penelitian Anda. Ada baiknya jika Anda menggunakan gambar atau diagram. Template ini telah menyediakan contoh cara memasukkan gambar.}
+\todo{Sebutkan posisi penelitian Anda. Ada baiknya jika Anda menggunakan gambar
+atau diagram. Template ini telah menyediakan contoh cara memasukkan gambar.}
 
 \begin{figure}
 	\centering
@@ -65,9 +136,13 @@ Berikut ini adalah tujuan penelitian yang dilakukan:
 Berikut ini adalah langkah penelitian yang telah dilakukan:
 \begin{enumerate}
 	\item Tinjauan literatur \\
-	Pada tahap ini, dipelajari teori-teori yang terkait dengan penelitian ini untuk mendapatkan konsep dasar yang dibutuhkan dalam mencapai tujuan penelitian.
+	Pada tahap ini, dipelajari teori-teori yang terkait dengan penelitian ini
+	untuk mendapatkan konsep dasar yang dibutuhkan dalam mencapai tujuan
+	penelitian.
 	\item Analisis implementasi dan kesimpulan \\
-	Pada tahap ini, digunakan studi kasus untuk analisis terkait kegunaan \f{template}. Setelah melakukan analisis tersebut, ditarik kesimpulan keseluruhan dari penelitian ini.
+	Pada tahap ini, digunakan studi kasus untuk analisis terkait kegunaan
+	\f{template}. Setelah melakukan analisis tersebut, ditarik kesimpulan
+	keseluruhan dari penelitian ini.
 \end{enumerate}
 
 
@@ -77,9 +152,12 @@ Berikut ini adalah langkah penelitian yang telah dilakukan:
 Sistematika penulisan laporan adalah sebagai berikut:
 \begin{itemize}
 	\item Bab 1 \babSatu \\
-	    Bab ini mencakup latar belakang, cakupan penelitian, dan pendefinisian masalah.
+	    Bab ini mencakup latar belakang, cakupan penelitian, dan pendefinisian
+	    masalah.
 	\item Bab 2 \babDua \\
-	    Bab ini mencakup pemaparan terminologi dan teori yang terkait dengan penelitian berdasarkan hasil tinjauan pustaka yang telah digunakan, sekaligus memperlihatkan kaitan teori dengan penelitian.
+	    Bab ini mencakup pemaparan terminologi dan teori yang terkait dengan
+	    penelitian berdasarkan hasil tinjauan pustaka yang telah digunakan,
+	    sekaligus memperlihatkan kaitan teori dengan penelitian.
 	\item Bab 3 \babTiga \\
 	    Apa itu Bab 3?
 	\item Bab 4 \babEmpat \\
@@ -87,7 +165,9 @@ Sistematika penulisan laporan adalah sebagai berikut:
 	\item Bab 5 \babLima \\
 	    Apa itu Bab 5?
 	\item Bab 6 \kesimpulan \\
-	    Bab ini mencakup kesimpulan akhir penelitian dan saran untuk pengembangan berikutnya.
+	    Bab ini mencakup kesimpulan akhir penelitian dan saran untuk
+	    pengembangan berikutnya.
 \end{itemize}
 
-\todo{Anda bisa mengubah atau menambahkan penjelasan singkat mengenai isi masing-masing bab. Setiap tugas akhir pasti ada yang berbeda pada bagian ini.}
+\todo{Anda bisa mengubah atau menambahkan penjelasan singkat mengenai isi
+masing-masing bab. Setiap tugas akhir pasti ada yang berbeda pada bagian ini.}
