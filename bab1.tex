@@ -5,6 +5,8 @@
 This chapter explains the background of this research and the problem to be
 solved by this research.
 
+\todoCite
+
 %-----------------------------------------------------------------------------%
 \section{Research Background}
 %-----------------------------------------------------------------------------%
@@ -78,96 +80,162 @@ with cross-database and extended querying support in mind, as well as
 compatibility with the previous implementation of JSONField.
 
 %-----------------------------------------------------------------------------%
-\section{Permasalahan}
+\section{Research Questions}
 %-----------------------------------------------------------------------------%
-\todo{Sebutkan permasalahan penelitian Anda dari latar belakang tersebut.}
 
-%-----------------------------------------------------------------------------%
-\subsection{Definisi Permasalahan}
-%-----------------------------------------------------------------------------%
-Berikut ini adalah rumusan permasalahan dari penelitian yang dilakukan:
-\begin{itemize}
-	\item Bagaimana cara membuat pertanyaan penelitian?
-\end{itemize}
-\todo{Tuliskan permasalahan yang ingin diselesaikan. Bisa juga berbentuk pertanyaan}
+Based on the aforementioned research background, the following questions are
+constructed for this research:
 
-
-%-----------------------------------------------------------------------------%
-\subsection{Batasan Permasalahan}
-%-----------------------------------------------------------------------------%
-Berikut ini adalah asumsi yang digunakan sebagai batasan penelitian ini:
-\begin{itemize}
-	\item Salah satu batasannya adalah, ini hanya \f{template}.
-\end{itemize}
-\todo{Umumnya ada asumsi atau batasan yang digunakan untuk menjawab
-pertanyaan-pertanyaan penelitian diatas.}
-
-
-%-----------------------------------------------------------------------------%
-\section{Tujuan Penelitian}
-%-----------------------------------------------------------------------------%
-Berikut ini adalah tujuan penelitian yang dilakukan:
-\begin{itemize}
-	\item Untuk memberikan \f{template} yang dapat mempermudah skripsi orang
-	lain.
-\end{itemize}
-\todo{Tuliskan tujuan penelitian Anda di bagian ini.}
-
-
-%-----------------------------------------------------------------------------%
-\section{Posisi Penelitian}
-%-----------------------------------------------------------------------------%
-\todo{Sebutkan posisi penelitian Anda. Ada baiknya jika Anda menggunakan gambar
-atau diagram. Template ini telah menyediakan contoh cara memasukkan gambar.}
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.4\textwidth]{pics/makara.png}
-	\caption{Penjelasan singkat terkait gambar.}
-	\label{fig:research_position}
-\end{figure}
-
-\todo{Jelaskan \pic~\ref{fig:research_position} di sini.}
-
-
-%-----------------------------------------------------------------------------%
-\section{Langkah Penelitian}
-%-----------------------------------------------------------------------------%
-Berikut ini adalah langkah penelitian yang telah dilakukan:
+% Note:
+% These aren't final. Some of the questions may be combined or removed.
 \begin{enumerate}
-	\item Tinjauan literatur \\
-	Pada tahap ini, dipelajari teori-teori yang terkait dengan penelitian ini
-	untuk mendapatkan konsep dasar yang dibutuhkan dalam mencapai tujuan
-	penelitian.
-	\item Analisis implementasi dan kesimpulan \\
-	Pada tahap ini, digunakan studi kasus untuk analisis terkait kegunaan
-	\f{template}. Setelah melakukan analisis tersebut, ditarik kesimpulan
-	keseluruhan dari penelitian ini.
+    \item What are the differences in the JSON data support between the
+          database backends supported by Django?
+    \item How can JSONField in Django be reimplemented with cross-database
+          support?
+    \item How should the users of existing PostgreSQL-only JSONField migrate to
+          the cross-database JSONField provided in a new release of Django?
+    \item How can Django users enforce validation rules on a JSONField?
+    \item How is the performance of the cross-database JSONField on all of the
+          database backends supported by Django?
 \end{enumerate}
 
+%-----------------------------------------------------------------------------%
+\section{Research Objectives}
+%-----------------------------------------------------------------------------%
 
-%-----------------------------------------------------------------------------%
-\section{Sistematika Penulisan}
-%-----------------------------------------------------------------------------%
-Sistematika penulisan laporan adalah sebagai berikut:
+The objectives of this research are to:
+
 \begin{itemize}
-	\item Bab 1 \babSatu \\
-	    Bab ini mencakup latar belakang, cakupan penelitian, dan pendefinisian
-	    masalah.
-	\item Bab 2 \babDua \\
-	    Bab ini mencakup pemaparan terminologi dan teori yang terkait dengan
-	    penelitian berdasarkan hasil tinjauan pustaka yang telah digunakan,
-	    sekaligus memperlihatkan kaitan teori dengan penelitian.
-	\item Bab 3 \babTiga \\
-	    Apa itu Bab 3?
-	\item Bab 4 \babEmpat \\
-		Apa itu Bab 4?
-	\item Bab 5 \babLima \\
-	    Apa itu Bab 5?
-	\item Bab 6 \kesimpulan \\
-	    Bab ini mencakup kesimpulan akhir penelitian dan saran untuk
-	    pengembangan berikutnya.
+    \item Implement a new JSONField that can be used on all database backends
+          supported by Django.
+    \item Demonstrate how semi-structured data in a JSONField can be validated.
+    \item Provide a performance analysis of JSONField across different database
+          backends.
 \end{itemize}
 
-\todo{Anda bisa mengubah atau menambahkan penjelasan singkat mengenai isi
-masing-masing bab. Setiap tugas akhir pasti ada yang berbeda pada bagian ini.}
+%-----------------------------------------------------------------------------%
+\section{Research Benefits}
+%-----------------------------------------------------------------------------%
+
+This research would hopefully bring the following benefits:
+
+\begin{itemize}
+    \item Provide Django users with a JSONField that has a consistent
+          experience on all database backends supported by Django.
+    \item Give insights to Django users about the inner workings, validation
+          examples, and performance considerations of JSONField.
+\end{itemize}
+
+%-----------------------------------------------------------------------------%
+\section{Research Scope}
+%-----------------------------------------------------------------------------%
+
+The following assumptions were made prior to the execution of this research:
+
+\begin{itemize}
+    \item The JSONField implementation would be submitted as a pull request to
+          the upstream Django repository instead of being made as a separate
+          package.
+    \item The primary focus of this research would be on implementing the model
+          field type of JSONField, with the form field type as a secondary
+          priority.
+    \item The JSONField implementation has to take into account the limitations
+          of each database backend, so there may be features that behave
+          differently or are not supported on some database backends.
+\end{itemize}
+
+%-----------------------------------------------------------------------------%
+\section{Research Position}
+%-----------------------------------------------------------------------------%
+
+This research is mainly split by two parts: the JSONField implementation and
+the analysis demonstrations. The JSONField implementation part of the research
+would be done on a Git branch in a GitHub fork of the Django repository. The
+branch would be submitted as a pull request to the Django repository. This
+would allow the Django contributors to review the code and give feedback on the
+implementation. The data validation and performance benchmarking analysis
+demonstrations would be done in a repository in the form of two small Django
+projects.
+
+\todo{Add a picture that illustrates this.}
+
+The JSONField implementation would be done as part of the Google Summer of Code
+2019 program. Google Summer of Code (GSoC) is an annual program held by Google
+that's focused on introducing students to open-source software development. In
+GSoC, students work on a 3 month programming project under the guidance of
+mentors from an open-source organization. The students are compensated with a
+stipend from Google for their work. In turn, the organizations can identify and
+bring in new contributors who implement new features and hopefully continue to
+contribute to the organizations' projects.
+
+\todo{Add Google Summer of Code logo.}
+
+%-----------------------------------------------------------------------------%
+\section{Research Steps}
+%-----------------------------------------------------------------------------%
+
+The following steps were conducted for the research:
+
+\begin{enumerate}
+    \item Literature review \\
+    This step focused on reading and understanding how the Django
+    object-relational mapper (ORM) works, as well as JSON support on the
+    database backends supported by Django. During this step, the underlying
+    concepts of this research were studied in order to accomplish the research
+    objectives.
+
+    \item Experiments \\
+    In this step, experiments were done by trying out existing JSONField
+    implementations, which included the PostgreSQL implementation in Django,
+    as well as third-party packages on the Python Package Index (PyPI). Some
+    experiments were also done by modifying a third-party package to work
+    better on different database backends.
+
+    \item Implementation \\
+    This step focused on the implementation of the JSONField model and form
+    fields. This was initially done by copying the existing implementation
+    from the django.contrib.postgres module to the django.db.models and
+    django.forms modules. The tests for the existing implementation were also
+    copied. From there, the work was to modify the JSONField implementation so
+    that all tests could pass on all available database backends.
+
+    After the JSONField implementation, this step was continued by implementing
+    the data validation example and benchmarking. This included the creation of
+    two small Django projects for demonstration purposes.
+
+    \item Results Analysis \\
+    In this step, the primary work was to document the different behaviors and
+    support of the JSONField implementation on each database backend. This step
+    also included analyzing the data validation and benchmarking
+    implementations. For the benchmark, the analysis included comparing the
+    performance of JSONField on all database backends.
+\end{enumerate}
+
+%-----------------------------------------------------------------------------%
+\section{Report Structure}
+%-----------------------------------------------------------------------------%
+
+The structure of this report is as follows:
+
+\begin{itemize}
+    \item Chapter 1 \babSatu \\
+        This chapter covers the background, problem definition, objectives,
+        scope, position, and steps of this research.
+    \item Chapter 2 \babDua \\
+        This chapter covers the results of the literature review done prior to
+        executing the research.
+    \item Chapter 3 \babTiga \\
+        This chapter covers the plan and problem analysis to prepare for the
+        implementation.
+    \item Chapter 4 \babEmpat \\
+        This chapter covers the JSONField, the data validation example, and
+        the benchmarking implementations.
+    \item Chapter 5 \babLima \\
+        This chapter covers the analysis of the implementation results. This
+        also covers the comparison of the benchmarking results between the
+        database backends.
+    \item Chapter 6 \kesimpulan \\
+        This chapter covers the conclusions of the research and some
+        recommendations for further research.
+\end{itemize}
