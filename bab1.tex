@@ -5,8 +5,6 @@
 This chapter explains the background of this research and the problem to be
 solved by this research.
 
-\todoCite
-
 %-----------------------------------------------------------------------------%
 \section{Research Background}
 %-----------------------------------------------------------------------------%
@@ -30,20 +28,20 @@ framework written in Python. One of the main features of Django is an
 object-relational mapper (ORM) in the database layer. The ORM maps the data
 models, represented as Python classes, to tables in a relational database. The
 columns of a table are defined as attributes (called fields) inside the model
-class.
+class. \cite{django}
 
 While relational databases are useful in handling structured data, there has
 been an increase in the popularity of non-relational databases, commonly known
-as NoSQL databases. NoSQL encourages the simplicity of database design, which
-makes the process of scaling the database to multiple clusters of machines
-easier. NoSQL databases are also considered as more flexible due to its dynamic
-schema.
+as NoSQL databases. \cite{paul_nosql} NoSQL encourages the simplicity of
+database design, which makes the process of scaling the database to multiple
+clusters of machines easier. \cite{leavitt_nosql} NoSQL databases are also
+considered as more flexible due to its dynamic schema.
 
 However, NoSQL databases also have their own downsides. Most NoSQL databases
 disregard the Atomicity, Consistency, Isolation, and Durability (ACID)
-principles commonly found in relational database transactions. They also lack
-the ability to perform joins across tables, which makes it harder to deal with
-entity relations.
+principles found in relational databases. \cite{kyle_mongodb} They also lack
+the ability to perform joins across tables due to the use of denormalized data,
+which makes it harder to deal with entity relations.
 
 Nowadays, some relational database systems have come up with their own
 solutions of providing a hybrid data model. This is done by combining
@@ -66,18 +64,19 @@ database backends other than PostgreSQL.
 The limited support for JSONField prompted the Django community to create their
 own JSONField implementations for other database backends. Some of them target
 one specific database backend and utilize various functions provided by the
-database system to add extended querying capabilities. Some other
-implementations focus on cross-database support, so they are only implemented
-as text-based fields that do not have any extended querying capabilities.
+database system to add extended querying capabilities. \cite{mysql_jsonfield}
+\cite{oracle_jsonfield} Some other implementations focus on cross-database
+support, so they are only implemented as text-based fields that do not have any
+extended querying capabilities. \cite{ryan_jsonfield}
 
 The individual efforts for implementing JSONField results in the abundance of
 third-party JSONField packages on the Python Package Index. Some of them are
 very popular, such as the jsonfield package that has more than 1100 stars on
-GitHub. This indicates a popular demand for JSONField. However, it also
-indicates a fragmentation problem as people use different JSONField packages.
-Thus, there's a motivation to bring JSONField into Django's core model fields,
-with cross-database and extended querying support in mind, as well as
-compatibility with the previous implementation of JSONField.
+GitHub. \cite{ryan_jsonfield} This indicates a popular demand for JSONField.
+However, it also indicates a fragmentation problem as people use different
+JSONField packages. Thus, there's a motivation to bring JSONField into Django's
+core model fields, with cross-database and extended querying support in mind,
+as well as compatibility with the previous implementation of JSONField.
 
 %-----------------------------------------------------------------------------%
 \section{Research Questions}
@@ -155,8 +154,8 @@ would be done on a Git branch in a GitHub fork of the Django repository. The
 branch would be submitted as a pull request to the Django repository. This
 would allow the Django contributors to review the code and give feedback on the
 implementation. The data validation and performance benchmarking analysis
-demonstrations would be done in a repository in the form of two small Django
-projects.
+demonstrations would be done in a separate repository in the form of two small
+Django projects.
 
 \todo{Add a picture that illustrates this.}
 
@@ -169,7 +168,15 @@ stipend from Google for their work. In turn, the organizations can identify and
 bring in new contributors who implement new features and hopefully continue to
 contribute to the organizations' projects.
 
-\todo{Add Google Summer of Code logo.}
+\begin{figure}
+	\centering
+	\copyrightbox[b]{
+		\includegraphics[width=0.25\textwidth]
+		{pics/GSoC.png}
+	}{Source: \url{https://developers.google.com/open-source/gsoc/resources/marketing}}
+	\caption{The Google Summer of Code logo.}
+	\label{fig:gsoc}
+\end{figure}
 
 %-----------------------------------------------------------------------------%
 \section{Research Steps}
