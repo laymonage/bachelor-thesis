@@ -1,0 +1,17 @@
+{
+  "name": "Sage Muhammad Abdullah",
+  "alive": true,
+  "age": 21,
+  "occupation": "Student",
+  "height": 170.0,
+  "weight": 57.0,
+  "spouse": null,
+  "location": {
+    "city": "Jakarta",
+    "country": "Indonesia"
+  },
+  "phoneNumbers": [
+    {"type": "home", "number": "001 123 4567"},
+    {"type": "mobile", "number": "0800 1234 5678"}
+  ]
+}
