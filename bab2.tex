@@ -27,7 +27,7 @@ response to the client. The store holds inter-request data, which is usually
 stored in a database system.
 
 %-----------------------------------------------------------------------------%
-\section{Django}
+\section{Django and Object-Relational Mapping}
 %-----------------------------------------------------------------------------%
 
 Django is a free and open-source web framework written in Python \cite{django}.
@@ -35,24 +35,32 @@ Its overall philosophies are loose coupling, less code, quick development,
 don't repeat yourself (DRY), explicit is better than implicit, and consistency
 \cite{django:philosophies}. It follows what it calls the model-template-view
 architectural pattern, which shares similarities to the model-view-controller
-pattern \cite{django:faq}. It consists of an object-relational mapper (ORM)
-that handles the interaction with database systems, a template system that
-defines how the data looks like to the user, and a view system that defines
-which data is presented to the user.
+pattern \cite{django:faq}. It consists of an object-relational mapping (ORM)
+system that handles the interaction with database systems, a template system
+that defines how the data looks like to the user, and a view system that
+defines which data is presented to the user.
 
-The ORM in Django maps data models to relational database tables. The data
-models are represented as Python classes. The model class also has attributes,
-called model fields, which represent the columns of the database table. These
-model fields define the data types that are used in the database. For example,
-the CharField model field uses the VARCHAR data type in the database. In
-addition, these model fields also define the behavior of the columns, such as
-their NOT NULL and UNIQUE constraints in the database.
+Object-relational mapping (ORM) is a programming technique that allows its
+users to query and manipulate data stored in a relational database using an
+object-oriented paradigm \cite{linskey:orm}. Object query, load, and delete
+operations are translated into SQL SELECT and DELETE statements, while object
+allocation and modification operations are translated into SQL INSERT and
+UPDATE statements. To achieve this, the scalar values retrieved from the
+database are converted into object instances in the program and vice versa.
+
+The ORM system in Django maps data models to relational database tables. The
+data models are represented as Python classes. The model class also has
+attributes, called model fields, which represent the columns of the database
+table. These model fields define the data types that are used in the database.
+For example, the CharField model field uses the VARCHAR data type in the
+database. In addition, these model fields also define the behavior of the
+columns, such as their NOT NULL and UNIQUE constraints in the database.
 
 Django officially supports five database backends: PostgreSQL, MySQL, MariaDB,
 SQLite, and Oracle Database \cite{django:databases}. Each database backend
 (other than SQLite) requires a compatible database driver to be installed. The
 database backends provided by Django adapt the database drivers so that they
-can be used with the ORM. These backends are implemented in the
+can be used with the ORM system. These backends are implemented in the
 django.db.backends module.
 
 %-----------------------------------------------------------------------------%
