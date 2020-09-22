@@ -1,102 +1,123 @@
 %-----------------------------------------------------------------------------%
 \chapter{\babDua}
 %-----------------------------------------------------------------------------%
-Untuk memulai penelitian, dibutuhkan kerangka berpikir yang sesuai untuk permasalahan yang ingin dipecahkan. Untuk membentuk kerangka berpikir yang sesuai, perlu dikaitkan dengan hasil studi literatur yang telah dilakukan. Oleh karena itu, pada bab ini, akan dijelaskan hasil studi literatur yang telah dilakukan yang telah dikaitan dengan kerangka kerja untuk penelitian ini.
 
-
-%-----------------------------------------------------------------------------%
-\section{Apa itu \latex?}
-%-----------------------------------------------------------------------------%
+This chapter focuses on building a conceptual framework by reviewing existing
+literature and documentation of the underlying concepts of this research.
 
 %-----------------------------------------------------------------------------%
-\subsection{\latex~Secara Singkat}
+\section{Web Framework}
 %-----------------------------------------------------------------------------%
-Berdasarkan \cite{latex:intro}: \\ 
-\begin{tabular}{| p{13cm} |}
-	\hline 
-	\\
-	LaTeX is a family of programs designed to produce publication-quality typeset documents. It is particularly strong when working with mathematical symbols. \\	
-	The history of LaTeX begins with a program called TEX. In 1978, a computer scientist by the name of Donald Knuth grew frustrated with the mistakes that his publishers made in typesetting his work. He decided to create a typesetting program that everyone could easily use to typeset documents, particularly those that include formulae, and made it freely available. The result is TEX. \\	
-	Knuth's product is an immensely powerful program, but one that does focus very much on small details. A mathematician and computer scientist by the name of Leslie Lamport wrote a variant of TEX called  that focuses on document structure rather than such details. \\
-	\\
-	\hline
-\end{tabular}
 
-\vspace*{0.8cm}
+A web framework is a software framework that is designed to support the
+development of web applications. It consists of reusable components that solve
+common problems in web application development. Most web frameworks provide
+safe defaults to prevent security problems in the web application. This helps
+programmers build web applications faster and safer. Some web frameworks also
+help maintain better application structure by enforcing software design
+patterns.
 
-Dokumen \latex~sangat mudah, seperti halnya membuat dokumen teks biasa.
-Ada beberapa perintah yang diawali dengan tanda '\bslash'. 
-Seperti perintah \code{\bslash\bslash}~yang digunakan untuk memberi baris baru. 
-Perintah tersebut juga sama dengan perintah \code{\bslash{}newline}. 
-Pada bagian ini akan sedikit dijelaskan cara manipulasi teks dan 
-perintah-perintah \latex~yang mungkin akan sering digunakan. 
-Jika ingin belajar hal-hal dasar mengenai \latex, silahkan kunjungi: 
-
-\begin{itemize}
-	\item \url{http://frodo.elon.edu/tutorial/tutorial/}, atau
-	\item \url{http://www.maths.tcd.ie/~dwilkins/LaTeXPrimer/}
-\end{itemize}
-
+The common components of a web framework are the dispatcher, the decoder, the
+generator, and the store \cite{schwarz_webframework}. The dispatcher maps
+Uniform Resource Locators (URLs) to application code that is invoked when an
+HTTP request is received. The decoder decodes the client request, which allows
+the web application to read parameters, headers, and request body data sent as
+part of the request. The generator constructs the output that is sent as a
+response to the client. The store holds inter-request data, which is usually
+stored in a database system.
 
 %-----------------------------------------------------------------------------%
-\subsection{\latex~Kompiler dan IDE}
+\section{Django}
 %-----------------------------------------------------------------------------%
-Agar dapat menggunakan \latex~(pada konteks hanya sebagai pengguna), Anda tidak perlu banyak tahu mengenai hal-hal didalamnya. 
-Seperti halnya pembuatan dokumen secara visual (contohnya Open Office (OO) Writer), Anda dapat menggunakan \latex~dengan cara yang sama. 
-Orang-orang yang menggunakan \latex~relatif lebih teliti dan terstruktur mengenai cara penulisan yang dia gunakan, \latex~memaksa Anda untuk seperti itu.  
 
-Kembali pada bahasan utama, untuk mencoba \latex~Anda cukup mendownload kompiler dan IDE. Saya menyarankan menggunakan Texlive dan Texmaker. 
-Texlive dapat didownload dari \url{http://www.tug.org/texlive/}. 
-Sedangkan Texmaker dapat didownload dari \url{http://www.xm1math.net/texmaker/}. 
-Untuk pertama kali, coba buka berkas thesis.tex dalam template yang Anda miliki pada Texmaker. 
-Dokumen ini adalah dokumen utama. 
-Tekan F6 (PDFLaTeX) dan Texmaker akan mengkompilasi berkas tersebut menjadi berkas PDF. 
-Jika tidak bisa, pastikan Anda sudah menginstall Texlive. 
-Buka berkas tersebut dengan menekan F7. 
-Hasilnya adalah sebuah dokumen yang sama seperti dokumen yang Anda baca saat ini. 
+Django is a free and open-source web framework written in Python \cite{django}.
+Its overall philosophies are loose coupling, less code, quick development,
+don't repeat yourself (DRY), explicit is better than implicit, and consistency
+\cite{django:philosophies}. It follows what it calls the model-template-view
+architectural pattern, which shares similarities to the model-view-controller
+pattern \cite{django:faq}. It consists of an object-relational mapper (ORM)
+that handles the interaction with database systems, a template system that
+defines how the data looks like to the user, and a view system that defines
+which data is presented to the user.
 
+The ORM in Django maps data models to relational database tables. The data
+models are represented as Python classes. The model class also has attributes,
+called model fields, which represent the columns of the database table. These
+model fields define the data types that are used in the database. For example,
+the CharField model field uses the VARCHAR data type in the database. In
+addition, these model fields also define the behavior of the columns, such as
+their NOT NULL and UNIQUE constraints in the database.
+
+Django officially supports five database backends: PostgreSQL, MySQL, MariaDB,
+SQLite, and Oracle Database \cite{django:databases}. Each database backend
+(other than SQLite) requires a compatible database driver to be installed. The
+database backends provided by Django adapt the database drivers so that they
+can be used with the ORM. These backends are implemented in the
+django.db.backends module.
 
 %-----------------------------------------------------------------------------%
-\section{Panduan Pengunaan Dasar \latex}
+\section{JSON}
 %-----------------------------------------------------------------------------%
+
+JavaScript Object Notation (JSON) is a data-interchange format
+\cite{ecma:json}. It is designed to be human-readable and easy for machines to
+parse and generate. It is based on a subset of the JavaScript standard, but it
+is completely language independent. It uses conventions that are similar to
+popular programming languages such as C, C++, C\#, Java, JavaScript, Python,
+and many others. These properties make JSON a widely-used data-interchange
+format, especially in web applications.
+
+JSON is built on two structures: an unordered set of key-value pairs (called
+JSON objects) and an ordered list of values (called JSON arrays). The values
+can be scalar values such as strings, numbers, booleans, or null. However, they
+can also be JSON objects or JSON arrays, which means that they can be nested
+to form more complex data structures. An example of a JSON object that contains
+a JSON array and other JSON objects can be seen in \autoref{code:json}.
+
+\lstinputlisting[
+	language=Python,
+	caption=A JSON object,
+	label=code:json]{codes/2-json.json}
 
 %-----------------------------------------------------------------------------%
 \subsection{Bold, Italic, dan Underline}
 %-----------------------------------------------------------------------------%
-Hal pertama yang mungkin ditanyakan adalah bagaimana membuat huruf tercetak tebal, miring, atau memiliki garis bawah. 
-Pada Texmaker, Anda bisa melakukan hal ini seperti halnya saat mengubah dokumen dengan OO Writer. 
-Namun jika tetap masih tertarik dengan cara lain, ini dia: 
+Hal pertama yang mungkin ditanyakan adalah bagaimana membuat huruf tercetak
+tebal, miring, atau memiliki garis bawah. Pada Texmaker, Anda bisa melakukan
+hal ini seperti halnya saat mengubah dokumen dengan OO Writer. Namun jika tetap
+masih tertarik dengan cara lain, ini dia:
 
 \begin{itemize}
 	\item \bo{Bold} \\
-	Gunakan perintah \code{\bslash{}textbf$\lbrace\rbrace$} atau 
-	\code{\bslash{}bo$\lbrace\rbrace$}. 
+	Gunakan perintah \code{\bslash{}textbf$\lbrace\rbrace$} atau
+	\code{\bslash{}bo$\lbrace\rbrace$}.
 	\item \f{Italic} \\
-	Gunakan perintah \code{\bslash{}textit$\lbrace\rbrace$} atau 
-	\code{\bslash{}f$\lbrace\rbrace$}. 
+	Gunakan perintah \code{\bslash{}textit$\lbrace\rbrace$} atau
+	\code{\bslash{}f$\lbrace\rbrace$}.
 	\item \underline{Underline} \\
 	Gunakan perintah \code{\bslash{}underline$\lbrace\rbrace$}.
 	\item $\overline{Overline}$ \\
-	Gunakan perintah \code{\bslash{}overline}. 
+	Gunakan perintah \code{\bslash{}overline}.
 	\item $^{superscript}$ \\
-	Gunakan perintah \code{\bslash{}$\lbrace\rbrace$}. 
+	Gunakan perintah \code{\bslash{}$\lbrace\rbrace$}.
 	\item $_{subscript}$ \\
-	Gunakan perintah \code{\bslash{}\_$\lbrace\rbrace$}. 
+	Gunakan perintah \code{\bslash{}\_$\lbrace\rbrace$}.
 \end{itemize}
 
-Perintah \code{\bslash{}f} dan \code{\bslash{}bo} hanya dapat digunakan jika package \code{uithesis} digunakan. 
+Perintah \code{\bslash{}f} dan \code{\bslash{}bo} hanya dapat digunakan jika
+package \code{uithesis} digunakan.
 
 
 %-----------------------------------------------------------------------------%
 \subsection{Memasukan Gambar}
 %-----------------------------------------------------------------------------%
-Setiap gambar dapat diberikan caption dan diberikan label. Label dapat digunakan untuk menunjuk gambar tertentu. 
-Jika posisi gambar berubah, maka nomor gambar juga akan diubah secara 
-otomatis. 
-Begitu juga dengan seluruh referensi yang menunjuk pada gambar tersebut. 
-Contoh sederhana adalah \pic~\ref{fig:testGambar}. 
-Silahkan lihat code \latex~dengan nama bab2.tex untuk melihat kode lengkapnya. 
-Harap diingat bahwa caption untuk gambar selalu terletak dibawah gambar. 
+Setiap gambar dapat diberikan caption dan diberikan label. Label dapat
+digunakan untuk menunjuk gambar tertentu. Jika posisi gambar berubah, maka
+nomor gambar juga akan diubah secara otomatis. Begitu juga dengan seluruh
+referensi yang menunjuk pada gambar tersebut. Contoh sederhana adalah
+\pic~\ref{fig:testGambar}. Silahkan lihat code \latex~dengan nama bab2.tex
+untuk melihat kode lengkapnya. Harap diingat bahwa caption untuk gambar selalu
+terletak dibawah gambar.
 
 \begin{figure}
 	\centering
@@ -110,9 +131,9 @@ Harap diingat bahwa caption untuk gambar selalu terletak dibawah gambar.
 %-----------------------------------------------------------------------------%
 \section{Membuat Tabel}
 %-----------------------------------------------------------------------------%
-Seperti pada gambar, tabel juga dapat diberi label dan caption. 
-Caption pada tabel terletak pada bagian atas tabel. 
-Contoh tabel sederhana dapat dilihat pada \tab~\ref{tab:tab1}.
+Seperti pada gambar, tabel juga dapat diberi label dan caption. Caption pada
+tabel terletak pada bagian atas tabel. Contoh tabel sederhana dapat dilihat
+pada \tab~\ref{tab:tab1}.
 
 \begin{table}
 	\centering
@@ -120,7 +141,7 @@ Contoh tabel sederhana dapat dilihat pada \tab~\ref{tab:tab1}.
 	\label{tab:tab1}
 	\begin{tabular}{| l | c r |}
 		\hline
-		& kol 1 & kol 2 \\ 
+		& kol 1 & kol 2 \\
 		\hline
 		baris 1 & 1 & 2 \\
 		baris 2 & 3 & 4 \\
@@ -130,16 +151,17 @@ Contoh tabel sederhana dapat dilihat pada \tab~\ref{tab:tab1}.
 	\end{tabular}
 \end{table}
 
-Ada jenis tabel lain yang dapat dibuat dengan \latex~berikut beberapa diantaranya. 
-Contoh-contoh ini bersumber dari \url{http://en.wikibooks.org/wiki/LaTeX/Tables}
+Ada jenis tabel lain yang dapat dibuat dengan \latex~berikut beberapa
+diantaranya. Contoh-contoh ini bersumber dari
+\url{http://en.wikibooks.org/wiki/LaTeX/Tables}
 
 \begin{table}
 	\centering
 	\caption{An Example of Rows Spanning Multiple Columns}
 	\label{row.spanning}
-	\begin{tabular}{|l|l|*{6}{c|}}
-		\hline % create horizontal line
-		No & Name & \multicolumn{3}{|c|}{Week 1} & \multicolumn{3}{|c|}{Week 2} \\
+	\begin{tabular}{|l|l|*{6}{c|}} \hline % create horizontal line
+		No & Name & \multicolumn{3}{|c|}{Week 1} & \multicolumn{3}{|c|}{Week 2}
+		\\
 		\cline{3-8} % create line from 3rd column till 8th column
 		& & A & B & C & A & B & C\\
 		\hline
@@ -160,11 +182,11 @@ Contoh-contoh ini bersumber dari \url{http://en.wikibooks.org/wiki/LaTeX/Tables}
 		\hline
 		Pertama & 1 & 0.1 sec \\ \hline
 		\multirow{2}{*}{Kedua} & 1 & 0.1 sec \\
-		& 3 & 0.15 sec \\ 
+		& 3 & 0.15 sec \\
 		\hline
 		\multirow{3}{*}{Ketiga} & 1 & 0.09 sec \\
 		& 2 & 0.16 sec \\
-		& 3 & 0.21 sec \\ 
+		& 3 & 0.21 sec \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -175,16 +197,15 @@ Contoh-contoh ini bersumber dari \url{http://en.wikibooks.org/wiki/LaTeX/Tables}
 	\label{mix.spanning}
 	\begin{tabular}{cc|c|c|c|c|}
 		\cline{3-6}
-		& & \multicolumn{4}{|c|}{Title} \\ \cline{3-6}
-		& & A & B & C & D \\ \hline
-		\multicolumn{1}{|c|}{\multirow{2}{*}{Type}} &
-		\multicolumn{1}{|c|}{X} & 1 & 2 & 3 & 4\\ \cline{2-6}
-		\multicolumn{1}{|c|}{}                        &
-		\multicolumn{1}{|c|}{Y} & 0.5 & 1.0 & 1.5 & 2.0\\ \cline{1-6}
+		& & \multicolumn{4}{|c|}{Title} \\ \cline{3-6} & & A & B & C & D \\
+		\hline
+		\multicolumn{1}{|c|}{\multirow{2}{*}{Type}} & \multicolumn{1}{|c|}{X} &
+		1 & 2 & 3 & 4\\ \cline{2-6} \multicolumn{1}{|c|}{}
+		& \multicolumn{1}{|c|}{Y} & 0.5 & 1.0 & 1.5 & 2.0\\ \cline{1-6}
 		\multicolumn{1}{|c|}{\multirow{2}{*}{Resource}} &
 		\multicolumn{1}{|c|}{I} & 10 & 20 & 30 & 40\\ \cline{2-6}
-		\multicolumn{1}{|c|}{}                        &
-		\multicolumn{1}{|c|}{J} & 5 & 10 & 15 & 20\\ \cline{1-6}
+		\multicolumn{1}{|c|}{}                        & \multicolumn{1}{|c|}{J}
+		& 5 & 10 & 15 & 20\\ \cline{1-6}
 	\end{tabular}
 \end{table}
 
@@ -201,4 +222,8 @@ Contoh-contoh ini bersumber dari \url{http://en.wikibooks.org/wiki/LaTeX/Tables}
 	\label{fig:research_concept_map}
 \end{figure}
 
-\todo{Jelaskan \pic~\ref{fig:research_concept_map} di sini. Setiap gambar pada tugas akhir butuh penjelasan. Gambar hadir untuk mempermudah membaca memahami konteks, tetapi tidak bisa berdiri sendiri tanpa penjelasan. Terkait gambar, Anda juga bisa mengatur skalanya. Gambar kali ini lebarnya 0,8x dari lebar teks halaman.}
+\todo{Jelaskan \pic~\ref{fig:research_concept_map} di sini. Setiap gambar pada
+tugas akhir butuh penjelasan. Gambar hadir untuk mempermudah membaca memahami
+konteks, tetapi tidak bisa berdiri sendiri tanpa penjelasan. Terkait gambar,
+Anda juga bisa mengatur skalanya. Gambar kali ini lebarnya 0,8x dari lebar teks
+halaman.}
