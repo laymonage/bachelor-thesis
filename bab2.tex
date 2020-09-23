@@ -2,7 +2,7 @@
 \chapter{\babDua}
 %-----------------------------------------------------------------------------%
 
-This chapter focuses on building a conceptual framework by reviewing existing
+This chapter focuses on building a conceptual basis by reviewing existing
 literature and documentation of the underlying concepts of this research.
 
 %-----------------------------------------------------------------------------%
@@ -12,10 +12,10 @@ literature and documentation of the underlying concepts of this research.
 A web framework is a software framework that is designed to support the
 development of web applications. It consists of reusable components that solve
 common problems in web application development. Most web frameworks provide
-safe defaults to prevent security problems in the web application. This helps
-programmers build web applications faster and safer. Some web frameworks also
-help maintain better application structure by enforcing software design
-patterns.
+safe defaults to prevent security problems in the web application. This
+convenience helps programmers build web applications faster and safer. Some web
+frameworks also help maintain better application structure by enforcing
+software design patterns.
 
 The common components of a web framework are the dispatcher, the decoder, the
 generator, and the store \cite{schwarz_webframework}. The dispatcher maps
@@ -33,12 +33,12 @@ stored in a database system.
 Django is a free and open-source web framework written in Python \cite{django}.
 Its overall philosophies are loose coupling, less code, quick development,
 don't repeat yourself (DRY), explicit is better than implicit, and consistency
-\cite{django:philosophies}. It follows what it calls the model-template-view
-architectural pattern, which shares similarities to the model-view-controller
-pattern \cite{django:faq}. It consists of an object-relational mapping (ORM)
-system that handles the interaction with database systems, a template system
-that defines how the data looks like to the user, and a view system that
-defines which data is presented to the user.
+\cite{django:philosophies}. Django follows what it calls the
+model-template-view architectural pattern, which shares similarities to the
+model-view-controller pattern \cite{django:faq}. It consists of an
+object-relational mapping (ORM) system that handles the interaction with
+database systems, a template system that defines how the data looks like to the
+user, and a view system that defines which data is presented to the user.
 
 Object-relational mapping (ORM) is a programming technique that allows its
 users to query and manipulate data stored in a relational database using an
@@ -86,7 +86,7 @@ can be used with the ORM system. These backends are implemented in the
 django.db.backends module.
 
 %-----------------------------------------------------------------------------%
-\section{JSON in Relational Database Systems Supported by Django}
+\section{JSON on Relational Database Systems Supported by Django}
 %-----------------------------------------------------------------------------%
 
 JavaScript Object Notation (JSON) is a lightweight, text-based data-interchange
@@ -110,11 +110,11 @@ a JSON array and other JSON objects can be seen in \autoref{code:json}.
 	label=code:json]{codes/2-json.json}
 
 To utilize the flexibility of JSON, some relational databases have implemented
-support for storing and querying JSON data. This is commonly done by providing
-database functions to operate on JSON data stored as text or, in some cases, a
-native JSON data type. JSON support on the database systems supported by Django
-varies between one another. This section explains how those database systems
-provide JSON support.
+support for storing and querying JSON data. This support is commonly
+implemented by providing database functions to operate on JSON data stored as
+text or, in some cases, a native JSON data type. JSON support on the database
+systems supported by Django varies between one another. This section explains
+how those database systems provide JSON support.
 
 \subsection{PostgreSQL}
 
@@ -128,22 +128,22 @@ As of version 9.4, PostgreSQL also supports a JSONB data type and more JSON
 functions \cite{postgresql:9.4}. JSONB supports fast data retrievals and simple
 expression search queries using Generalized Inverted Indexes (GIN). Data stored
 using the JSONB data type is stored as binary. This makes storing data with the
-JSONB data type is slightly slower compared to the JSON data type as it needs
-to be encoded into binary prior to saving. However, it is significantly faster
-to process, since the processing functions do not need to reparse the data on
-each execution. The JSON functions introduced in the 9.4 release enable users
-to extract and manipulate JSON data with a performance that matches or
-surpasses document databases.
+JSONB data type slightly slower compared to the JSON data type as it needs to
+be encoded into binary prior to saving. However, it is significantly faster to
+process, since the processing functions do not need to reparse the data on each
+execution. The JSON functions introduced in the 9.4 release enable users to
+extract and manipulate JSON data with a performance that matches or surpasses
+document-based databases.
 
 \subsection{MariaDB and MySQL}
 
 MariaDB is highly compatible with MySQL, albeit with some behavior differences
-\cite{mariadb:compatibility}. MariaDB is originally designed to be a completely
-open-source drop-in replacement for MySQL. MariaDB's client protocol is binary
-compatible with MySQL's client protocol, therefore Django uses the same
-database backend for MySQL and MariaDB \cite{django:databases}. Both database
-systems have compatible JSON functions to operate on JSON data, but the data
-is stored differently.
+\cite{mariadb:compatibility}. This is because MariaDB is originally designed to
+be a completely open-source drop-in replacement for MySQL. MariaDB's client
+protocol is binary compatible with MySQL's client protocol, therefore Django
+uses the same database backend for MariaDB and MySQL \cite{django:databases}.
+Both database systems have compatible JSON functions to operate on JSON data,
+but the data is stored differently.
 
 MySQL supports a native JSON data type as of version 5.7.8 \cite{mysql:json}.
 The JSON data type provides automatic validation of JSON data. It is internally
@@ -154,26 +154,29 @@ JSON data.
 
 MariaDB has a JSON data type as of version 10.2.7 \cite{mariadb:json}. The JSON
 data type was introduced for compatibility reasons with MySQL's JSON data type.
-However, this JSON data is an alias for the LONGTEXT data type. Despite the
-data is stored as a string rather than binary, it can be validated using the
-provided JSON\_VALID function as a CHECK constraint.
+However, the JSON data type is just an alias for the LONGTEXT data type.
+Despite the data is stored as a string rather than binary, it can be validated
+using the provided JSON\_VALID function as a CHECK constraint.
 
 \subsection{SQLite}
 
 SQLite has the JSON1 extension as of version 3.9.0 \cite{sqlite:3.9.0}. The
 JSON1 extension is a loadable extension that includes functions that can be
 used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
-extension stores JSON data as text. JSON data can be validated using the
-included JSON\_VALID function as a CHECK constraint.
+extension stores JSON data as text. The JSON1 extension includes a JSON\_VALID
+function that can be used as a CHECK constraint for JSON data.
 
 \subsection{Oracle Database}
 
 Oracle Database supports storing, validating, querying, and indexing JSON data
-as of version 12.1.0.2 \cite{oracle:12.1.0.2}. JSON data is stored using SQL
-data types VARCHAR2, CLOB, and BLOB \cite{oracle:json}. JSON validation can be
-enforced using the IS JSON condition as a CHECK constraint. Querying JSON data
-can be performed by utilizing the provided JSON functions. Indexing JSON data
-can be implemented using bitmap, function-based, or composite B-tree indexes.
+as of version 12.1.0.2 \cite{oracle:12.1.0.2}. JSON data is stored using the
+VARCHAR2, CLOB, and BLOB data types \cite{oracle:json}. Unlike the other
+database systems, Oracle Database does not support storing scalar values in
+JSON columns, which means that the top-level values in JSON columns are either
+JSON objects or JSON arrays. JSON validation can be enforced using the IS JSON
+condition as a CHECK constraint. Querying JSON data can be performed by
+utilizing the provided JSON functions. Indexing JSON data can be implemented
+using bitmap, function-based, or composite B-tree indexes.
 
 %-----------------------------------------------------------------------------%
 \section{Keterkaitan Teori Dengan Penelitian}
