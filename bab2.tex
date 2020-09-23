@@ -56,6 +56,28 @@ For example, the CharField model field uses the VARCHAR data type in the
 database. In addition, these model fields also define the behavior of the
 columns, such as their NOT NULL and UNIQUE constraints in the database.
 
+Aside from storing and loading data, the ORM system in Django also provides
+querying capabilities through the use of lookups and transforms. Lookups and
+transforms are specified using keyword arguments in the form of
+\code{field\_\_lookuptype=value}, where \code{lookuptype} can be a lookup or
+transform name. Lookups define how the WHERE clause of an SQL query is composed
+by Django. Transforms are used to transform a model field from one form to
+another (e.g. extracting the year from a DateField). For example, a query
+specified in Python as shown in \autoref{code:query1py} will be translated into
+an SQL query equivalent shown in \autoref{code:query1sql}.
+
+\lstinputlisting[
+	language=Python,
+	caption={
+		A query on a DateField named \code{pub\_date}
+		with the \code{year} transform and \code{gte} lookup.},
+	label=code:query1py]{codes/2-query1.py}
+
+\lstinputlisting[
+	language=SQL,
+	caption={An SQL query equivalent to \autoref{code:query1py}.},
+	label=code:query1sql]{codes/2-query1.sql}
+
 Django officially supports five database backends: PostgreSQL, MySQL, MariaDB,
 SQLite, and Oracle Database \cite{django:databases}. Each database backend
 (other than SQLite) requires a compatible database driver to be installed. The
