@@ -158,6 +158,14 @@ However, this JSON data is an alias for the LONGTEXT data type. Despite the
 data is stored as a string rather than binary, it can be validated using the
 provided JSON\_VALID function as a CHECK constraint.
 
+\subsection{SQLite}
+
+SQLite has the JSON1 extension as of version 3.9.0 \cite{sqlite:3.9.0}. The
+JSON1 extension is a loadable extension that includes functions that can be
+used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
+extension stores JSON data as text. JSON data can be validated using the
+included JSON\_VALID function as a CHECK constraint.
+
 %-----------------------------------------------------------------------------%
 \section{Keterkaitan Teori Dengan Penelitian}
 %-----------------------------------------------------------------------------%
