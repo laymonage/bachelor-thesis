@@ -166,6 +166,15 @@ used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
 extension stores JSON data as text. JSON data can be validated using the
 included JSON\_VALID function as a CHECK constraint.
 
+\subsection{Oracle Database}
+
+Oracle Database supports storing, validating, querying, and indexing JSON data
+as of version 12.1.0.2 \cite{oracle:12.1.0.2}. JSON data is stored using SQL
+data types VARCHAR2, CLOB, and BLOB \cite{oracle:json}. JSON validation can be
+enforced using the IS JSON condition as a CHECK constraint. Querying JSON data
+can be performed by utilizing the provided JSON functions. Indexing JSON data
+can be implemented using bitmap, function-based, or composite B-tree indexes.
+
 %-----------------------------------------------------------------------------%
 \section{Keterkaitan Teori Dengan Penelitian}
 %-----------------------------------------------------------------------------%
