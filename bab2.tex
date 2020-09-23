@@ -78,7 +78,7 @@ an SQL query equivalent shown in \autoref{code:query1sql}.
 	caption={An SQL query equivalent to \autoref{code:query1py}.},
 	label=code:query1sql]{codes/2-query1.sql}
 
-Django officially supports five database backends: PostgreSQL, MySQL, MariaDB,
+Django officially supports five database backends: PostgreSQL, MariaDB, MySQL,
 SQLite, and Oracle Database \cite{django:databases}. Each database backend
 (other than SQLite) requires a compatible database driver to be installed. The
 database backends provided by Django adapt the database drivers so that they
@@ -134,6 +134,29 @@ to process, since the processing functions do not need to reparse the data on
 each execution. The JSON functions introduced in the 9.4 release enable users
 to extract and manipulate JSON data with a performance that matches or
 surpasses document databases.
+
+\subsection{MariaDB and MySQL}
+
+MariaDB is highly compatible with MySQL, albeit with some behavior differences
+\cite{mariadb:compatibility}. MariaDB is originally designed to be a completely
+open-source drop-in replacement for MySQL. MariaDB's client protocol is binary
+compatible with MySQL's client protocol, therefore Django uses the same
+database backend for MySQL and MariaDB \cite{django:databases}. Both database
+systems have compatible JSON functions to operate on JSON data, but the data
+is stored differently.
+
+MySQL supports a native JSON data type as of version 5.7.8 \cite{mysql:json}.
+The JSON data type provides automatic validation of JSON data. It is internally
+stored as binary, which permits quick read access as the value does not need to
+be parsed from a text representation. Data stored using the JSON data type can
+be indexed by using a generated column that extracts a scalar value from the
+JSON data.
+
+MariaDB has a JSON data type as of version 10.2.7 \cite{mariadb:json}. The JSON
+data type was introduced for compatibility reasons with MySQL's JSON data type.
+However, this JSON data is an alias for the LONGTEXT data type. Despite the
+data is stored as a string rather than binary, it can be validated using the
+provided JSON\_VALID function as a CHECK constraint.
 
 %-----------------------------------------------------------------------------%
 \section{Keterkaitan Teori Dengan Penelitian}
