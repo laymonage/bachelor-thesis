@@ -37,30 +37,6 @@
 \newcommand{\tabitem}{~~\llap{\textbullet}~~}
 
 %
-% From [Wikipedia]:
-% The package hyperref provides LaTeX the ability to create hyperlinks within
-% the document. It works with pdflatex and also with standard "latex" used with
-% dvips and ghostscript or dvipdfm to build a PDF file. For example:
-%	- \hyperref[mainlemma]{lemma \ref{mainlemma}}
-%	- \url{http://www.wikibooks.org}
-%	- \href{http://www.wikibooks.org}{wikibooks home}
-%	- \href{mailto:my_address@wikibooks.org}{
-%		\nolinkurl{my_address@wikibooks.org}}
-%
-\usepackage{hyperref}
-  \hypersetup{
-  	a4paper,
-  	colorlinks=false,
-  	pdfborder=0 0 0,
-  	linkcolor=blue,
-  	citecolor=black,
-  	bookmarksopen=false,
-  	bookmarksnumbered=true,
-  	pdfstartview=FitH,
-  	pdfview=FitH
-	}
-
-%
 % Use biblatex instead of standard bibtex.
 %
 \usepackage[
@@ -212,6 +188,29 @@
 \strictpagecheck
 \usepackage{everyshi}
 
+%
+% From [Wikipedia]:
+% The package hyperref provides LaTeX the ability to create hyperlinks within
+% the document. It works with pdflatex and also with standard "latex" used with
+% dvips and ghostscript or dvipdfm to build a PDF file. For example:
+%	- \hyperref[mainlemma]{lemma \ref{mainlemma}}
+%	- \url{http://www.wikibooks.org}
+%	- \href{http://www.wikibooks.org}{wikibooks home}
+%	- \href{mailto:my_address@wikibooks.org}{
+%		\nolinkurl{my_address@wikibooks.org}}
+%
+\usepackage{hyperref}
+  \hypersetup{
+	a4paper,
+	colorlinks=false,
+	pdfborder=0 0 0,
+	linkcolor=blue,
+	citecolor=black,
+	bookmarksopen=false,
+	bookmarksnumbered=true,
+	pdfstartview=FitH,
+	pdfview=FitH
+	}
 
 %-----------------------------------------------------------------------------%
 % Konfigurasi
