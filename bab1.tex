@@ -11,8 +11,8 @@ solved by this research.
 
 When the web platform was in its early stages, every part of a web application
 was programmed manually. At that time, developing a web application required
-extensive knowledge of how the web works. Depending on the web application,
-this might include deep understanding of the Hypertext Transfer Protocol
+extensive knowledge of how the web works. Depending on the web application, the
+programmers might need deep understanding of the Hypertext Transfer Protocol
 (HTTP), the Hypertext Markup Language (HTML), and other things such as
 databases. If the web application was not programmed correctly, it could lead
 to a lot of errors and security holes in the web application.
@@ -27,9 +27,14 @@ of the web application itself instead of the more intricate details.
 Among the widely-used web frameworks is Django, a free and open-source web
 framework written in Python.\footnote{\url{https://djangoproject.com}} One of
 the main features of Django is an object-relational mapping (ORM) tool in the
-database layer. The ORM tool maps data models, represented as Python classes,
-to tables in a relational database. The columns of a database table are defined
-as attributes (called fields) inside the model class \cite{django}.
+database layer. Django's ORM tool provides an object-oriented abstraction of
+the database by mapping data models (represented as Python classes) to tables
+in a relational database. The columns of a database table are defined as
+attributes (called fields) inside the model class \cite{django}. Using Django's
+ORM tool, programmers can interact with the database by writing Python code
+instead of writing Structured Query Language (SQL) statements. Django's ORM
+tool also helps programmers avoid common mistakes that can lead to security
+issues such as SQL injections.
 
 While relational databases are useful in handling structured data, there has
 been an increase in the popularity of non-relational databases, commonly known
