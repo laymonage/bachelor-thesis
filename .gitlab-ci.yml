@@ -24,6 +24,7 @@ Generate PDF:
     - pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
     - pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
     - pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+    - mv thesis.pdf skripsi-sage.pdf
   artifacts:
     paths:
-      - thesis.pdf
+      - skripsi-sage.pdf
