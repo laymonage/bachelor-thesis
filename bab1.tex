@@ -36,18 +36,37 @@ instead of writing Structured Query Language (SQL) statements. Django's ORM
 tool also helps programmers avoid common mistakes that can lead to security
 issues such as SQL injections.
 
-While relational databases are useful in handling structured data, there has
-been an increase in the popularity of non-relational databases, commonly known
-as NoSQL databases \cite{paul_nosql}. NoSQL encourages the simplicity of
-database design, which makes the process of scaling the database to multiple
-clusters of machines easier \cite{leavitt_nosql}. NoSQL databases are also
-considered as more flexible due to its dynamic schema.
+Relational database systems can be used to manage structured data in the form
+of tables with strict standards. The tables in a relational database can be
+linked (related) based on data that is common to each table. Relating the
+tables is possible because relational database systems enforce the data to be
+consistent with a defined schema. This consistency is implemented according to
+the Atomicity, Consistency, Isolation, and Durability (ACID) properties of
+relational database transactions. These properties guarantee that the data is
+valid despite any events of power failures, errors, and other accidents.
 
-However, NoSQL databases also have their own downsides. Most NoSQL databases
-disregard the Atomicity, Consistency, Isolation, and Durability (ACID)
-principles found in relational databases \cite{kyle_mongodb}. They also lack
-the ability to perform joins across tables due to the use of denormalized data,
-which makes it harder to deal with entity relations.
+Meanwhile, there has been an increase in the popularity of non-relational
+databases, commonly known as NoSQL databases \cite{paul_nosql}. NoSQL
+encourages the simplicity of database design, which makes the process of
+scaling the database to multiple clusters of machines easier
+\cite{leavitt_nosql}. Instead of tables, most NoSQL databases store data in the
+form of key-value stores, document stores, or graphs \cite{strauch_nosql}.
+NoSQL databases are also considered as more flexible due to its dynamic schema.
+For example, some document-based NoSQL databases store data in JavaScript
+Object Notation (JSON) format, which means that the schema is defined in the
+data itself.
+
+However, NoSQL databases also have their own downsides. Most NoSQL databases do
+not fully support the ACID principles found in relational databases
+\cite{cattell_nosql}. Instead of the ACID principles, they focus on the
+Basically Available, Soft state, and Eventually consistent (BASE) principles
+\cite{abramova_nosql}. The BASE principles state that the data should be
+available most of the time (it can support partial failures), the data does not
+have to be consistent at all times (soft state), but the data is guaranteed to
+be consistent at some point (eventually). In addition, they also lack the
+ability to perform joins across tables due to their horizontal data
+distribution \cite{pokorny_nosql} and the use of denormalized data, which makes
+it harder to deal with entity relations.
 
 Nowadays, some relational database systems have come up with their own
 solutions of providing a hybrid data model. This is done by combining
