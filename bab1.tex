@@ -32,9 +32,9 @@ the database by mapping data models (represented as Python classes) to tables
 in a relational database. The columns of a database table are defined as
 attributes (called fields) inside the model class \cite{django}. Using Django's
 ORM tool, programmers can interact with the database by writing Python code
-instead of writing Structured Query Language (SQL) statements. Django's ORM
-tool also helps programmers avoid common mistakes that can lead to security
-issues such as SQL injections.
+instead of writing Structured Query Language (SQL) statements. The abstraction
+provided by Django's ORM tool also helps programmers avoid common mistakes that
+can lead to security issues such as SQL injections.
 
 Relational database systems can be used to manage structured data in the form
 of tables with strict standards. The tables in a relational database can be
@@ -42,8 +42,9 @@ linked (related) based on data that is common to each table. Relating the
 tables is possible because relational database systems enforce the data to be
 consistent with a defined schema. This consistency is implemented according to
 the Atomicity, Consistency, Isolation, and Durability (ACID) properties of
-relational database transactions. These properties guarantee that the data is
-valid despite any events of power failures, errors, and other accidents.
+relational database transactions \cite{abramova_nosql}. These properties
+guarantee that the data is valid despite any events of power failures, errors,
+and other accidents.
 
 Meanwhile, there has been an increase in the popularity of non-relational
 databases, commonly known as NoSQL databases \cite{paul_nosql}. NoSQL
