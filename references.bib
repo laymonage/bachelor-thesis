@@ -41,7 +41,7 @@
   journal = {DB-Engines.com},
   author  = {Paul, Andlinger},
   month   = nov,
-  year    = {2013},
+  year    = {2013}
 }
 
 @article{leavitt_nosql,
@@ -51,17 +51,71 @@
   year    = {2010},
   volume  = {43},
   number  = {2},
-  pages   = {12-14}
+  pages   = {12–14}
 }
 
-@online{kyle_mongodb,
-  title      = {Jepsen: {MongoDB} stale reads},
-  url        = {https://aphyr.com/posts/322-call-me-maybe-mongodb-stale-reads},
-  shorttitle = {Jepsen},
-  titleaddon = {Aphyr},
-  author     = {Kyle, Kingsbury},
-  urldate    = {2020-09-14},
-  date       = {2015-04-20}
+@article{strauch_nosql,
+  title   = {NoSQL databases},
+  author  = {Strauch, Christof and Sites, Ultra-Large Scale and Kriha, Walter},
+  journal = {Lecture Notes, Stuttgart Media University},
+  volume  = {20},
+  pages   = {23–24},
+  year    = {2011}
+}
+
+@article{cattell_nosql,
+  author     = {Cattell, Rick},
+  title      = {Scalable SQL and NoSQL Data Stores},
+  year       = {2011},
+  issue_date = {December 2010},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {39},
+  number     = {4},
+  issn       = {0163-5808},
+  url        = {https://remote-lib.ui.ac.id:2116/10.1145/1978915.1978919},
+  doi        = {10.1145/1978915.1978919},
+  abstract   = {In this paper, we examine a number of SQL and socalled "NoSQL" data stores designed to scale simple OLTP-style application loads over many servers. Originally motivated by Web 2.0 applications, these systems are designed to scale to thousands or millions of users doing updates as well as reads, in contrast to traditional DBMSs and data warehouses. We contrast the new systems on their data model, consistency mechanisms, storage mechanisms, durability guarantees, availability, query support, and other dimensions. These systems typically sacrifice some of these dimensions, e.g. database-wide transaction consistency, in order to achieve others, e.g. higher availability and scalability.},
+  journal    = {SIGMOD Rec.},
+  month      = may,
+  pages      = {12},
+  numpages   = {16}
+}
+
+@inproceedings{pokorny_nosql,
+  author    = {Pokorny, Jaroslav},
+  title     = {NoSQL Databases: A Step to Database Scalability in Web Environment},
+  year      = {2011},
+  isbn      = {9781450307840},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://remote-lib.ui.ac.id:2116/10.1145/2095536.2095583},
+  doi       = {10.1145/2095536.2095583},
+  abstract  = {The paper is focused on so called NoSQL databases. In context of cloud computing, architectures and basic features of these databases are studied, particularly their horizontal scalability and concurrency model, that is mostly weaker than ACID transactions in relational SQL-like database systems. Some characteristics like a data model and querying capabilities are discussed in more detail. The paper also contains an overview of some representatives of NoSQL databases.},
+  booktitle = {Proceedings of the 13th International Conference on Information Integration and Web-Based Applications and Services},
+  pages     = {278–283},
+  numpages  = {6},
+  keywords  = {CAP theorem, horizontal data distribution, NoSQL database, weak consistency, horizontal scaling, cloud computing, vertical scaling},
+  location  = {Ho Chi Minh City, Vietnam},
+  series    = {iiWAS '11}
+}
+
+@inproceedings{abramova_nosql,
+  author    = {Abramova, Veronika and Bernardino, Jorge},
+  title     = {NoSQL Databases: MongoDB vs Cassandra},
+  year      = {2013},
+  isbn      = {9781450319768},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://remote-lib.ui.ac.id:2116/10.1145/2494444.2494447},
+  doi       = {10.1145/2494444.2494447},
+  abstract  = {In the past, relational databases were used in a large scope of applications due to their rich set of features, query capabilities and transaction management. However, they are not able to store and process big data effectively and are not very efficient to make transactions and join operations. Recently, emerge a new paradigm, NoSQL databases, to overcome some of these problems, which are more suitable for the usage in web environments. In this paper, we describe NoSQL databases, their characteristics and operational principles. The main focus of this paper is to compare and evaluate two of the most popular NoSQL databases: MongoDB and Cassandra.},
+  booktitle = {Proceedings of the International C* Conference on Computer Science and Software Engineering},
+  pages     = {16},
+  numpages  = {9},
+  keywords  = {database management systems (DBMS), NoSQL databases},
+  location  = {Porto, Portugal},
+  series    = {C3S2E '13}
 }
 
 @misc{mysql_jsonfield,
