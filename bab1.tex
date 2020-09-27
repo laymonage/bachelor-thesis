@@ -94,14 +94,47 @@ database system to add extended querying capabilities \cite{mysql_jsonfield}
 support, so they are only implemented as text-based fields that do not have any
 extended querying capabilities \cite{ryan_jsonfield}.
 
-The individual efforts for implementing JSONField results in the abundance of
-third-party JSONField packages on the Python Package Index. Some of them are
-very popular, such as the jsonfield package that has more than 1100 stars on
-GitHub \cite{ryan_jsonfield}. This indicates a popular demand for JSONField.
-However, it also indicates a fragmentation problem as people use different
-JSONField packages. Thus, there's a motivation to bring JSONField into Django's
-core model fields, with cross-database and extended querying support in mind,
-as well as compatibility with the previous implementation of JSONField.
+The individual efforts for implementing JSONField result in the abundance of
+third-party JSONField packages on PyPI.\footnote{The Python Package Index
+(PyPI) is a software repository for the Python programming language.} Some
+of them are very popular, such as the jsonfield package that has more than 1100
+stars on GitHub \cite{ryan_jsonfield}. While this indicates a popular demand
+for JSONField, it also indicates a fragmentation problem as people use
+different JSONField packages. Thus, there's a motivation to bring JSONField
+into Django's core model fields.
+
+The flexibility of JSON data in a JSONField might introduce invalid information
+or abnormalities within the data. For example, the data might refer to a
+nonexisting record in one of the database tables. This kind of invalid
+information is possible because the database only checks whether the data is
+valid JSON (in terms of syntax) by default. The database does not check the
+information contained within the JSON data. To ensure the correctness of
+JSONField data, additional validations need to be implemented.
+
+Relational databases are not dedicated for storing JSON data, so they may not
+perform well compared to NoSQL databases. However, recent benchmarks by
+EnterpriseDB showed that PostgreSQL outperformed MongoDB in varied workloads
+\cite{enterprisedb_benchmark}.\footnote{MongoDB is one of the most popular
+document-oriented NoSQL database systems.} Some extensive benchmarks on
+PostgreSQL, MySQL, and MongoDB also showed that the performance differences
+were not significant, especially for smaller documents \cite{dolgov_benchmark}.
+However, these benchmarks were done directly on the database systems instead
+of using an ORM tool. Therefore, further studies of relational databases'
+performance on handling JSON data using an ORM tool would provide new insights
+on this topic.
+
+With the motivations described in the previous paragraphs, this research aims
+to implement JSONField in Django, demonstrate additional validations for
+JSONField, and provide an analysis of JSONField performance. The new
+implementation of JSONField would have cross-database support, extended
+querying support, and compatibility with the previous JSONField implementation.
+Additional validations for JSONField would be demonstrated by creating a Django
+project that would utilize Django's validation features. Finally, the JSON
+performance analysis would be done on all database systems supported by Django,
+using Django's ORM tool in a Django project. If these targets were achieved,
+they would hopefully benefit the Django community by making JSONField available
+from within Django itself, with additional validation examples, and performance
+insights for consideration of using JSONField.
 
 %-----------------------------------------------------------------------------%
 \section{Research Questions}
