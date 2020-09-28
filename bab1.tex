@@ -200,16 +200,49 @@ The following assumptions were made prior to the execution of this research:
 \section{Research Position}
 %-----------------------------------------------------------------------------%
 
-This research is mainly split by two parts: the JSONField implementation and
+Before this research, the existing JSONField implementation was included in the
+django.contrib.postgres.fields and django.contrib.postgres.forms modules
+\cite{django30_modeljsonfield} \cite{django30_formjsonfield}. The
+django.contrib.postgres module contains model fields, form fields, and other
+features that only work with the PostgreSQL database backend. This research
+would bring JSONField and other related classes to the django.db.models
+module for the model field and to the django.forms module for the form field.
+The locations of the JSONField classes in Django prior to and after this
+research are illustrated by \autoref{fig:position1} and
+\autoref{fig:position2}, respectively (note that other Django modules are
+omitted for brevity).
+
+\begin{figure}
+	\centering
+    \includegraphics[width=0.90\textwidth]{pics/position1.png}
+	\caption{JSONField classes in Django prior to this research.}
+	\label{fig:position1}
+\end{figure}
+
+\begin{figure}
+	\centering
+    \includegraphics[width=0.90\textwidth]{pics/position2.png}
+	\caption{JSONField classes in Django after this research.}
+	\label{fig:position2}
+\end{figure}
+
+This research is mainly split into two parts: the JSONField implementation and
 the analysis demonstrations. The JSONField implementation part of the research
 would be done on a Git branch in a GitHub fork of the Django repository. The
-branch would be submitted as a pull request to the Django repository. This
-would allow the Django contributors to review the code and give feedback on the
+branch would be submitted as a pull request to the Django repository to fix
+ticket \#12990 on the Django issue tracker \cite{ticket_12990}. This would
+allow the Django contributors to review the code and give feedback on the
 implementation. The data validation and performance benchmarking analysis
 demonstrations would be done in a separate repository in the form of two small
-Django projects.
+Django projects. The position of this research is illustrated by
+\autoref{fig:position3}.
 
-\todo{Add a picture that illustrates this.}
+\begin{figure}
+	\centering
+    \includegraphics[width=0.90\textwidth]{pics/position3.png}
+	\caption{The position of this research.}
+	\label{fig:position3}
+\end{figure}
 
 The JSONField implementation would be done as part of the Google Summer of Code
 2019 program. Google Summer of Code (GSoC) is an annual program held by Google
