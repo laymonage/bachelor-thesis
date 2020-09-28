@@ -114,16 +114,16 @@ JSONField data, additional validations need to be implemented.
 Relational databases are not dedicated for storing JSON data, so they may not
 perform well compared to NoSQL databases. However, recent benchmarks by
 EnterpriseDB showed that PostgreSQL outperformed MongoDB in varied workloads
-\cite{enterprisedb_benchmark}.\footnote{MongoDB is one of the most popular
-document-oriented NoSQL database systems.} Some extensive benchmarks on
-PostgreSQL, MySQL, and MongoDB also showed that the performance differences
-were not significant, especially for smaller documents \cite{dolgov_benchmark}.
-However, these benchmarks were done directly on the database systems instead
-of using an ORM tool. Therefore, further studies of relational databases'
-performance on handling JSON data using an ORM tool would provide new insights
-on this topic.
+with JSON data \cite{enterprisedb_benchmark}.\footnote{MongoDB is one of the
+most popular document-oriented NoSQL database systems.} Some extensive
+benchmarks on PostgreSQL, MySQL, and MongoDB also showed that the performance
+differences were not significant, especially for smaller documents
+\cite{dolgov_benchmark}. However, these benchmarks were done directly on the
+database systems instead of using an ORM tool. Therefore, further studies of
+relational databases' performance on handling JSON data using an ORM tool would
+provide new insights on this topic.
 
-With the motivations described in the previous paragraphs, this research aims
+With the motivations described in the previous paragraphs, this research aimed
 to implement JSONField in Django, demonstrate additional validations for
 JSONField, and provide an analysis of JSONField performance. The new
 implementation of JSONField would have cross-database support, extended
