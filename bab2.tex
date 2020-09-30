@@ -166,6 +166,18 @@ used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
 extension stores JSON data as text. The JSON1 extension includes a JSON\_VALID
 function that can be used as a CHECK constraint for JSON data.
 
+Some JSON functions provided in the JSON1 extension are similar to those found
+in MariaDB and MySQL, but they have different behaviors on SQLite. For example,
+the JSON\_EXTRACT function that can be used to extract JSON values at a given
+path is available on MySQL, MariaDB, and SQLite. However, on MariaDB and MySQL,
+the function returns string values with the JSON double quotes intact, whereas
+on SQLite, the function returns strings with the double quotes removed. The
+function also behaves differently when extracting the JSON null value: it
+returns the SQL string 'null' on MariaDB and MySQL, but it returns SQL NULL on
+SQLite. In addition, calling the JSON\_VALID function with SQL NULL as its
+argument returns SQL NULL on MariaDB and MySQL, but it returns 0 (false) on
+SQLite.
+
 \subsection{Oracle Database}
 
 Oracle Database supports storing, validating, querying, and indexing JSON data
@@ -177,6 +189,13 @@ JSON objects or JSON arrays. JSON validation can be enforced using the IS JSON
 condition as a CHECK constraint. Querying JSON data can be performed by
 utilizing the provided JSON functions. Indexing JSON data can be implemented
 using bitmap, function-based, or composite B-tree indexes.
+
+As with the other database systems, Oracle Database has functions to operate
+on JSON data, but they are named differently. For example, instead of
+JSON\_EXTRACT, Oracle Database has JSON\_VALUE for extracting scalar values and
+JSON\_QUERY for extracting JSON objects and arrays. In addition, it has the
+JSON\_EXISTS function that is similar to the JSON\_CONTAINS\_PATH function on
+MariaDB and MySQL.
 
 %-----------------------------------------------------------------------------%
 \section{Keterkaitan Teori Dengan Penelitian}
