@@ -198,19 +198,28 @@ JSON\_EXISTS function that is similar to the JSON\_CONTAINS\_PATH function on
 MariaDB and MySQL.
 
 %-----------------------------------------------------------------------------%
-\section{Keterkaitan Teori Dengan Penelitian}
+\section{JSONField}
 %-----------------------------------------------------------------------------%
-\todo{Ada baiknya setelah menjelaskan teori-teori, Anda menjelaskan apa kaitan teori tersebut dengan penelitian Anda. Hal ini tentunya membantu pembaca dalam memahami bahwa teori yang Anda paparkan memang penting untuk memahami penelitian Anda nantinya.}
 
-\begin{figure}
-	\centering
-	\includegraphics[width=\textwidth]{pics/research_concept_map.png}
-	\caption{Keterkaitan konsep hasil studi literatur terhadap penelitian}
-	\label{fig:research_concept_map}
-\end{figure}
+In Django, JSONField is a field for storing or accepting JSON-encoded data.
+There are two kinds of JSONField in Django: the model field and the form field.
+The model field lets Django store JSON data to the database, while the form
+field lets Django process user input in the form of JSON data
+\cite{django30_modeljsonfield} \cite{django30_formjsonfield}. In Django version
+1.9 to 3.0, JSONField was only available in the django.contrib.postgres module,
+which means that it could only be used with the PostgreSQL database backend.
+Since all of the database systems supported by Django now have support for
+managing JSON data, JSONField can be implemented for the other database
+backends.
 
-\todo{Jelaskan \pic~\ref{fig:research_concept_map} di sini. Setiap gambar pada
-tugas akhir butuh penjelasan. Gambar hadir untuk mempermudah membaca memahami
-konteks, tetapi tidak bisa berdiri sendiri tanpa penjelasan. Terkait gambar,
-Anda juga bisa mengatur skalanya. Gambar kali ini lebarnya 0,8x dari lebar teks
-halaman.}
+In addition to storing or accepting JSON-encoded data, the previous
+implementation of JSONField also included JSONField-specific lookups and
+transforms that can be used to query JSON data \cite{django30_modeljsonfield}.
+The lookups consisted of the containment lookups and the key existence lookups.
+The containment lookups let the users query for supersets or the subsets of a
+JSON value. The key existence lookups let the users query for JSON objects or
+arrays that have certain keys at a given path. The transforms let the users
+query for JSON objects that have certain values at a given path, by chaining
+the keys or indexes as the transform names to compose a JSON path. These
+lookups and transforms can be implemented by utilizing the JSON functions
+provided by the database systems.
