@@ -43,47 +43,44 @@ user, and a view system that defines which data is presented to the user.
 Object-relational mapping (ORM) is a programming technique that allows its
 users to query and manipulate data stored in a relational database using an
 object-oriented paradigm \cite{linskey:orm}. Object query, load, and delete
-operations are translated into SQL SELECT and DELETE statements, while object
-allocation and modification operations are translated into SQL INSERT and
-UPDATE statements. To achieve this, the scalar values retrieved from the
-database are converted into object instances in the program and vice versa.
+operations are translated into SQL \code{SELECT} and \code{DELETE} statements,
+while object allocation and modification operations are translated into SQL
+\code{INSERT} and \code{UPDATE} statements. To achieve this, the scalar values
+retrieved from the database are converted into object instances in the program
+and vice versa.
 
 The ORM system in Django maps data models to relational database tables. The
 data models are represented as Python classes. The model class also has
 attributes, called model fields, which represent the columns of the database
 table. These model fields define the data types that are used in the database.
-For example, the CharField model field uses the VARCHAR data type in the
-database. In addition, these model fields also define the behavior of the
-columns, such as their NOT NULL and UNIQUE constraints in the database.
+For example, the \code{CharField} model field uses the \code{VARCHAR} data type
+in the database. In addition, these model fields also define the behavior of
+the columns, such as their \code{NOT NULL} and \code{UNIQUE} constraints in the
+database.
 
 Aside from storing and loading data, the ORM system in Django also provides
 querying capabilities through the use of lookups and transforms. Lookups and
 transforms are specified using keyword arguments in the form of
 \code{field\_\_lookuptype=value}, where \code{lookuptype} can be a lookup or
-transform name. Lookups define how the WHERE clause of an SQL query is composed
-by Django. Transforms are used to transform a model field from one form to
-another (e.g. extracting the year from a DateField). For example, a query
-specified in Python as shown in \autoref{code:query1py} will be translated into
-an SQL query equivalent shown in \autoref{code:query1sql}.
+transform name. Lookups define how the \code{WHERE} clause of an SQL query is
+composed by Django. Transforms are used to transform a model field from one
+form to another (e.g. extracting the year from a \code{DateField}). For
+example, a query specified in Python as shown in \autoref{code:query1py} will
+be translated into an SQL query equivalent shown in \autoref{code:query1sql}.
 
-\lstinputlisting[
-	language=Python,
-	caption={
-		A query on a DateField named \code{pub\_date}
-		with the \code{year} transform and \code{gte} lookup.},
+\lstinputlisting[language=Python, caption={A query on a \code{DateField} named
+	\code{pub\_date} with the \code{year} transform and \code{gte} lookup.},
 	label=code:query1py]{codes/2-query1.py}
 
-\lstinputlisting[
-	language=SQL,
-	caption={An SQL query equivalent to \autoref{code:query1py}.},
-	label=code:query1sql]{codes/2-query1.sql}
+\lstinputlisting[language=SQL, caption={An SQL query equivalent to
+	\autoref{code:query1py}.}, label=code:query1sql]{codes/2-query1.sql}
 
 Django officially supports five database backends: PostgreSQL, MariaDB, MySQL,
 SQLite, and Oracle Database \cite{django:databases}. Each database backend
 (other than SQLite) requires a compatible database driver to be installed. The
 database backends provided by Django adapt the database drivers so that they
 can be used with the ORM system. These backends are implemented in the
-django.db.backends module.
+\code{django.db.backends} module.
 
 %-----------------------------------------------------------------------------%
 \section{JSON on Relational Database Systems Supported by Django}
@@ -100,14 +97,12 @@ format, especially in web applications.
 JSON is built on two structures: an unordered set of key-value pairs (called
 JSON objects) and an ordered list of values (called JSON arrays). The values
 can be scalar values such as strings, numbers, booleans, or null. However, they
-can also be JSON objects or JSON arrays, which means that they can be nested
-to form more complex data structures. An example of a JSON object that contains
-a JSON array and other JSON objects can be seen in \autoref{code:json}.
+can also be JSON objects or JSON arrays, which means that they can be nested to
+form more complex data structures. An example of a JSON object that contains a
+JSON array and other JSON objects can be seen in \autoref{code:json}.
 
-\lstinputlisting[
-	language=Python,
-	caption=A JSON object that contains a JSON array and other JSON objects.,
-	label=code:json]{codes/2-json.json}
+\lstinputlisting[language=Python, caption=A JSON object that contains a JSON
+	array and other JSON objects., label=code:json]{codes/2-json.json}
 
 To utilize the flexibility of JSON, some relational databases have implemented
 support for storing and querying JSON data. This support is commonly
@@ -118,21 +113,22 @@ how those database systems provide JSON support.
 
 \subsection{PostgreSQL}
 
-PostgreSQL supports a native JSON data type and JSON functions as of version
-9.2 \cite{postgresql:9.2}. Data stored using the JSON data type is stored as
-text. However, it has the advantage of validating that each stored value is
-valid JSON. The two JSON functions included in the 9.2 release allow users to
-convert a row or array in the database into JSON.
+PostgreSQL supports a native \code{JSON} data type and JSON functions as of
+version 9.2 \cite{postgresql:9.2}. Data stored using the \code{JSON} data type
+is stored as text. However, it has the advantage of validating that each stored
+value is valid JSON. The two JSON functions included in the 9.2 release allow
+users to convert a row or array in the database into \code{JSON}.
 
-As of version 9.4, PostgreSQL also supports a JSONB data type and more JSON
-functions \cite{postgresql:9.4}. JSONB supports fast data retrievals and simple
-expression search queries using Generalized Inverted Indexes (GIN). Data stored
-using the JSONB data type is stored as binary. This makes storing data with the
-JSONB data type slightly slower compared to the JSON data type as it needs to
-be encoded into binary prior to saving. However, it is significantly faster to
-process, since the processing functions do not need to reparse the data on each
-execution. The JSON functions introduced in the 9.4 release enable users to
-extract and manipulate JSON data with a performance that matches or surpasses
+As of version 9.4, PostgreSQL also supports a \code{JSONB} data type and more
+JSON functions \cite{postgresql:9.4}. The \code{JSONB} data type supports fast
+data retrievals and simple expression search queries using Generalized Inverted
+Indexes (GIN). Data stored using the \code{JSONB} data type is stored as
+binary. This makes storing data with the \code{JSONB} data type slightly slower
+compared to the \code{JSON} data type as it needs to be encoded into binary
+prior to saving. However, it is significantly faster to process, since the
+processing functions do not need to reparse the data on each execution. The
+JSON functions introduced in the 9.4 release enable users to extract and
+manipulate JSON data with a performance that matches or surpasses
 document-based databases.
 
 \subsection{MariaDB and MySQL}
@@ -145,81 +141,85 @@ uses the same database backend for MariaDB and MySQL \cite{django:databases}.
 Both database systems have compatible JSON functions to operate on JSON data,
 but the data is stored differently.
 
-MySQL supports a native JSON data type as of version 5.7.8 \cite{mysql:json}.
-The JSON data type provides automatic validation of JSON data. It is internally
-stored as binary, which permits quick read access as the value does not need to
-be parsed from a text representation. Data stored using the JSON data type can
-be indexed by using a generated column that extracts a scalar value from the
-JSON data.
+MySQL supports a native \code{JSON} data type as of version 5.7.8
+\cite{mysql:json}. The \code{JSON} data type provides automatic validation of
+JSON data. It is internally stored as binary, which permits quick read access
+as the value does not need to be parsed from a text representation. Data stored
+using the \code{JSON} data type can be indexed by using a generated column that
+extracts a scalar value from the JSON data.
 
-MariaDB has a JSON data type as of version 10.2.7 \cite{mariadb:json}. The JSON
-data type was introduced for compatibility reasons with MySQL's JSON data type.
-However, the JSON data type is just an alias for the LONGTEXT data type.
-Despite the data is stored as a string rather than binary, it can be validated
-using the provided JSON\_VALID function as a CHECK constraint.
+MariaDB has a \code{JSON} data type as of version 10.2.7 \cite{mariadb:json}.
+The \code{JSON} data type was introduced for compatibility reasons with MySQL's
+\code{JSON} data type. However, the \code{JSON} data type is just an alias for
+the \code{LONGTEXT} data type. Despite the data is stored as a string rather
+than binary, it can be validated using the provided \code{JSON\_VALID} function
+as a \code{CHECK} constraint.
 
 \subsection{SQLite}
 
 SQLite has the JSON1 extension as of version 3.9.0 \cite{sqlite:3.9.0}. The
 JSON1 extension is a loadable extension that includes functions that can be
 used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
-extension stores JSON data as text. The JSON1 extension includes a JSON\_VALID
-function that can be used as a CHECK constraint for JSON data.
+extension stores JSON data as text. The JSON1 extension includes a
+\code{JSON\_VALID} function that can be used as a \code{CHECK} constraint for
+JSON data.
 
 Some JSON functions provided in the JSON1 extension are similar to those found
 in MariaDB and MySQL, but they have different behaviors on SQLite. For example,
-the JSON\_EXTRACT function that can be used to extract JSON values at a given
-path is available on MySQL, MariaDB, and SQLite. However, on MariaDB and MySQL,
-the function returns string values with the JSON double quotes intact, whereas
-on SQLite, the function returns strings with the double quotes removed. The
-function also behaves differently when extracting the JSON null value: it
-returns the SQL string 'null' on MariaDB and MySQL, but it returns SQL NULL on
-SQLite. In addition, calling the JSON\_VALID function with SQL NULL as its
-argument returns SQL NULL on MariaDB and MySQL, but it returns 0 (false) on
-SQLite.
+the \code{JSON\_EXTRACT} function that can be used to extract JSON values at a
+given path is available on MySQL, MariaDB, and SQLite. However, on MariaDB and
+MySQL, the function returns string values with the JSON double quotes
+(\code{""}) intact, whereas on SQLite, the function returns strings with the
+double quotes removed. The function also behaves differently when extracting
+the JSON \code{null} value: it returns the SQL string \code{'null'} on
+\mbox{MariaDB} and MySQL, but it returns SQL \code{NULL} on SQLite. In
+addition, calling the \code{JSON\_VALID} function with SQL \code{NULL} as its
+argument returns SQL \code{NULL} on MariaDB and MySQL, but it returns \code{0}
+(false) on SQLite.
 
 \subsection{Oracle Database}
 
 Oracle Database supports storing, validating, querying, and indexing JSON data
 as of version 12.1.0.2 \cite{oracle:12.1.0.2}. JSON data is stored using the
-VARCHAR2, CLOB, and BLOB data types \cite{oracle:json}. Unlike the other
-database systems, Oracle Database does not support storing scalar values in
-JSON columns, which means that the top-level values in JSON columns are either
-JSON objects or JSON arrays. JSON validation can be enforced using the IS JSON
-condition as a CHECK constraint. Querying JSON data can be performed by
-utilizing the provided JSON functions. Indexing JSON data can be implemented
-using bitmap, function-based, or composite B-tree indexes.
+\code{VARCHAR2}, \code{CLOB}, and \code{BLOB} data types \cite{oracle:json}.
+Unlike the other database systems, Oracle Database does not support storing
+scalar values in JSON columns, which means that the top-level values in JSON
+columns are either JSON objects or JSON arrays. JSON validation can be enforced
+using the \code{IS JSON} condition as a \code{CHECK} constraint. Querying JSON
+data can be performed by utilizing the provided JSON functions. Indexing JSON
+data can be implemented using bitmap, function-based, or composite B-tree
+indexes.
 
-As with the other database systems, Oracle Database has functions to operate
-on JSON data, but they are named differently. For example, instead of
-JSON\_EXTRACT, Oracle Database has JSON\_VALUE for extracting scalar values and
-JSON\_QUERY for extracting JSON objects and arrays. In addition, it has the
-JSON\_EXISTS function that is similar to the JSON\_CONTAINS\_PATH function on
-MariaDB and MySQL.
+As with the other database systems, Oracle Database has functions to operate on
+JSON data, but they are named differently. For example, instead of
+\code{JSON\_EXTRACT}, Oracle Database has \code{JSON\_VALUE} for extracting
+scalar values and \code{JSON\_QUERY} for extracting JSON objects and arrays. In
+addition, it has the \code{JSON\_EXISTS} function that is similar to the
+\code{JSON\_CONTAINS\_PATH} function on MariaDB and MySQL.
 
 %-----------------------------------------------------------------------------%
-\section{JSONField}
+\section{\code{JSONField}}
 %-----------------------------------------------------------------------------%
 
-In Django, JSONField is a field for storing or accepting JSON-encoded data.
-There are two kinds of JSONField in Django: the model field and the form field.
-The model field lets Django store JSON data to the database, while the form
-field lets Django process user input in the form of JSON data
+In Django, \code{JSONField} is a field for storing or accepting JSON-encoded
+data. There are two kinds of \code{JSONField} in Django: the model field and
+the form field. The model field lets Django store JSON data to the database,
+while the form field lets Django process user input in the form of JSON data
 \cite{django30_modeljsonfield} \cite{django30_formjsonfield}. In Django version
-1.9 to 3.0, JSONField was only available in the django.contrib.postgres module,
-which means that it could only be used with the PostgreSQL database backend.
-Since all of the database systems supported by Django now have support for
-managing JSON data, JSONField can be implemented for the other database
-backends.
+1.9 to 3.0, \code{JSONField} was only available in the
+\code{django.contrib.postgres} module, which means that it could only be used
+with the PostgreSQL database backend. Since all of the database systems
+supported by Django now have support for managing JSON data, \code{JSONField}
+can be implemented for the other database backends.
 
 In addition to storing or accepting JSON-encoded data, the previous
-implementation of JSONField also included JSONField-specific lookups and
-transforms that can be used to query JSON data \cite{django30_modeljsonfield}.
-The lookups consisted of the containment lookups and the key existence lookups.
-The containment lookups let the users query for supersets or the subsets of a
-JSON value. The key existence lookups let the users query for JSON objects or
-arrays that have certain keys at a given path. The transforms let the users
-query for JSON objects that have certain values at a given path, by chaining
-the keys or indexes as the transform names to compose a JSON path. These
-lookups and transforms can be implemented by utilizing the JSON functions
-provided by the database systems.
+implementation of \code{JSONField} also included \code{JSONField}-specific
+lookups and transforms that can be used to query JSON data
+\cite{django30_modeljsonfield}. The lookups consisted of the containment
+lookups and the key existence lookups. The containment lookups let the users
+query for supersets or the subsets of a JSON value. The key existence lookups
+let the users query for JSON objects or arrays that have certain keys at a
+given path. The transforms let the users query for JSON objects that have
+certain values at a given path, by chaining the keys or indexes as the
+transform names to compose a JSON path. These lookups and transforms can be
+implemented by utilizing the JSON functions provided by the database systems.
