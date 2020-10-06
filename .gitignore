@@ -3,6 +3,7 @@
 **/*.blg
 **/*-blx.bib
 **/*.fls
+**/__latexindent_temp.tex
 **/*.lof
 **/*.log
 **/*.lol
