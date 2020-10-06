@@ -77,39 +77,40 @@ all the benefits of using a relational database, while still allowing the
 simplicity and flexibility of semi-structured data.
 
 From version 1.9 until version 3.0, Django had provided an implementation of
-JSONField. However, it was exclusively available for PostgreSQL. This JSONField
-allowed its users to store and query JSON data in a relational database column
-using the jsonb data type found only on PostgreSQL at the time. Django
-officially supports PostgreSQL, SQLite, MySQL, MariaDB, and Oracle Database
-backends. Over the years since the initial PostgreSQL JSONField implementation,
-those database systems have developed their own support for dealing with JSON
-data. However, Django had yet to implement JSONField for database backends
-other than PostgreSQL.
+\code{JSONField}. However, it was exclusively available for PostgreSQL. This
+\code{JSONField} allowed its users to store and query JSON data in a relational
+database column using the \code{JSONB} data type found only on PostgreSQL at
+the time. Django officially supports PostgreSQL, SQLite, MySQL, MariaDB, and
+Oracle Database backends. Over the years since the initial PostgreSQL
+\code{JSONField} implementation, those database systems have developed their
+own support for dealing with JSON data. However, Django had yet to implement
+\code{JSONField} for database backends other than PostgreSQL.
 
-The limited support for JSONField prompted the Django community to create their
-own JSONField implementations for other database backends. Some of them target
-one specific database backend and utilize various functions provided by the
-database system to add extended querying capabilities \cite{mysql_jsonfield}
-\cite{oracle_jsonfield}. Some other implementations focus on cross-database
-support, so they are only implemented as text-based fields that do not have any
-extended querying capabilities \cite{ryan_jsonfield}.
+The limited support for \code{JSONField} prompted the Django community to
+create their own \code{JSONField} implementations for other database backends.
+Some of them target one specific database backend and utilize various functions
+provided by the database system to add extended querying capabilities
+\cite{mysql_jsonfield} \cite{oracle_jsonfield}. Some other implementations
+focus on cross-database support, so they are only implemented as text-based
+fields that do not have any extended querying capabilities
+\cite{ryan_jsonfield}.
 
-The individual efforts for implementing JSONField result in the abundance of
-third-party JSONField packages on PyPI.\footnote{The Python Package Index
-(PyPI) is a software repository for the Python programming language.} Some
-of them are very popular, such as the jsonfield package that has more than 1100
-stars on GitHub \cite{ryan_jsonfield}. While this indicates a popular demand
-for JSONField, it also indicates a fragmentation problem as people use
-different JSONField packages. Thus, there's a motivation to bring JSONField
-into Django's core model fields.
+The individual efforts for implementing \code{JSONField} result in the
+abundance of third-party \code{JSONField} packages on PyPI.\footnote{The Python
+Package Index (PyPI) is a software repository for the Python programming
+language.} Some of them are very popular, such as the jsonfield package that
+has more than 1100 stars on GitHub \cite{ryan_jsonfield}. While this indicates
+a popular demand for \code{JSONField}, it also indicates a fragmentation
+problem as people use different \code{JSONField} packages. Thus, there's a
+motivation to bring \code{JSONField} into Django's core model fields.
 
-The flexibility of JSON data in a JSONField might introduce invalid information
-or abnormalities within the data. For example, the data might refer to a
-nonexisting record in one of the database tables. This kind of invalid
+The flexibility of JSON data in a \code{JSONField} might introduce invalid
+information or abnormalities within the data. For example, the data might refer
+to a nonexisting record in one of the database tables. This kind of invalid
 information is possible because the database only checks whether the data is
 valid JSON (in terms of syntax) by default. The database does not check the
 information contained within the JSON data. To ensure the correctness of
-JSONField data, additional validations need to be implemented.
+\code{JSONField} data, additional validations need to be implemented.
 
 Relational databases are not dedicated for storing JSON data, so they may not
 perform well compared to NoSQL databases. However, recent benchmarks by
@@ -124,17 +125,18 @@ relational databases' performance on handling JSON data using an ORM tool would
 provide new insights on this topic.
 
 With the motivations described in the previous paragraphs, this research aimed
-to implement JSONField in Django, demonstrate additional validations for
-JSONField, and provide an analysis of JSONField performance. The new
-implementation of JSONField would have cross-database support, extended
-querying support, and compatibility with the previous JSONField implementation.
-Additional validations for JSONField would be demonstrated by creating a Django
-project that would utilize Django's validation features. Finally, the JSON
-performance analysis would be done on all database systems supported by Django,
-using Django's ORM tool in a Django project. If these targets were achieved,
-they would hopefully benefit the Django community by making JSONField available
-from within Django itself, with additional validation examples, and performance
-insights for consideration of using JSONField.
+to implement \code{JSONField} in Django, demonstrate additional validations for
+\code{JSONField}, and provide an analysis of \code{JSONField} performance. The
+new implementation of \code{JSONField} would have cross-database support,
+extended querying support, and compatibility with the previous \code{JSONField}
+implementation. Additional validations for \code{JSONField} would be
+demonstrated by creating a Django project that would utilize Django's
+validation features. Finally, the JSON performance analysis would be done on
+all database systems supported by Django, using Django's ORM tool in a Django
+project. If these targets were achieved, they would hopefully benefit the
+Django community by making \code{JSONField} available from within Django
+itself, with additional validation examples, and performance insights for
+consideration of using \code{JSONField}.
 
 %-----------------------------------------------------------------------------%
 \section{Research Questions}
@@ -144,11 +146,12 @@ Based on the aforementioned research background, the following questions are
 constructed for this research:
 
 \begin{enumerate}
-    \item How can JSONField in Django be reimplemented with cross-database
-          support and compatibility with the previous JSONField implementation?
-    \item How can Django users enforce validation rules on a JSONField?
-    \item How is the performance of the cross-database JSONField on all of the
-          database backends supported by Django?
+    \item How can \code{JSONField} in Django be reimplemented with
+          cross-database support and compatibility with the previous
+          \code{JSONField} implementation?
+    \item How can Django users enforce validation rules on a \code{JSONField}?
+    \item How is the performance of the cross-database \code{JSONField} on all
+          of the database backends supported by Django?
 \end{enumerate}
 
 %-----------------------------------------------------------------------------%
@@ -158,11 +161,12 @@ constructed for this research:
 The objectives of this research are to:
 
 \begin{itemize}
-    \item Implement a new JSONField that can be used on all database backends
-          supported by Django.
-    \item Demonstrate how semi-structured data in a JSONField can be validated.
-    \item Provide a performance analysis of JSONField across different database
-          backends.
+    \item Implement a new \code{JSONField} that can be used on all database
+          backends supported by Django.
+    \item Demonstrate how semi-structured data in a \code{JSONField} can be
+    validated.
+    \item Provide a performance analysis of \code{JSONField} across different
+          database backends.
 \end{itemize}
 
 %-----------------------------------------------------------------------------%
@@ -172,10 +176,10 @@ The objectives of this research are to:
 This research would hopefully bring the following benefits:
 
 \begin{itemize}
-    \item Provide Django users with a JSONField that has a consistent
+    \item Provide Django users with a \code{JSONField} that has a consistent
           experience on all database backends supported by Django.
     \item Give insights to Django users about the inner workings, validation
-          examples, and performance considerations of JSONField.
+          examples, and performance considerations of \code{JSONField}.
 \end{itemize}
 
 %-----------------------------------------------------------------------------%
@@ -185,57 +189,57 @@ This research would hopefully bring the following benefits:
 The following assumptions were made prior to the execution of this research:
 
 \begin{itemize}
-    \item The JSONField implementation would be submitted as a pull request and
-          merged to the upstream Django repository instead of being made as a
-          separate package.
+    \item The \code{JSONField} implementation would be submitted as a pull
+          request and merged to the upstream Django repository instead of being
+          made as a separate package.
     \item The primary focus of this research would be on implementing the model
-          field type of JSONField, with the form field type as a secondary
-          priority.
-    \item The JSONField implementation has to take into account the limitations
-          of each database backend, so there may be features that behave
-          differently or are not supported on some database backends.
+          field type of \code{JSONField}, with the form field type as a
+          secondary priority.
+    \item The \code{JSONField} implementation has to take into account the
+          limitations of each database backend, so there may be features that
+          behave differently or are not supported on some database backends.
 \end{itemize}
 
 %-----------------------------------------------------------------------------%
 \section{Research Position}
 %-----------------------------------------------------------------------------%
 
-Before this research, the existing JSONField implementation was included in the
-django.contrib.postgres.fields and django.contrib.postgres.forms modules
-\cite{django30_modeljsonfield} \cite{django30_formjsonfield}. The
-django.contrib.postgres module contains model fields, form fields, and other
-features that only work with the PostgreSQL database backend. This research
-would bring JSONField and other related classes to the django.db.models
-module for the model field and to the django.forms module for the form field.
-The locations of the JSONField classes in Django prior to and after this
-research are illustrated by \autoref{fig:position1} and
-\autoref{fig:position2}, respectively (note that other Django modules are
-omitted for brevity).
+Before this research, the existing \code{JSONField} implementation was included
+in the \code{django.contrib.postgres.fields} and
+\code{django.contrib.postgres.forms} modules \cite{django30_modeljsonfield}
+\cite{django30_formjsonfield}. The \code{django.contrib.postgres} module
+contains model fields, form fields, and other features that only work with the
+PostgreSQL database backend. This research would bring \code{JSONField} and
+other related classes to the \code{django.db.models} module for the model field
+and to the \code{django.forms} module for the form field. The locations of the
+\code{JSONField} classes in Django prior to and after this research are
+illustrated by \autoref{fig:position1} and \autoref{fig:position2},
+respectively (note that other Django modules are omitted for brevity).
 
 \begin{figure}
 	\centering
     \includegraphics[width=0.90\textwidth]{pics/position1.png}
-	\caption{JSONField classes in Django prior to this research.}
+	\caption{\code{JSONField} classes in Django prior to this research.}
 	\label{fig:position1}
 \end{figure}
 
 \begin{figure}
 	\centering
     \includegraphics[width=0.90\textwidth]{pics/position2.png}
-	\caption{JSONField classes in Django after this research.}
+	\caption{\code{JSONField} classes in Django after this research.}
 	\label{fig:position2}
 \end{figure}
 
-This research is mainly split into two parts: the JSONField implementation and
-the analysis demonstrations. The JSONField implementation part of the research
-would be done on a Git branch in a GitHub fork of the Django repository. The
-branch would be submitted as a pull request to the Django repository to fix
-ticket \#12990 on the Django issue tracker \cite{ticket_12990}. This would
-allow the Django contributors to review the code and give feedback on the
-implementation. The data validation and performance benchmarking analysis
-demonstrations would be done in a separate repository in the form of two small
-Django projects. The position of this research is illustrated by
-\autoref{fig:position3}.
+This research is mainly split into two parts: the \code{JSONField}
+implementation and the analysis demonstrations. The \code{JSONField}
+implementation part of the research would be done on a Git branch in a GitHub
+fork of the Django repository. The branch would be submitted as a pull request
+to the Django repository to fix ticket \#12990 on the Django issue tracker
+\cite{ticket_12990}. This would allow the Django contributors to review the
+code and give feedback on the implementation. The data validation and
+performance benchmarking analysis demonstrations would be done in a separate
+repository in the form of two small Django projects. The position of this
+research is illustrated by \autoref{fig:position3}.
 
 \begin{figure}
 	\centering
@@ -244,20 +248,20 @@ Django projects. The position of this research is illustrated by
 	\label{fig:position3}
 \end{figure}
 
-The JSONField implementation would be done as part of the Google Summer of Code
-2019 program. Google Summer of Code (GSoC) is an annual program held by Google
-that's focused on introducing students to open-source software development. In
-GSoC, students work on a 3 month programming project under the guidance of
-mentors from an open-source organization. The students are compensated with a
-stipend from Google for their work. In turn, the organizations can identify and
-bring in new contributors who implement new features and hopefully continue to
-contribute to the organizations' projects.
+The \code{JSONField} implementation would be done as part of the Google Summer
+of Code 2019 program. Google Summer of Code (GSoC) is an annual program held by
+Google that's focused on introducing students to open-source software
+development. In GSoC, students work on a 3 month programming project under the
+guidance of mentors from an open-source organization. The students are
+compensated with a stipend from Google for their work. In turn, the
+organizations can identify and bring in new contributors who implement new
+features and hopefully continue to contribute to the organizations' projects.
 
 \begin{figure}
 	\centering
     \includegraphics[width=0.25\textwidth]{pics/GSoC.png}
-	\captionsource{The Google Summer of Code logo.}{\url{
-        https://developers.google.com/open-source/gsoc/resources/marketing}}
+	\captionsource{The Google Summer of Code
+        logo.}{\url{https://developers.google.com/open-source/gsoc/resources/marketing}}
 	\label{fig:gsoc}
 \end{figure}
 
@@ -276,30 +280,31 @@ The following steps were conducted for the research:
     objectives.
 
     \item Experiments \\
-    In this step, experiments were done by trying out existing JSONField
-    implementations, which included the PostgreSQL implementation in Django,
-    as well as third-party packages on the Python Package Index (PyPI). Some
+    In this step, experiments were done by trying out existing \code{JSONField}
+    implementations, which included the PostgreSQL implementation in Django, as
+    well as third-party packages on the Python Package Index (PyPI). Some
     experiments were also done by modifying a third-party package to work
     better on different database backends.
 
     \item Implementation \\
-    This step focused on the implementation of the JSONField model and form
-    fields. This was initially done by copying the existing implementation
-    from the django.contrib.postgres module to the django.db.models and
-    django.forms modules. The tests for the existing implementation were also
-    copied. From there, the work was to modify the JSONField implementation so
-    that all tests could pass on all available database backends.
+    This step focused on the implementation of the \code{JSONField} model and
+    form fields. This was initially done by copying the existing implementation
+    from the \code{django.contrib.postgres} module to the
+    \code{django.db.models} and \code{django.forms} modules. The tests for the
+    existing implementation were also copied. From there, the work was to
+    modify the \code{JSONField} implementation so that all tests could pass on
+    all available database backends.
 
-    After the JSONField implementation, this step was continued by implementing
-    the data validation example and benchmarking. This included the creation of
-    two small Django projects for demonstration purposes.
+    After the \code{JSONField} implementation, this step was continued by
+    implementing the data validation example and benchmarking. This included
+    the creation of two small Django projects for demonstration purposes.
 
     \item Results Analysis \\
     In this step, the primary work was to document the different behaviors and
-    support of the JSONField implementation on each database backend. This step
-    also included analyzing the data validation and benchmarking
+    support of the \code{JSONField} implementation on each database backend.
+    This step also included analyzing the data validation and benchmarking
     implementations. For the benchmark, the analysis included comparing the
-    performance of JSONField on all database backends.
+    performance of \code{JSONField} on all database backends.
 \end{enumerate}
 
 %-----------------------------------------------------------------------------%
@@ -319,8 +324,8 @@ The structure of this report is as follows:
         This chapter covers the plan and problem analysis to prepare for the
         implementation.
     \item Chapter 4 \babEmpat \\
-        This chapter covers the JSONField, the data validation example, and
-        the benchmarking implementations.
+        This chapter covers the \code{JSONField}, the data validation example,
+        and the benchmarking implementations.
     \item Chapter 5 \babLima \\
         This chapter covers the analysis of the implementation results. This
         also covers the comparison of the benchmarking results between the
