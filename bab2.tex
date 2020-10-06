@@ -212,6 +212,24 @@ with the PostgreSQL database backend. Since all of the database systems
 supported by Django now have support for managing JSON data, \code{JSONField}
 can be implemented for the other database backends.
 
+To use the \code{JSONField} model field, the programmer can define a Django
+model and declare a field with an instance of \code{JSONField} as shown in
+\autoref{code:jsonmodel}. The field accepts a Python object that can be encoded
+into JSON. The object inside the field gets encoded when the model is saved to
+the database. Upon retrieval, the data gets decoded back into a Python object.
+The process of creating a model instance, retrieving it from the database,
+modifying the JSON data (in its Python object form), saving the model instance,
+and retrieving the instance back from the database can be seen in
+\autoref{code:jsonshell}.
+
+\lstinputlisting[language=Python, caption={A Django model named \code{Profile}
+	that stores a user's configurations in a \code{JSONField}.},
+	label=code:jsonmodel]{codes/2-models.py}
+
+\lstinputlisting[language=Python, caption={A Python shell session that
+demonstrates how storing, modifying, and retrieving data in a
+\code{JSONField} works.}, label=code:jsonshell]{codes/2-shell.py}
+
 In addition to storing or accepting JSON-encoded data, the previous
 implementation of \code{JSONField} also included \code{JSONField}-specific
 lookups and transforms that can be used to query JSON data
