@@ -25,16 +25,21 @@ web applications more quickly and safely by focusing more on the business logic
 of the web application itself instead of the more intricate details.
 
 Among the widely-used web frameworks is Django, a free and open-source web
-framework written in Python.\footnote{\url{https://djangoproject.com}} One of
-the main features of Django is an object-relational mapping (ORM) tool in the
-database layer. Django's ORM tool provides an object-oriented abstraction of
-the database by mapping data models (represented as Python classes) to tables
-in a relational database. The columns of a database table are defined as
-attributes (called fields) inside the model class \cite{django}. Using Django's
-ORM tool, programmers can interact with the database by writing Python code
-instead of writing Structured Query Language (SQL) statements. The abstraction
-provided by Django's ORM tool also helps programmers avoid common mistakes that
-can lead to security issues such as SQL injections.
+framework written in Python.\footnote{\url{https://djangoproject.com}} Django
+encourages rapid development and clean, pragmatic design \cite{django}. Django
+was designed to help developers build their website quickly and securely with
+scalability in mind.
+
+One of the main features of Django is an object-relational mapping (ORM) tool
+in the database layer \cite{django}. Django's ORM tool provides an
+object-oriented abstraction of the database by mapping data models (represented
+as Python classes) to tables in a relational database. The columns of a
+database table are defined as attributes (called fields) inside the model
+class. Using Django's ORM tool, programmers can interact with the database by
+writing Python code instead of writing Structured Query Language (SQL)
+statements. The abstraction provided by Django's ORM tool also helps
+programmers avoid common mistakes that can lead to security issues such as SQL
+injections.
 
 Relational database systems can be used to manage structured data in the form
 of tables with strict standards. The tables in a relational database can be
@@ -69,12 +74,12 @@ ability to perform joins across tables due to their horizontal data
 distribution \cite{pokorny_nosql} and the use of denormalized data, which makes
 it harder to deal with entity relations.
 
-Nowadays, some relational database systems have come up with their own
-solutions of providing more flexibility for the data model. Some of them
-provide the option to combine structured data with some form of semi-structured
-data, most commonly in JSON format \cite{mariadb_json}. This combination gives
-all the benefits of using a relational database, while still allowing the
-simplicity and flexibility of semi-structured data.
+To compete with NoSQL databases, some relational database systems have come up
+with their own ways to provide more flexibility for the data model. Some of
+them provide the option to combine structured data with some form of
+semi-structured data, most commonly in JSON format \cite{mariadb_json}. This
+combination gives all the benefits of using a relational database, while still
+allowing the simplicity and flexibility of semi-structured data.
 
 From version 1.9 until version 3.0, Django had provided an implementation of
 \code{JSONField}. However, it was exclusively available for PostgreSQL. This
@@ -98,31 +103,34 @@ fields that do not have any extended querying capabilities
 The individual efforts for implementing \code{JSONField} result in the
 abundance of third-party \code{JSONField} packages on PyPI.\footnote{The Python
 Package Index (PyPI) is a software repository for the Python programming
-language.} Some of them are very popular, such as the jsonfield package that
-has more than 1100 stars on GitHub \cite{ryan_jsonfield}. While this indicates
-a popular demand for \code{JSONField}, it also indicates a fragmentation
-problem as people use different \code{JSONField} packages. Thus, there's a
-motivation to bring \code{JSONField} into Django's core model fields.
+language.} Some of them are very popular, such as the \mbox{jsonfield} package
+that has more than 1100 stars on GitHub \cite{ryan_jsonfield}. While this
+indicates a popular demand for \code{JSONField}, it also indicates a
+fragmentation problem as people use different \code{JSONField} packages. Thus,
+there's a motivation to bring \code{JSONField} into Django's core model fields.
 
-The flexibility of JSON data in a \code{JSONField} might introduce invalid
-information or abnormalities within the data. For example, the data might refer
-to a nonexisting record in one of the database tables. This kind of invalid
-information is possible because the database only checks whether the data is
-valid JSON (in terms of syntax) by default. The database does not check the
-information contained within the JSON data. To ensure the correctness of
-\code{JSONField} data, additional validations need to be implemented.
+There's also a motivation to implement additional validations for JSON data in
+a \code{JSONField}. By default, the validation for JSON data on the database
+level only validates the syntax and not the information contained in the data
+iself. Meanwhile, the flexibility of JSON data in a \code{JSONField} might
+introduce invalid information or abnormalities within the data. For example,
+the data might refer to a nonexisting record in one of the database tables. To
+ensure the correctness of \code{JSONField} data, additional validations need to
+be implemented.
 
-Relational databases are not dedicated for storing JSON data, so they may not
-perform well compared to NoSQL databases. However, recent benchmarks by
-EnterpriseDB showed that PostgreSQL outperformed MongoDB in varied workloads
-with JSON data \cite{enterprisedb_benchmark}.\footnote{MongoDB is one of the
-most popular document-oriented NoSQL database systems.} Some extensive
-benchmarks on PostgreSQL, MySQL, and MongoDB also showed that the performance
-differences were not significant, especially for smaller documents
-\cite{dolgov_benchmark}. However, these benchmarks were done directly on the
-database systems instead of using an ORM tool. Therefore, further studies of
-relational databases' performance on handling JSON data using an ORM tool would
-provide new insights on this topic.
+In addition, recent studies showed interest in measuring the performance of
+relational databases in handling JSON data. Relational databases are not
+dedicated for storing JSON data, so they may not perform well compared to NoSQL
+databases. However, recent benchmarks by EnterpriseDB showed that PostgreSQL
+outperformed MongoDB in varied workloads with JSON data
+\cite{enterprisedb_benchmark}.\footnote{MongoDB is one of the most popular
+document-oriented NoSQL database systems.} Some extensive benchmarks on
+PostgreSQL, MySQL, and MongoDB also showed that the performance differences
+were not significant, especially for smaller documents \cite{dolgov_benchmark}.
+However, these benchmarks were done directly on the database systems instead of
+using an ORM tool. Therefore, further studies of relational databases'
+performance in handling JSON data using an ORM tool would provide new insights
+on this topic.
 
 With the motivations described in the previous paragraphs, this research aimed
 to implement \code{JSONField} in Django, demonstrate additional validations for
@@ -204,30 +212,40 @@ The following assumptions were made prior to the execution of this research:
 \section{Research Position}
 %-----------------------------------------------------------------------------%
 
-Before this research, the existing \code{JSONField} implementation was included
-in the \code{django.contrib.postgres.fields} and
-\code{django.contrib.postgres.forms} modules \cite{django30_modeljsonfield}
-\cite{django30_formjsonfield}. The \code{django.contrib.postgres} module
-contains model fields, form fields, and other features that only work with the
-PostgreSQL database backend. This research would bring \code{JSONField} and
-other related classes to the \code{django.db.models} module for the model field
-and to the \code{django.forms} module for the form field. The locations of the
-\code{JSONField} classes in Django prior to and after this research are
-illustrated by \autoref{fig:position1} and \autoref{fig:position2},
-respectively (note that other Django modules are omitted for brevity).
-
 \begin{figure}
 	\centering
-    \includegraphics[width=0.90\textwidth]{pics/position1.png}
+    \includegraphics[width=0.85\textwidth]{pics/position1.png}
 	\caption{\code{JSONField} classes in Django prior to this research.}
 	\label{fig:position1}
 \end{figure}
 
+Before this research, the existing \code{JSONField} implementation was included
+in the \code{django.contrib.postgres.fields} and
+\code{django.contrib.postgres.forms} modules \cite{django30_modeljsonfield,
+django30_formjsonfield}. The \code{django.contrib.postgres} module contains
+model fields, form fields, and other features that only work with the
+PostgreSQL database backend. The locations of the \code{JSONField} classes in
+Django prior to this research are illustrated by \autoref{fig:position1} (note
+that other Django modules are omitted for brevity).
+
 \begin{figure}
 	\centering
-    \includegraphics[width=0.90\textwidth]{pics/position2.png}
+    \includegraphics[width=0.85\textwidth]{pics/position2.png}
 	\caption{\code{JSONField} classes in Django after this research.}
 	\label{fig:position2}
+\end{figure}
+
+This research would bring \code{JSONField} and other related classes to the
+\code{django.db.models} module for the model field and to the
+\code{django.forms} module for the form field. Consequently, the previous
+implementations would be deprecated as of the new Django release. The previous
+implementations would also be removed in the next major release of Django.
+
+\begin{figure}
+	\centering
+    \includegraphics[width=0.85\textwidth]{pics/position3.png}
+	\caption{The position of this research.}
+	\label{fig:position3}
 \end{figure}
 
 This research is mainly split into two parts: the \code{JSONField}
@@ -243,9 +261,10 @@ research is illustrated by \autoref{fig:position3}.
 
 \begin{figure}
 	\centering
-    \includegraphics[width=0.90\textwidth]{pics/position3.png}
-	\caption{The position of this research.}
-	\label{fig:position3}
+    \includegraphics[width=0.25\textwidth]{pics/GSoC.png}
+	\captionsource{The Google Summer of Code
+        logo.}{\url{https://developers.google.com/open-source/gsoc/resources/marketing}}
+	\label{fig:gsoc}
 \end{figure}
 
 The \code{JSONField} implementation would be done as part of the Google Summer
@@ -256,14 +275,6 @@ guidance of mentors from an open-source organization. The students are
 compensated with a stipend from Google for their work. In turn, the
 organizations can identify and bring in new contributors who implement new
 features and hopefully continue to contribute to the organizations' projects.
-
-\begin{figure}
-	\centering
-    \includegraphics[width=0.25\textwidth]{pics/GSoC.png}
-	\captionsource{The Google Summer of Code
-        logo.}{\url{https://developers.google.com/open-source/gsoc/resources/marketing}}
-	\label{fig:gsoc}
-\end{figure}
 
 %-----------------------------------------------------------------------------%
 \section{Research Steps}
