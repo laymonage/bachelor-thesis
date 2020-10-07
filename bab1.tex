@@ -10,12 +10,13 @@ solved by this research.
 %-----------------------------------------------------------------------------%
 
 When the web platform was in its early stages, every part of a web application
-was programmed manually. At that time, developing a web application required
-extensive knowledge of how the web works. Depending on the web application, the
-programmers might need deep understanding of the Hypertext Transfer Protocol
-(HTTP), the Hypertext Markup Language (HTML), and other things such as
-databases. If the web application was not programmed correctly, it could lead
-to a lot of errors and security holes in the web application.
+was programmed without the help of a web framework. At that time, developing a
+web application required extensive knowledge of how the web works. Depending on
+the web application, the programmers might need deep understanding of the
+Hypertext Transfer Protocol (HTTP), the Hypertext Markup Language (HTML), and
+other things such as databases. If the web application was not programmed
+correctly, it could lead to a lot of errors and security holes in the web
+application.
 
 Web frameworks aim to solve this problem by providing a standard way to build
 web applications. Web frameworks help eliminate the overhead of implementing
@@ -77,7 +78,8 @@ it harder to deal with entity relations.
 To compete with NoSQL databases, some relational database systems have come up
 with their own ways to provide more flexibility for the data model. Some of
 them provide the option to combine structured data with some form of
-semi-structured data, most commonly in JSON format \cite{mariadb_json}. This
+semi-structured data, most commonly in JSON format \cite{mariadb_json}. On
+these databases, the user can store JSON data in a table column. This
 combination gives all the benefits of using a relational database, while still
 allowing the simplicity and flexibility of semi-structured data.
 
@@ -85,17 +87,19 @@ From version 1.9 until version 3.0, Django had provided an implementation of
 \code{JSONField}. However, it was exclusively available for PostgreSQL. This
 \code{JSONField} allowed its users to store and query JSON data in a relational
 database column using the \code{JSONB} data type found only on PostgreSQL at
-the time. Django officially supports PostgreSQL, SQLite, MySQL, MariaDB, and
-Oracle Database backends. Over the years since the initial PostgreSQL
-\code{JSONField} implementation, those database systems have developed their
-own support for dealing with JSON data. However, Django had yet to implement
-\code{JSONField} for database backends other than PostgreSQL.
+the time.\footnote{PostgreSQL has two JSON data types: \code{JSON} and
+\code{JSONB}. Django's \code{JSONField} uses \code{JSONB}.} Django officially
+supports PostgreSQL, SQLite, MySQL, MariaDB, and Oracle Database backends. Over
+the years since the initial PostgreSQL \code{JSONField} implementation, those
+database systems have developed their own support for managing JSON data.
+However, Django had yet to implement \code{JSONField} for database backends
+other than PostgreSQL.
 
 The limited support for \code{JSONField} prompted the Django community to
 create their own \code{JSONField} implementations for other database backends.
 Some of them target one specific database backend and utilize various functions
 provided by the database system to add extended querying capabilities
-\cite{mysql_jsonfield} \cite{oracle_jsonfield}. Some other implementations
+\cite{mysql_jsonfield, oracle_jsonfield}. Some other implementations
 focus on cross-database support, so they are only implemented as text-based
 fields that do not have any extended querying capabilities
 \cite{ryan_jsonfield}.
@@ -235,11 +239,11 @@ that other Django modules are omitted for brevity).
 	\label{fig:position2}
 \end{figure}
 
-This research would bring \code{JSONField} and other related classes to the
+This research brought \code{JSONField} and other related classes to the
 \code{django.db.models} module for the model field and to the
 \code{django.forms} module for the form field. Consequently, the previous
-implementations would be deprecated as of the new Django release. The previous
-implementations would also be removed in the next major release of Django.
+implementation was deprecated as of the Django 3.1 release. The previous
+implementation would also be removed in the next major release, Django 4.0.
 
 \begin{figure}
 	\centering
@@ -250,12 +254,12 @@ implementations would also be removed in the next major release of Django.
 
 This research is mainly split into two parts: the \code{JSONField}
 implementation and the analysis demonstrations. The \code{JSONField}
-implementation part of the research would be done on a Git branch in a GitHub
-fork of the Django repository. The branch would be submitted as a pull request
-to the Django repository to fix ticket \#12990 on the Django issue tracker
-\cite{ticket_12990}. This would allow the Django contributors to review the
-code and give feedback on the implementation. The data validation and
-performance benchmarking analysis demonstrations would be done in a separate
+implementation part of the research was done on a Git branch in a GitHub fork
+of the Django repository. The branch was submitted as a pull request to the
+Django repository to fix ticket \#12990 on the Django issue tracker
+\cite{ticket_12990}. The pull request allowed the Django contributors to review
+the code and give feedback on the implementation. The data validation and
+performance benchmarking analysis demonstrations were done in a separate
 repository in the form of two small Django projects. The position of this
 research is illustrated by \autoref{fig:position3}.
 
@@ -267,11 +271,11 @@ research is illustrated by \autoref{fig:position3}.
 	\label{fig:gsoc}
 \end{figure}
 
-The \code{JSONField} implementation would be done as part of the Google Summer
-of Code 2019 program. Google Summer of Code (GSoC) is an annual program held by
-Google that's focused on introducing students to open-source software
-development. In GSoC, students work on a 3 month programming project under the
-guidance of mentors from an open-source organization. The students are
+The \code{JSONField} implementation was mostly done as part of the Google
+Summer of Code 2019 program. Google Summer of Code (GSoC) is an annual program
+held by Google that's focused on introducing students to open-source software
+development. In GSoC, students work on a three-month programming project under
+the guidance of mentors from an open-source organization. The students are
 compensated with a stipend from Google for their work. In turn, the
 organizations can identify and bring in new contributors who implement new
 features and hopefully continue to contribute to the organizations' projects.
