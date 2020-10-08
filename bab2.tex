@@ -3,10 +3,11 @@
 %-----------------------------------------------------------------------------%
 
 This chapter focuses on building a conceptual basis by reviewing existing
-literature and documentation of the underlying concepts of this research.
+literature and documentation of the underlying concepts of this research
+on the Django web framework and other supporting technologies.
 
 %-----------------------------------------------------------------------------%
-\section{Web Framework}
+\section{Object-Relational Mapping (ORM) in Django}
 %-----------------------------------------------------------------------------%
 
 A web framework is a software framework that is designed to support the
@@ -25,10 +26,6 @@ the web application to read parameters, headers, and request body data sent as
 part of the request. The generator constructs the output that is sent as a
 response to the client. The store holds inter-request data, which is usually
 stored in a database system.
-
-%-----------------------------------------------------------------------------%
-\section{Django and Object-Relational Mapping}
-%-----------------------------------------------------------------------------%
 
 Django is a free and open-source web framework written in Python \cite{django}.
 Its overall philosophies are loose coupling, less code, quick development,
@@ -58,6 +55,13 @@ in the database. In addition, these model fields also define the behavior of
 the columns, such as their \code{NOT NULL} and \code{UNIQUE} constraints in the
 database.
 
+\lstinputlisting[language=Python, caption={A query on a \code{DateField} named
+	\code{pub\_date} with the \code{year} transform and \code{gte} lookup.},
+	label=code:query1py]{codes/2-query1.py}
+
+\lstinputlisting[language=SQL, caption={An SQL query equivalent to
+	\autoref{code:query1py}.}, label=code:query1sql]{codes/2-query1.sql}
+
 Aside from storing and loading data, the ORM system in Django also provides
 querying capabilities through the use of lookups and transforms. Lookups and
 transforms are specified using keyword arguments in the form of
@@ -67,13 +71,6 @@ composed by Django. Transforms are used to transform a model field from one
 form to another (e.g. extracting the year from a \code{DateField}). For
 example, a query specified in Python as shown in \autoref{code:query1py} will
 be translated into an SQL query equivalent shown in \autoref{code:query1sql}.
-
-\lstinputlisting[language=Python, caption={A query on a \code{DateField} named
-	\code{pub\_date} with the \code{year} transform and \code{gte} lookup.},
-	label=code:query1py]{codes/2-query1.py}
-
-\lstinputlisting[language=SQL, caption={An SQL query equivalent to
-	\autoref{code:query1py}.}, label=code:query1sql]{codes/2-query1.sql}
 
 Django officially supports five database backends: PostgreSQL, MariaDB, MySQL,
 SQLite, and Oracle Database \cite{django:databases}. Each database backend
@@ -94,15 +91,19 @@ popular programming languages such as C, C++, C\#, Java, JavaScript, Python,
 and many others. These properties make JSON a widely-used data-interchange
 format, especially in web applications.
 
-JSON is built on two structures: an unordered set of key-value pairs (called
-JSON objects) and an ordered list of values (called JSON arrays). The values
-can be scalar values such as strings, numbers, booleans, or null. However, they
-can also be JSON objects or JSON arrays, which means that they can be nested to
-form more complex data structures. An example of a JSON object that contains a
-JSON array and other JSON objects can be seen in \autoref{code:json}.
-
+\noindent
+\begin{minipage}{\linewidth}
 \lstinputlisting[language=Python, caption=A JSON object that contains a JSON
 	array and other JSON objects., label=code:json]{codes/2-json.json}
+\end{minipage}
+
+JSON is built on two structures: an unordered set of key-value pairs (called
+JSON objects) and an ordered list of values (called JSON arrays)
+\cite{json:org}. The values can be scalar values such as strings, numbers,
+booleans, or null. However, they can also be JSON objects or JSON arrays, which
+means that they can be nested to form more complex data structures. An example
+of a JSON object that contains a JSON array and other JSON objects can be seen
+in \autoref{code:json}.
 
 To utilize the flexibility of JSON, some relational databases have implemented
 support for storing and querying JSON data. This support is commonly
@@ -212,6 +213,10 @@ with the PostgreSQL database backend. Since all of the database systems
 supported by Django now have support for managing JSON data, \code{JSONField}
 can be implemented for the other database backends.
 
+\lstinputlisting[language=Python, caption={A Django model named \code{Profile}
+	that stores a user's configurations in a \code{JSONField}.},
+	label=code:jsonmodel]{codes/2-models.py}
+
 To use the \code{JSONField} model field, the programmer can define a Django
 model and declare a field with an instance of \code{JSONField} as shown in
 \autoref{code:jsonmodel}. The field accepts a Python object that can be encoded
@@ -222,13 +227,12 @@ modifying the JSON data (in its Python object form), saving the model instance,
 and retrieving the instance back from the database can be seen in
 \autoref{code:jsonshell}.
 
-\lstinputlisting[language=Python, caption={A Django model named \code{Profile}
-	that stores a user's configurations in a \code{JSONField}.},
-	label=code:jsonmodel]{codes/2-models.py}
-
+\noindent
+\begin{minipage}{\linewidth}
 \lstinputlisting[language=Python, caption={A Python shell session that
 demonstrates how storing, modifying, and retrieving data in a
 \code{JSONField} works.}, label=code:jsonshell]{codes/2-shell.py}
+\end{minipage}
 
 In addition to storing or accepting JSON-encoded data, the previous
 implementation of \code{JSONField} also included \code{JSONField}-specific
@@ -241,3 +245,16 @@ given path. The transforms let the users query for JSON objects that have
 certain values at a given path, by chaining the keys or indexes as the
 transform names to compose a JSON path. These lookups and transforms can be
 implemented by utilizing the JSON functions provided by the database systems.
+
+\lstinputlisting[language=Python, caption={An excerpt of the previous
+\code{JSONField} implementation.},
+label=code:pgjsonfield]{codes/2-jsonfield.py}
+
+The previous implementation relied on features that are only available on
+PostgreSQL as shown in \autoref{code:pgjsonfield} \cite{django:pgjsonfield}.
+For example, it used the \code{Json} adapter included in psycopg2, the
+PostgreSQL database driver for Python. The adapter was used to encode a Python
+object into a JSON-encoded string before it's sent to the database (implemented
+in the \code{get\_prep\_value} method). In addition, it uses the \code{JSONB}
+data type that's available on PostgreSQL, but not other database backends
+supported by Django.
