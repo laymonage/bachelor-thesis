@@ -37,23 +37,41 @@ object-relational mapping (ORM) system that handles the interaction with
 database systems, a template system that defines how the data looks like to the
 user, and a view system that defines which data is presented to the user.
 
-Object-relational mapping (ORM) is a programming technique that allows its
-users to query and manipulate data stored in a relational database using an
-object-oriented paradigm \cite{linskey:orm}. Object query, load, and delete
-operations are translated into SQL \code{SELECT} and \code{DELETE} statements,
-while object allocation and modification operations are translated into SQL
-\code{INSERT} and \code{UPDATE} statements. To achieve this, the scalar values
-retrieved from the database are converted into object instances in the program
-and vice versa.
+The object-relational mapping (ORM) system is one of Django's most complex
+features. ORM is a programming technique that allows its users to query and
+manipulate data stored in a relational database using an object-oriented
+paradigm \cite{linskey:orm}. Object query, load, and delete operations are
+translated into SQL \code{SELECT} and \code{DELETE} statements, while object
+allocation and modification operations are translated into SQL \code{INSERT}
+and \code{UPDATE} statements. To achieve this, the scalar values retrieved from
+the database are converted into object instances in the program and vice versa.
+
+\lstinputlisting[language=Python, caption={A \code{Person} model with a
+\code{CharField} to store the name and a \code{DateField} to store the date
+of birth.}, label=code:personmodel]{codes/2-personmodel.py}
+
+\begin{table}
+	\centering
+	\texttt{\begin{tabular}{|l|l|l|}
+		\multicolumn{1}{c}{\textbf{myapp\_person}} \\ \hline
+		id & name          & dob        \\ \hline
+		42 & Sage Abdullah & 1999-06-09 \\ \hline
+		21 & Alice Doe     & 2000-09-06 \\ \hline
+	\end{tabular}}
+	\caption{A relational database table \code{myapp\_person} represented by
+	the \code{Person} model in \autoref{code:personmodel}.}
+	\label{table:myapp_person}
+\end{table}
 
 The ORM system in Django maps data models to relational database tables. The
-data models are represented as Python classes. The model class also has
-attributes, called model fields, which represent the columns of the database
-table. These model fields define the data types that are used in the database.
-For example, the \code{CharField} model field uses the \code{VARCHAR} data type
-in the database. In addition, these model fields also define the behavior of
-the columns, such as their \code{NOT NULL} and \code{UNIQUE} constraints in the
-database.
+data models are represented as Python classes as shown in
+\autoref{code:personmodel}. The model class also has attributes, called model
+fields, which represent the columns of the database table as shown in
+\autoref{table:myapp_person}. These model fields define the data types that are
+used in the database. For example, the \code{CharField} model field uses the
+\code{VARCHAR} data type in the database. In addition, these model fields also
+define the behavior of the columns, such as their \code{NOT NULL} and
+\code{UNIQUE} constraints in the database.
 
 \lstinputlisting[language=Python, caption={A query on a \code{DateField} named
 	\code{pub\_date} with the \code{year} transform and \code{gte} lookup.},
@@ -215,16 +233,16 @@ can be implemented for the other database backends.
 
 \lstinputlisting[language=Python, caption={A Django model named \code{Profile}
 	that stores a user's configurations in a \code{JSONField}.},
-	label=code:jsonmodel]{codes/2-models.py}
+	label=code:profilemodel]{codes/2-profilemodel.py}
 
 To use the \code{JSONField} model field, the programmer can define a Django
 model and declare a field with an instance of \code{JSONField} as shown in
-\autoref{code:jsonmodel}. The field accepts a Python object that can be encoded
-into JSON. The object inside the field gets encoded when the model is saved to
-the database. Upon retrieval, the data gets decoded back into a Python object.
-The process of creating a model instance, retrieving it from the database,
-modifying the JSON data (in its Python object form), saving the model instance,
-and retrieving the instance back from the database can be seen in
+\autoref{code:profilemodel}. The field accepts a Python object that can be
+encoded into JSON. The object inside the field gets encoded when the model is
+saved to the database. Upon retrieval, the data gets decoded back into a Python
+object. The process of creating a model instance, retrieving it from the
+database, modifying the JSON data (in its Python object form), saving the model
+instance, and retrieving the instance back from the database can be seen in
 \autoref{code:jsonshell}.
 
 \noindent
@@ -246,9 +264,12 @@ certain values at a given path, by chaining the keys or indexes as the
 transform names to compose a JSON path. These lookups and transforms can be
 implemented by utilizing the JSON functions provided by the database systems.
 
+\noindent
+\begin{minipage}{\linewidth}
 \lstinputlisting[language=Python, caption={An excerpt of the previous
 \code{JSONField} implementation.},
 label=code:pgjsonfield]{codes/2-jsonfield.py}
+\end{minipage}
 
 The previous implementation relied on features that are only available on
 PostgreSQL as shown in \autoref{code:pgjsonfield} \cite{django:pgjsonfield}.
@@ -256,5 +277,5 @@ For example, it used the \code{Json} adapter included in psycopg2, the
 PostgreSQL database driver for Python. The adapter was used to encode a Python
 object into a JSON-encoded string before it's sent to the database (implemented
 in the \code{get\_prep\_value} method). In addition, it uses the \code{JSONB}
-data type that's available on PostgreSQL, but not other database backends
+data type that's available on PostgreSQL, but not on other database backends
 supported by Django.
