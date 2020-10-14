@@ -84,7 +84,7 @@ Python DB-API 2.0 specification (which Django follows), the \code{None} object
 is reserved for the SQL \code{NULL} value for both input and output
 \cite{db-api2}. Therefore, the model field should skip the serialization and
 deserialization for \code{None} (if it's stored as the top-level value) and let
-the database driver handle it as SQL \code{NULL}.
+the database driver store it as SQL \code{NULL}.
 
 In order to store and query the JSON \code{null} value as the top-level value
 of \code{JSONField}, the \code{Value} class from the \code{django.db.models}
@@ -94,15 +94,37 @@ processed by Django. In the case of \code{JSONField}, that means the value is
 not passed into the \code{json.dumps()} function. Therefore, the JSON
 \code{null} value can be stored as a JSON-encoded SQL string literal (i.e.
 \code{Value('null')}), which will be stored as \code{'null'} and not
-\code{'"null"'}. However, when the value is retrieved from the database as
-\code{'null'}, Django will process the value using \code{json.loads()}, which
-will return \code{None}. Meanwhile, when \code{None} is saved back to the
-database, it will be saved as SQL \code{NULL}. This behavior may cause
-confusion as discussed on the GitHub pull request shown in
-\autoref{fig:nulldiscussion}.\footnote{\url{
+\code{'"null"'} nor \code{NULL}.
+
+\noindent
+\begin{minipage}{\linewidth}
+\lstinputlisting[language=Python, caption={A \code{Dog} model with a
+\code{CharField} for its name and a \code{JSONField} for additional data.},
+label=code:dog]{codes/3-dog.py}
+\end{minipage}
+
+\noindent
+\begin{minipage}{\linewidth}
+\lstinputlisting[language=Python, caption={\code{JSONField} behavior with
+SQL \code{NULL} and JSON \code{null}.},
+label=code:null]{codes/3-null.py}
+\end{minipage}
+
+However, when retrieved from the database, both SQL \code{NULL} and
+JSON-encoded \code{'null'} are represented in Python with \code{None}. This
+happens because Django processes the \code{'null'} value using
+\code{json.loads()}, which will return \code{None}. When \code{None} is saved
+as a top-level value in the database, it will be saved as SQL \code{NULL}.
+Meanwhile, when querying, \code{None} is always interpreted as JSON
+\code{null}. To query for SQL \code{NULL}, the \code{isnull} lookup is used.
+\autoref{code:null} shows a demonstration of how storing and querying SQL
+\code{NULL} and JSON \code{null} work with a \code{JSONField} defined in the
+\code{Dog} model shown in \autoref{code:dog}. This behavior may cause confusion
+as discussed on the GitHub pull request shown
+in \autoref{fig:nulldiscussion}.\footnote{\url{
 	https://github.com/django/django/pull/11452\#discussion\_r335375254}}
 To avoid this confusion, Django does not recommend working with JSON
-\code{null} as the top-level value of JSONField.
+\code{null} as the top-level value of \code{JSONField}.
 
 \begin{figure}
 	\centering
