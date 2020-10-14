@@ -155,6 +155,15 @@ consisted of containment lookups, key existence lookups, and path transforms.
 These lookups and transforms were implemented by using JSON operators that are
 only available on PostgreSQL. To implement them on other database systems,
 those operators need to be substituted with their JSON function equivalents.
+The lookups will be demonstrated using the \code{Dog} model from
+\autoref{code:dog} with the objects created in \autoref{code:dogobjects}.
+
+\noindent
+\begin{minipage}{\linewidth}
+\lstinputlisting[language=Python, caption={Some \code{Dog} objects created with
+different JSON data.},
+label=code:dogobjects]{codes/3-dogobjects.py}
+\end{minipage}
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -169,10 +178,9 @@ Normally, it is used to query for strings using a case-sensitive substring
 containment test. On \code{JSONField}, it is used to query for JSON data using
 a subset containment test. The query will return objects with JSON data that
 contains the lookup value as a subset. Meanwhile, the \code{contained\_by}
-lookup is the inverse of the \code{contains} lookup, which means that it looks
-for objects with JSON data that is contained by the lookup value. The
-\code{contains} and \code{contained\_by} lookups are demonstrated in
-\autoref{code:containment}.
+lookup is the inverse: it looks for objects with JSON data that is contained by
+the lookup value. The \code{contains} and \code{contained\_by} lookups are
+demonstrated in \autoref{code:containment}.
 
 The containment lookups can be implemented using JSON operators or JSON
 functions provided by some of the database systems. On PostgreSQL, the
@@ -183,6 +191,22 @@ switching the first and second arguments for the \code{contained\_by} lookup.
 Unfortunately, SQLite and Oracle Database do not have a similar function, so
 these lookups are left unsupported on both databases.
 
-% Key Existence Lookups
+\noindent
+\begin{minipage}{\linewidth}
+\lstinputlisting[language=Python, caption={A demonstration of how the
+\code{has\_key}, \code{has\_keys}, and \code{has\_any\_keys} lookups are
+used.},
+label=code:keyexistence]{codes/3-keyexistence.py}
+\end{minipage}
+
+The key existence lookups consist of the \code{has\_key}, \code{has\_keys}, and
+\code{has\_any\_keys} lookups. The \code{has\_key} lookup is used to query for
+objects where the given key is in the top-level of the JSON data. The
+\code{has\_keys} lookup is similar to \code{has\_key}, but it accepts a list of
+strings and it is used to query for objects where all of the given keys are
+in the top-level of the JSON data. The \code{has\_any\_keys} lookup is similar
+to \code{has\_keys}, but the objects only need to have at least one of the
+given keys in the top-level of the JSON data. These lookups are demonstrated in
+\autoref{code:keyexistence}.
 
 % Key, Index, and Path Transforms
