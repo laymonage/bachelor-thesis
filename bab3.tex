@@ -127,7 +127,39 @@ default for empty values, such as \code{default=dict}.
 \section{\code{JSONField} Lookups and Transforms}
 %-----------------------------------------------------------------------------%
 
-% Containment Lookups
+To query JSON data, the previous implementation of \code{JSONField} included
+\code{JSONField}-specific lookups and transforms. The lookups and transforms
+consisted of containment lookups, key existence lookups, and path transforms.
+These lookups and transforms were implemented by using JSON operators that are
+only available on PostgreSQL. To implement them on other database systems,
+those operators need to be substituted with their JSON function equivalents.
+
+\noindent
+\begin{minipage}{\linewidth}
+\lstinputlisting[language=Python, caption={A demonstration of how the
+\code{contains} and \code{contained\_by} lookups are used.},
+label=code:containment]{codes/3-containment.py}
+\end{minipage}
+
+The containment lookups consist of the \code{contains} and \code{contained\_by}
+lookups. The \code{contains} lookup is overridden on \code{JSONField}.
+Normally, it is used to query for strings using a case-sensitive substring
+containment test. On \code{JSONField}, it is used to query for JSON data using
+a subset containment test. The query will return objects with JSON data that
+contains the lookup value as a subset. Meanwhile, the \code{contained\_by}
+lookup is the inverse of the \code{contains} lookup, which means that it looks
+for objects with JSON data that is contained by the lookup value. The
+\code{contains} and \code{contained\_by} lookups are demonstrated in
+\autoref{code:containment}.
+
+The containment lookups can be implemented using JSON operators or JSON
+functions provided by some of the database systems. On PostgreSQL, the
+\code{contains} and \code{contained\_by} lookups can be implemented using the
+\code{@>} and \code{<@} operators, respectively. On MariaDB and MySQL, both
+lookups can be implemented using the \code{JSON\_CONTAINS} function by
+switching the first and second arguments for the \code{contained\_by} lookup.
+Unfortunately, SQLite and Oracle Database do not have a similar function, so
+these lookups are left unsupported on both databases.
 
 % Key Existence Lookups
 
