@@ -145,6 +145,13 @@ two possible values for "no data": \code{NULL} and the empty string
 (to enforce database-level \code{NOT NULL} constraint) and providing a suitable
 default for empty values, such as \code{default=dict}.
 
+This section has covered the design of \code{JSONField} in terms of storing and
+loading JSON data. In addition to storing and loading data, the ORM system in
+Django also provides querying capabilities by translating Python method calls
+into SQL \code{SELECT} queries. In order to fully utilize Django's ORM, the
+lookups and transforms features of the ORM can be extended to use the JSON
+functions provided by the database systems.
+
 %-----------------------------------------------------------------------------%
 \section{\code{JSONField} Lookups and Transforms}
 %-----------------------------------------------------------------------------%
@@ -209,4 +216,23 @@ to \code{has\_keys}, but the objects only need to have at least one of the
 given keys in the top-level of the JSON data. These lookups are demonstrated in
 \autoref{code:keyexistence}.
 
-% Key, Index, and Path Transforms
+\noindent
+\begin{minipage}{\linewidth}
+\lstinputlisting[language=Python, caption={A demonstration of how the
+key, index, and path transforms are used.},
+label=code:transforms]{codes/3-transforms.py}
+\end{minipage}
+
+The key, index, and path transforms can be used to query based on a certain
+location in the JSON data as shown in \autoref{code:transforms}. To query based
+on a given key, the key can be used as the transform name (e.g.
+\code{data\_\_breed}). To query based on a given path, multiple keys can be
+chained together using a double underscore (e.g. \code{data\_\_owner\_\_name}).
+An integer key is interpreted as an array index.
+
+The path transforms can be chained with Django's built-in lookups (e.g.
+\code{startswith}, \code{regex}) and the \code{JSONField}-specific lookups
+described in the previous paragraphs. If the lookup is not specified, the
+\code{exact} lookup is used. If the value for the \code{exact} lookup is
+\code{None}, it will be interpreted as JSON \code{null}. To query for missing
+keys, the \code{isnull} lookup can be used.
