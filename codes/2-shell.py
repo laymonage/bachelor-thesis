@@ -1,12 +1,13 @@
->>> config = {'dark_mode': True, 'font_size': 2, 'color_scheme': 'pink'}
->>> profile = Profile.objects.create(config=config)
+>>> user1 = User.objects.get(id=1)
+>>> config1 = {'dark_mode': True, 'font_size': 2, 'color_scheme': 'blue'}
+>>> profile1 = Profile.objects.create(user=user1, config=config1)
 >>> # Some time later...
->>> saved_profile = Profile.objects.get(id=profile.id)
->>> saved_profile.config == config
+>>> saved_profile = Profile.objects.get(user=user1)
+>>> saved_profile.config == config1
 True
 >>> saved_profile.config
-{'dark_mode': True, 'font_size': 2, 'color_scheme': 'pink'}
+{'dark_mode': True, 'font_size': 2, 'color_scheme': 'blue'}
 >>> saved_profile.config['font_size'] = 3
 >>> saved_profile.save()
->>> Profile.objects.get(id=saved_profile.id).config['font_size']
+>>> Profile.objects.get(user=user1).config['font_size']
 3
