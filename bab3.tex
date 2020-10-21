@@ -216,6 +216,22 @@ to \code{has\_keys}, but the objects only need to have at least one of the
 given keys in the top-level of the JSON data. These lookups are demonstrated in
 \autoref{code:keyexistence}.
 
+As with the containment lookups, the key existence lookups can be implemented
+using JSON operators or JSON functions on the database systems. On PostgreSQL,
+the \code{has\_key}, \code{has\_keys}, and \code{has\_any\_keys} lookups can be
+implemented using the \code{?}, \code{?\&}, and \code{?|} operators,
+respectively. On MariaDB and MySQL, these lookups can be implemented using the
+\code{JSON\_CONTAINS\_PATH} function. This function accepts multiple paths as
+its arguments and there's a \code{one\_or\_all} argument that determines
+whether the JSON data should contain at least one path or all of the paths. On
+SQLite, there's no function that is similar to \code{JSON\_CONTAINS\_PATH}, but
+the \code{JSON\_TYPE} with the \code{IS NOT NULL} condition can be used to
+determine whether a given path exists. On Oracle Database, a similar
+functionality can be obtained using the \code{JSON\_EXISTS} function. Both
+SQLite and Oracle Database need to chain the function calls with the \code{AND}
+and \code{OR} operators for the \code{has\_keys} and \code{has\_any\_keys}
+lookups, respectively.
+
 \noindent
 \begin{minipage}{\linewidth}
 \lstinputlisting[language=Python, caption={A demonstration of how the
@@ -236,3 +252,16 @@ described in the previous paragraphs. If the lookup is not specified, the
 \code{exact} lookup is used. If the value for the \code{exact} lookup is
 \code{None}, it will be interpreted as JSON \code{null}. To query for missing
 keys, the \code{isnull} lookup can be used.
+
+To implement the path transforms, the JSON value specified at the given path
+should be extracted. On PostgreSQL, this functionality can be achieved by using
+the \code{->} operator for shallow paths and the \code{\#>} operator for nested
+paths. On MariaDB, MySQL, and SQLite, the \code{JSON\_EXTRACT} function can be
+used. On Oracle Database, extraction can be done using the \code{JSON\_VALUE}
+function to extract scalar values and the \code{JSON\_QUERY} function to
+extract JSON objects and JSON arrays. When the transforms are chained with
+lookups that expect a string value on the left-hand side, the
+\code{JSON\_UNQUOTE} function should be used on MariaDB and MySQL to unquote
+the JSON double quotes. Meanwhile, on PostgreSQL, the \code{->>} and
+\code{\#>>} operators are used for these lookups instead of the \code{->} and
+\code{\#>} operators.
