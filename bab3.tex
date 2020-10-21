@@ -26,19 +26,6 @@ Django executes an SQL \code{SELECT} query to the database. The data is
 retrieved as a JSON-encoded string, which needs to be deserialized, or decoded,
 into a Python object.
 
-Python has a built-in \code{json} library that can be used to encode/decode
-Python objects into/from JSON-encoded strings \cite{python:json}. The encoding
-and decoding functionalities are provided through the \code{json.dumps()} and
-\code{json.loads()} functions, respectively, as shown in
-\autoref{fig:encodecode}. By default, the \code{json.dumps()} function uses the
-\code{json.JSONEncoder} class, while the \code{json.loads()} function uses the
-\code{json.JSONDecoder} class. These classes support the Python \code{dict},
-\code{list}, \code{str}, \code{int}, \code{float}, \code{True}, \code{False},
-and \code{None} data types and objects. To support other data types and
-objects, customized \code{json.JSONEncoder} and \code{json.JSONDecoder}
-subclasses can be used for the functions by supplying the subclass as the
-\code{cls} argument.
-
 \begin{figure}
 	\centering
     \includegraphics[width=0.66\textwidth]{pics/encodecode.png}
@@ -47,6 +34,19 @@ subclasses can be used for the functions by supplying the subclass as the
 	respectively.}
 	\label{fig:encodecode}
 \end{figure}
+
+To serialize/deserialize Python objects into/from JSON-encoded strings, the
+built-in \code{json} library in Python can be used \cite{python:json}. The
+encoding and decoding functionalities are provided through the
+\code{json.dumps()} and \code{json.loads()} functions, respectively, as shown
+in \autoref{fig:encodecode}. By default, the \code{json.dumps()} function uses
+the \code{json.JSONEncoder} class, while the \code{json.loads()} function uses
+the \code{json.JSONDecoder} class. These classes support the Python
+\code{dict}, \code{list}, \code{str}, \code{int}, \code{float}, \code{True},
+\code{False}, and \code{None} data types and objects. To support other data
+types and objects, customized \code{json.JSONEncoder} and
+\code{json.JSONDecoder} subclasses can be used for the functions by supplying
+the subclass as the \code{cls} argument.
 
 The form field utilizes the \code{json} library for serialization and
 deserialization when handling JSON input from the client. If the data being
@@ -93,8 +93,8 @@ used in an SQL expression \cite{django:value}. This literal SQL value is not
 processed by Django. In the case of \code{JSONField}, that means the value is
 not passed into the \code{json.dumps()} function. Therefore, the JSON
 \code{null} value can be stored as a JSON-encoded SQL string literal (i.e.
-\code{Value('null')}), which will be stored as \code{'null'} and not
-\code{'"null"'} nor \code{NULL}.
+\code{Value('null')}), which will be stored as \code{'null'}, not
+\code{'"null"'} and not \code{NULL}.
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -144,6 +144,15 @@ two possible values for "no data": \code{NULL} and the empty string
 \code{NULL}. To avoid redundancy, Django recommends setting \code{null=False}
 (to enforce database-level \code{NOT NULL} constraint) and providing a suitable
 default for empty values, such as \code{default=dict}.
+
+To ensure that the data inserted into the database is valid JSON, the model
+field can also define the SQL \code{CHECK} constraints on the database-level.
+On MariaDB and SQLite, the \code{JSON\_VALID} function can be used as a
+\code{CHECK} constraint. On Oracle Database, the \code{IS JSON} condition can
+be applied to the table column. On PostgreSQL and MySQL, the JSON data is
+automatically validated when using the \code{JSON} data type (or \code{JSONB}
+on PostgreSQL). These constraints only validate the syntax of the JSON data and
+not the information contained within the data.
 
 This section has covered the design of \code{JSONField} in terms of storing and
 loading JSON data. In addition to storing and loading data, the ORM system in
@@ -265,3 +274,10 @@ lookups that expect a string value on the left-hand side, the
 the JSON double quotes. Meanwhile, on PostgreSQL, the \code{->>} and
 \code{\#>>} operators are used for these lookups instead of the \code{->} and
 \code{\#>} operators.
+
+This and the previous sections have described how \code{JSONField} and its
+extended querying capabilities are designed. As previously described, the
+database systems provide basic validation functionality by checking the syntax
+of the JSON data. To validate the information within the JSON data, additional
+checks can be implemented on the application-level as covered in the next
+section.
