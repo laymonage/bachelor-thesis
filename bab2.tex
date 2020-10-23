@@ -242,6 +242,12 @@ programmers.
 \section{\code{JSONField}}
 %-----------------------------------------------------------------------------%
 
+Django provides a variety of model fields and form fields to be used with its
+ORM and forms features. Each field defines its own data type and behavior when
+handling data. Therefore, there are fields that can store simple data such as
+\code{IntegerField} and \code{TextField}, but there are also those that can
+store fairly complex data such as \code{FileField} and \code{ImageField}.
+
 In Django, \code{JSONField} is a field for storing or accepting JSON-encoded
 data. There are two kinds of \code{JSONField} in Django: the model field and
 the form field. The model field lets Django store JSON data to the database,
@@ -264,13 +270,16 @@ demonstrates how storing, modifying, and retrieving data in a
 
 To use the \code{JSONField} model field, the programmer can define a Django
 model and declare a field with an instance of \code{JSONField} as shown in
-\autoref{code:profilemodel}. The field accepts a Python object that can be
-encoded into JSON. The object inside the field gets encoded when the model is
-saved to the database. Upon retrieval, the data gets decoded back into a Python
-object. The process of creating a model instance, retrieving it from the
-database, modifying the JSON data (in its Python object form), saving the model
-instance, and retrieving the instance back from the database can be seen in
-\autoref{code:jsonshell}.
+\autoref{code:profilemodel}. After that, the field can be used as demonstrated
+in \autoref{code:jsonshell}. Lines 2 and 3 of the listing demonstrate that the
+field accepts a Python object that can be encoded into JSON, in this case a
+dictionary. When calling the \code{create()} method, the object inside the
+field gets encoded before it's saved into the database. Upon retrieval, the
+data gets decoded back into a Python object, as demonstrated on lines 5 to 9.
+Since the data is a Python dictionary, modifying the data using dictionary
+operations is possible, as shown on line 10. After saving the modified model
+object and retrieving it again, it can be verified that the modification was
+successfully stored into the database, as shown on lines 11 to 13.
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -284,11 +293,12 @@ includes \code{JSONField}-specific lookups and transforms that can be used to
 query JSON data as shown in \autoref{code:shelllookups}
 \cite{django30_modeljsonfield}. The lookups consisted of the containment
 lookups and the key existence lookups. The containment lookups let the users
-query for supersets or the subsets of a JSON value. The key existence lookups
-let the users query for JSON objects or arrays that have certain keys at a
-given path. The transforms let the users query for JSON objects that have
-certain values at a given path, by chaining the keys or indexes as the
-transform names to compose a JSON path. These lookups and transforms can be
+query for supersets or the subsets of a JSON value, as shown on lines 8 to 10
+of the listing. The key existence lookups let the users query for JSON objects
+or arrays that have certain keys at a given path, as shown on lines 11 and 12.
+The transforms let the users query for JSON objects that have certain values at
+a given path by chaining the keys or indexes as the transform names to compose
+a JSON path, as shown on lines 13 to 16. These lookups and transforms can be
 implemented by utilizing the JSON functions provided by the database systems.
 
 \noindent
