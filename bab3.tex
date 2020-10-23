@@ -3,7 +3,8 @@
 %-----------------------------------------------------------------------------%
 
 This chapter explains the design and analysis of the \code{JSONField}
-implementation, as well as \code{JSONField} data validation examples.
+implementation that can be used on all of the database backends supported by
+Django.
 
 %-----------------------------------------------------------------------------%
 \section{\code{JSONField}}
@@ -13,8 +14,7 @@ There are two kinds of \code{JSONField}: the model field and the form field.
 The model field is used as an abstraction of the JSON data in the database,
 which lets its users manipulate JSON data in the form of Python objects.
 The form field is used for accepting JSON data in forms, such as a Django
-\code{ModelForm}. Both fields can be validated using Django's built-in
-validation feature with custom-made validator functions.
+\code{ModelForm}.
 
 The model field holds JSON data that can be stored to and retrieved from the
 database. In Python, the data is represented in Python's built-in formats:
@@ -275,9 +275,9 @@ the JSON double quotes. Meanwhile, on PostgreSQL, the \code{->>} and
 \code{\#>>} operators are used for these lookups instead of the \code{->} and
 \code{\#>} operators.
 
-This and the previous sections have described how \code{JSONField} and its
-extended querying capabilities are designed. As previously described, the
-database systems provide basic validation functionality by checking the syntax
-of the JSON data. To validate the information within the JSON data, additional
-checks can be implemented on the application-level as covered in the next
-section.
+This chapter has described how storing and loading JSON data with
+\code{JSONField} is designed. It has also explained how the
+\code{JSONField}-specific lookups and transforms work, as well as the database
+functions that can be used to implement them. In order to implement the design,
+some modifications to the Django codebase are required, as explained in the
+next chapter.
