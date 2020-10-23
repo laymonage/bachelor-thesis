@@ -135,24 +135,25 @@ To avoid this confusion, Django does not recommend working with JSON
 \end{figure}
 
 As with string-based fields such as \code{CharField} and \code{TextField},
-Django recommends avoiding the use of SQL \code{NULL} for \code{JSONField}. If
-the SQL \code{NULL} is used on a string-based field, it means that there are
-two possible values for "no data": \code{NULL} and the empty string
-(\code{''}). On \code{JSONField}, it means that there are the empty JSON object
-(\code{'\{\}'}), the empty JSON array (\code{'[]'}), the empty JSON string
-(\code{'""'}), the JSON \code{null} value (\code{'null'}), and the SQL
-\code{NULL}. To avoid redundancy, Django recommends setting \code{null=False}
-(to enforce database-level \code{NOT NULL} constraint) and providing a suitable
-default for empty values, such as \code{default=dict}.
+Django recommends avoiding the use of SQL \code{NULL} for \code{JSONField}
+\cite{django:model_fields}. If the SQL \code{NULL} is used on a string-based
+field, it means that there are two possible values for "no data": \code{NULL}
+and the empty string (\code{''}). On \code{JSONField}, it means that there are
+the empty JSON object (\code{'\{\}'}), the empty JSON array (\code{'[]'}), the
+empty JSON string (\code{'""'}), the JSON \code{null} value (\code{'null'}),
+and the SQL \code{NULL}. To avoid redundancy, Django recommends setting
+\code{null=False} (to enforce database-level \code{NOT NULL} constraint) and
+providing a suitable default for empty values, such as \code{default=dict}.
 
 To ensure that the data inserted into the database is valid JSON, the model
 field can also define the SQL \code{CHECK} constraints on the database-level.
 On MariaDB and SQLite, the \code{JSON\_VALID} function can be used as a
-\code{CHECK} constraint. On Oracle Database, the \code{IS JSON} condition can
-be applied to the table column. On PostgreSQL and MySQL, the JSON data is
-automatically validated when using the \code{JSON} data type (or \code{JSONB}
-on PostgreSQL). These constraints only validate the syntax of the JSON data and
-not the information contained within the data.
+\code{CHECK} constraint \cite{mariadb:json_valid, sqlite:json1}. On Oracle
+Database, the \code{IS JSON} condition can be applied to the table column
+\cite{oracle:is_json}. On PostgreSQL and MySQL, the JSON data is automatically
+validated when using the \code{JSON} data type (or \code{JSONB} on PostgreSQL)
+\cite{postgres:json, mysql:json}. These constraints only validate the syntax of
+the JSON data and not the information contained within the data.
 
 This section has covered the design of \code{JSONField} in terms of storing and
 loading JSON data. In addition to storing and loading data, the ORM system in
@@ -201,11 +202,12 @@ demonstrated in \autoref{code:containment}.
 The containment lookups can be implemented using JSON operators or JSON
 functions provided by some of the database systems. On PostgreSQL, the
 \code{contains} and \code{contained\_by} lookups can be implemented using the
-\code{@>} and \code{<@} operators, respectively. On MariaDB and MySQL, both
-lookups can be implemented using the \code{JSON\_CONTAINS} function by
-switching the first and second arguments for the \code{contained\_by} lookup.
-Unfortunately, SQLite and Oracle Database do not have a similar function, so
-these lookups are left unsupported on both databases.
+\code{@>} and \code{<@} operators, respectively \cite{postgres:json_operators}.
+On MariaDB and MySQL, both lookups can be implemented using the
+\code{JSON\_CONTAINS} function by switching the target and candidate arguments
+for the \code{contained\_by} lookup \cite{mariadb:json_contains,
+mysql:json_search}. Unfortunately, SQLite and Oracle Database do not have a
+similar function, so these lookups are left unsupported on both databases.
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -229,14 +231,16 @@ As with the containment lookups, the key existence lookups can be implemented
 using JSON operators or JSON functions on the database systems. On PostgreSQL,
 the \code{has\_key}, \code{has\_keys}, and \code{has\_any\_keys} lookups can be
 implemented using the \code{?}, \code{?\&}, and \code{?|} operators,
-respectively. On MariaDB and MySQL, these lookups can be implemented using the
-\code{JSON\_CONTAINS\_PATH} function. This function accepts multiple paths as
-its arguments and there's a \code{one\_or\_all} argument that determines
-whether the JSON data should contain at least one path or all of the paths. On
-SQLite, there's no function that is similar to \code{JSON\_CONTAINS\_PATH}, but
-the \code{JSON\_TYPE} with the \code{IS NOT NULL} condition can be used to
-determine whether a given path exists. On Oracle Database, a similar
-functionality can be obtained using the \code{JSON\_EXISTS} function. Both
+respectively \cite{postgres:json_operators}. On MariaDB and MySQL, these
+lookups can be implemented using the \code{JSON\_CONTAINS\_PATH} function
+\cite{mariadb:json_contains_path, mysql:json_search}. This function accepts
+multiple paths as its arguments and there's a \code{one\_or\_all} argument that
+determines whether the JSON data should contain at least one path or all of the
+paths. On SQLite, there's no function that is similar to
+\code{JSON\_CONTAINS\_PATH}, but the \code{JSON\_TYPE} with the \code{IS NOT
+NULL} condition can be used to determine whether a given path exists
+\cite{sqlite:json1}. On Oracle Database, a similar functionality can be
+obtained using the \code{JSON\_EXISTS} function \cite{oracle:json_exists}. Both
 SQLite and Oracle Database need to chain the function calls with the \code{AND}
 and \code{OR} operators for the \code{has\_keys} and \code{has\_any\_keys}
 lookups, respectively.
@@ -265,15 +269,21 @@ keys, the \code{isnull} lookup can be used.
 To implement the path transforms, the JSON value specified at the given path
 should be extracted. On PostgreSQL, this functionality can be achieved by using
 the \code{->} operator for shallow paths and the \code{\#>} operator for nested
-paths. On MariaDB, MySQL, and SQLite, the \code{JSON\_EXTRACT} function can be
-used. On Oracle Database, extraction can be done using the \code{JSON\_VALUE}
-function to extract scalar values and the \code{JSON\_QUERY} function to
-extract JSON objects and JSON arrays. When the transforms are chained with
-lookups that expect a string value on the left-hand side, the
+paths \cite{postgres:json_operators}. On MariaDB, MySQL, and SQLite, the
+\code{JSON\_EXTRACT} function can be used \cite{mariadb:json_extract,
+mysql:json_search, sqlite:json1}.\footnote{As of version 5.7.13, MySQL also has
+\code{->} and \code{->>} operators that work similarly to the \code{\#>} and
+\code{\#>>} operators in PostgreSQL. However, MariaDB does not have these
+operators, so the function equivalents are used instead.} On Oracle Database,
+extraction can be done using the \code{JSON\_VALUE} function to extract scalar
+values and the \code{JSON\_QUERY} function to extract JSON objects and JSON
+arrays \cite{oracle:json_value, oracle:json_query}. When the transforms are
+chained with lookups that expect a string value on the left-hand side, the
 \code{JSON\_UNQUOTE} function should be used on MariaDB and MySQL to unquote
-the JSON double quotes. Meanwhile, on PostgreSQL, the \code{->>} and
-\code{\#>>} operators are used for these lookups instead of the \code{->} and
-\code{\#>} operators.
+the JSON double quotes \cite{mariadb:json_unquote, mysql:json_modify}.
+Meanwhile, on PostgreSQL, the \code{->>} and \code{\#>>} operators are used for
+these lookups instead of the \code{->} and \code{\#>} operators, so that the
+value is extracted as \code{TEXT} instead of \code{JSONB}.
 
 This chapter has described how storing and loading JSON data with
 \code{JSONField} is designed. It has also explained how the
