@@ -20,11 +20,11 @@ The model field holds JSON data that can be stored to and retrieved from the
 database. In Python, the data is represented in Python's built-in formats:
 dictionaries, lists, strings, numbers, booleans, and \code{None}. When saving
 the model, Django executes an SQL \code{INSERT} or \code{UPDATE} query to the
-database. In order to pass the JSON data in the SQL query, the data has to be
-serialized into a JSON-encoded string. When retrieving the model instance,
-Django executes an SQL \code{SELECT} query to the database. The data is
-retrieved as a JSON-encoded string, which needs to be deserialized, or decoded,
-into a Python object.
+database. In order to pass the JSON data in the SQL query, the Python object
+has to be serialized into a JSON-encoded string. When retrieving the model
+instance, Django executes an SQL \code{SELECT} query to the database. The data
+is retrieved as a JSON-encoded string, which needs to be deserialized, or
+decoded, into a Python object.
 
 \begin{figure}
 	\centering
@@ -84,7 +84,9 @@ Python DB-API 2.0 specification (which Django follows), the \code{None} object
 is reserved for the SQL \code{NULL} value for both input and output
 \cite{db-api2}. Therefore, the model field should skip the serialization and
 deserialization for \code{None} (if it's stored as the top-level value) and let
-the database driver store it as SQL \code{NULL}.
+the database driver store it as SQL \code{NULL}.\footnote{Storing some data as
+the top-level value means that the data is stored directly inside the field,
+rather than contained inside a Python dictionary or list.}
 
 In order to store and query the JSON \code{null} value as the top-level value
 of \code{JSONField}, the \code{Value} class from the \code{django.db.models}
@@ -93,8 +95,16 @@ used in an SQL expression \cite{django:value}. This literal SQL value is not
 processed by Django. In the case of \code{JSONField}, that means the value is
 not passed into the \code{json.dumps()} function. Therefore, the JSON
 \code{null} value can be stored as a JSON-encoded SQL string literal (i.e.
-\code{Value('null')}), which will be stored as \code{'null'}, not
-\code{'"null"'} and not \code{NULL}.
+\code{Value('null')}). The value will be stored as \code{'null'}, which is
+not \code{'"null"'} and not \code{NULL}.
+
+However, when retrieved from the database, both SQL \code{NULL} and
+JSON-encoded \code{'null'} are represented in Python as \code{None}. This
+happens because Django processes the \code{'null'} value using
+\code{json.loads()}, which will return \code{None}. When \code{None} is saved
+as a top-level value in the database, it will be saved as SQL \code{NULL}.
+Meanwhile, when querying, \code{None} is always interpreted as JSON
+\code{null}. To query for SQL \code{NULL}, the \code{isnull} lookup is used.
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -110,21 +120,35 @@ SQL \code{NULL} and JSON \code{null}.},
 label=code:null]{codes/3-null.py}
 \end{minipage}
 
-However, when retrieved from the database, both SQL \code{NULL} and
-JSON-encoded \code{'null'} are represented in Python with \code{None}. This
-happens because Django processes the \code{'null'} value using
-\code{json.loads()}, which will return \code{None}. When \code{None} is saved
-as a top-level value in the database, it will be saved as SQL \code{NULL}.
-Meanwhile, when querying, \code{None} is always interpreted as JSON
-\code{null}. To query for SQL \code{NULL}, the \code{isnull} lookup is used.
 \autoref{code:null} shows a demonstration of how storing and querying SQL
 \code{NULL} and JSON \code{null} work with a \code{JSONField} defined in the
-\code{Dog} model shown in \autoref{code:dog}. This behavior may cause confusion
-as discussed on the GitHub pull request shown
-in \autoref{fig:nulldiscussion}.\footnote{\url{
+\code{Dog} model shown in \autoref{code:dog}. Lines 1 and 2 of
+\autoref{code:null} demonstrate storing SQL \code{NULL}, while lines 3 and 4
+demonstrate storing JSON \code{null} as the top-level value of the field. When
+querying as shown by lines 5 and 6, \code{None} is interpreted as JSON
+\code{null}, so the query returns the second object. Lines 7 and 8 show that
+when querying, using \code{None} is similar to \code{Value('null')}. Lines
+9 and 10 show that querying for SQL \code{NULL} can be done using the
+\code{isnull} lookup. Lines 11 and 12 show that JSON \code{null} is different
+from SQL \code{NULL}, so the query returns the second object. The \code{data}
+field in both objects are represented in Python as \code{None}, so it can be
+hard to distinguish between the two.
+
+The behavior of \code{JSONField} in regards to SQL \code{NULL} and JSON
+\code{null} may cause confusion, as briefly discussed on the GitHub pull
+request shown in
+\autoref{fig:nulldiscussion}.\footnote{\url{
 	https://github.com/django/django/pull/11452\#discussion\_r335375254}}
-To avoid this confusion, Django does not recommend working with JSON
-\code{null} as the top-level value of \code{JSONField}.
+The discussion revolved around how Django should deal with JSON \code{null} as
+the top-level value of \code{JSONField}. It was acknowledged that storing JSON
+\code{null} as the top-level value of \code{JSONField} is possible by using
+\code{Value}. However, the value will be \code{None} when retrieved, which
+corresponds to SQL \code{NULL} rather than JSON \code{null}. As the Django
+contributors wrote, the behavior is "tricky and unexpected". While it is
+possible to convert the JSON \code{null} value back into \code{Value('null')}
+when loading it from the database, it is considered as unexpected and "even
+less fun". Therefore, to avoid this confusion, Django does not recommend
+working with JSON \code{null} as the top-level value of \code{JSONField}.
 
 \begin{figure}
 	\centering
@@ -135,15 +159,16 @@ To avoid this confusion, Django does not recommend working with JSON
 \end{figure}
 
 As with string-based fields such as \code{CharField} and \code{TextField},
-Django recommends avoiding the use of SQL \code{NULL} for \code{JSONField}
+Django also recommends avoiding the use of SQL \code{NULL} on \code{JSONField}
 \cite{django:model_fields}. If the SQL \code{NULL} is used on a string-based
 field, it means that there are two possible values for "no data": \code{NULL}
-and the empty string (\code{''}). On \code{JSONField}, it means that there are
-the empty JSON object (\code{'\{\}'}), the empty JSON array (\code{'[]'}), the
-empty JSON string (\code{'""'}), the JSON \code{null} value (\code{'null'}),
-and the SQL \code{NULL}. To avoid redundancy, Django recommends setting
-\code{null=False} (to enforce database-level \code{NOT NULL} constraint) and
-providing a suitable default for empty values, such as \code{default=dict}.
+and the empty string (\code{''}). On \code{JSONField}, it gets more complex:
+to represent "no data", there are the empty JSON object (\code{'\{\}'}), the
+empty JSON array (\code{'[]'}), the empty JSON string (\code{'""'}), the JSON
+\code{null} value (\code{'null'}), and the SQL \code{NULL}. Because of this
+redundancy, Django recommends setting \code{null=False} (to enforce
+database-level \code{NOT NULL} constraint) on \code{JSONField} and providing
+a suitable default for empty values, such as \code{default=dict}.
 
 To ensure that the data inserted into the database is valid JSON, the model
 field can also define the SQL \code{CHECK} constraints on the database-level.
@@ -190,14 +215,23 @@ label=code:containment]{codes/3-containment.py}
 \end{minipage}
 
 The containment lookups consist of the \code{contains} and \code{contained\_by}
-lookups. The \code{contains} lookup is overridden on \code{JSONField}.
-Normally, it is used to query for strings using a case-sensitive substring
-containment test. On \code{JSONField}, it is used to query for JSON data using
-a subset containment test. The query will return objects with JSON data that
+lookups. The \code{contains} lookup, which normally is used to query for
+strings using a case-sensitive substring containment test, is overridden. On
+\code{JSONField}, the lookup is used to query for JSON data using a non-strict
+subset containment test. The query will return objects with JSON data that
 contains the lookup value as a subset. Meanwhile, the \code{contained\_by}
-lookup is the inverse: it looks for objects with JSON data that is contained by
-the lookup value. The \code{contains} and \code{contained\_by} lookups are
-demonstrated in \autoref{code:containment}.
+lookup is the inverse: it looks for objects where the key-value pairs in the
+JSON data are a subset of the lookup value.
+
+The \code{contains} and \code{contained\_by} lookups are demonstrated in
+\autoref{code:containment}. Lines 1 and 2 of the listing show that the query
+returns objects where the JSON data contains the \verb|{'owner': 'Bob'}|
+key-value pair in the top-level. The subset containment test also works with
+arrays, as shown by lines 3 and 4. Lines 5 and 6 demonstrate that the query
+matches the \verb|<Dog: Meg>| object because its JSON data is a subset of the
+lookup value. The query also matches the \verb|<Dog: Fred>| object because an
+empty JSON object is a subset of any JSON object, which is also shown by lines
+7 and 8.
 
 The containment lookups can be implemented using JSON operators or JSON
 functions provided by some of the database systems. On PostgreSQL, the
@@ -224,8 +258,17 @@ objects where the given key is in the top-level of the JSON data. The
 strings and it is used to query for objects where all of the given keys are
 in the top-level of the JSON data. The \code{has\_any\_keys} lookup is similar
 to \code{has\_keys}, but the objects only need to have at least one of the
-given keys in the top-level of the JSON data. These lookups are demonstrated in
-\autoref{code:keyexistence}.
+given keys in the top-level of the JSON data.
+
+The key existence lookups are demonstrated in \autoref{code:keyexistence}.
+Lines 1 and 2 of the listing demonstrate that the \code{has\_key} lookup
+returns objects that have the specified key (\code{'breed'}) in the top-level
+of the JSON data. The \code{has\_keys} lookup shown by lines 3 and 4 only
+returns objects that have all of the given keys (\code{'breed'} and
+\code{'favorite\_toys'}) in the top-level of the JSON data. As shown by lines 5
+and 6, the \code{has\_any\_keys} lookup returns objects that have at least one
+of the given keys (\code{'breed'}, \code{'age'}, or \code{'favorite\_toys'}) in
+the top-level of the JSON data.
 
 As with the containment lookups, the key existence lookups can be implemented
 using JSON operators or JSON functions on the database systems. On PostgreSQL,
@@ -255,35 +298,47 @@ label=code:transforms]{codes/3-transforms.py}
 The key, index, and path transforms can be used to query based on a certain
 location in the JSON data as shown in \autoref{code:transforms}. To query based
 on a given key, the key can be used as the transform name (e.g.
-\code{data\_\_breed}). To query based on a given path, multiple keys can be
-chained together using a double underscore (e.g. \code{data\_\_owner\_\_name}).
-An integer key is interpreted as an array index.
+\code{data\_\_breed}), as shown by lines 1 and 2 of the listing. To query based
+on a given path, multiple keys can be chained together using a double
+underscore (e.g. \code{data\_\_owner\_\_name}), as shown by lines 3 and 4. An
+integer key, as shown by lines 5 and 6, is interpreted as an array index.
 
-The path transforms can be chained with Django's built-in lookups (e.g.
-\code{startswith}, \code{regex}) and the \code{JSONField}-specific lookups
-described in the previous paragraphs. If the lookup is not specified, the
-\code{exact} lookup is used. If the value for the \code{exact} lookup is
-\code{None}, it will be interpreted as JSON \code{null}. To query for missing
-keys, the \code{isnull} lookup can be used.
+As with other transforms, the \code{JSONField} transforms can be chained with
+lookups. If the lookup is not specified, the \code{exact} lookup is used. If
+the value for the \code{exact} lookup is \code{None}, it will be interpreted as
+JSON \code{null}, as shown by lines 7 and 8. To query for missing keys, the
+\code{isnull} lookup can be used, as shown by lines 9 and 10.
+
+The transforms can be chained with Django's built-in lookups and the
+\code{JSONField}-specific lookups described previously. Lines 11 and 12 show
+the transforms chained with the built-in \code{startswith} lookup, which
+matches objects with JSON data at the path \code{'breed'} that have a value
+starting with \code{'col'}. Line 13 and 14 demonstrate chaining the transforms
+with the \code{contains} lookup, which matches objects that contain
+\verb|{'type': 'ball'}| in any element in the array at the path
+\code{'favorite\_toys'} of the JSON data. Chaining the transforms with the
+\code{has\_key} lookup is also possible, as shown by lines 15 and 16 where the
+query matches objects that have the key \code{'color'} in the second element of
+the array at the \code{'favorite\_toys'} path of the JSON data.
 
 To implement the path transforms, the JSON value specified at the given path
 should be extracted. On PostgreSQL, this functionality can be achieved by using
 the \code{->} operator for shallow paths and the \code{\#>} operator for nested
-paths \cite{postgres:json_operators}. On MariaDB, MySQL, and SQLite, the
+paths \cite{postgres:json_operators}. When the transforms are chained with
+lookups that expect a string value on the left-hand side, the \code{->>} and
+\code{\#>>} operators are used instead, so that the value is extracted as
+\code{TEXT} instead of \code{JSONB}. On MariaDB, MySQL, and SQLite, the
 \code{JSON\_EXTRACT} function can be used \cite{mariadb:json_extract,
 mysql:json_search, sqlite:json1}.\footnote{As of version 5.7.13, MySQL also has
 \code{->} and \code{->>} operators that work similarly to the \code{\#>} and
-\code{\#>>} operators in PostgreSQL. However, MariaDB does not have these
-operators, so the function equivalents are used instead.} On Oracle Database,
-extraction can be done using the \code{JSON\_VALUE} function to extract scalar
-values and the \code{JSON\_QUERY} function to extract JSON objects and JSON
-arrays \cite{oracle:json_value, oracle:json_query}. When the transforms are
-chained with lookups that expect a string value on the left-hand side, the
-\code{JSON\_UNQUOTE} function should be used on MariaDB and MySQL to unquote
-the JSON double quotes \cite{mariadb:json_unquote, mysql:json_modify}.
-Meanwhile, on PostgreSQL, the \code{->>} and \code{\#>>} operators are used for
-these lookups instead of the \code{->} and \code{\#>} operators, so that the
-value is extracted as \code{TEXT} instead of \code{JSONB}.
+\code{\#>>} operators on PostgreSQL. However, MariaDB does not have these
+operators, so the function equivalents are used instead.} When extracting
+string values on MariaDB and MySQL, the \code{JSON\_UNQUOTE} function should be
+used to unquote the JSON double quotes \cite{mariadb:json_unquote,
+mysql:json_modify}. On Oracle Database, extraction can be done using the
+\code{JSON\_VALUE} function to extract scalar values and the \code{JSON\_QUERY}
+function to extract JSON objects and JSON arrays \cite{oracle:json_value,
+oracle:json_query}.
 
 This chapter has described how storing and loading JSON data with
 \code{JSONField} is designed. It has also explained how the
