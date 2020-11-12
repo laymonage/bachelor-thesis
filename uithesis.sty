@@ -438,7 +438,15 @@
 %
 % Untuk menghindari underfull hbox ketika membuat tabel
 \newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
-
+%
+% Untuk menambahkan listing baru.
+\newcommand{\listing}[5][12 pt]{
+	\noindent
+	\begin{minipage}{\linewidth}
+		\lstinputlisting[language=#2, caption={#3},
+		label=#4, aboveskip=#1]{#5}
+	\end{minipage}
+}
 
 %-----------------------------------------------------------------------------%
 % Ubah Istilah Penulisan
