@@ -11,19 +11,51 @@ database backends supported by Django.
 %-----------------------------------------------------------------------------%
 
 In the Django codebase, model fields are defined in the
-\code{django.db.models.fields} module. Model fields that are relatively simple
-are implemented in the \verb|__init__.py| file of the module. For model fields
-that require more complex implementation, they are defined in their own files in
-the \code{fields} directory. Due to the complexity of \code{JSONField} and its
-extended querying capabilities, the implementation is defined in the
-\code{json.py} file in the \code{fields} directory.
+\code{django.db.models.fields} module as subclasses of \code{Field}, but they
+can be imported from the \code{django.db.models} module for simplicity. Model
+fields that are relatively simple are implemented in the \verb|__init__.py|
+file of the module. For model fields that require more complex implementation,
+they are defined in their own files in the \code{fields} directory. Due to the
+complexity of \code{JSONField} and its extended querying capabilities, the
+implementation is defined in the \code{json.py} file in the \code{fields}
+directory.
+
+\listing
+{Python}
+{The \code{get\_prep\_value()} method of \code{JSONField}.}
+{code:jsonfield-ser}
+{codes/4-jsonfield-ser.py}
 
 In the previous chapter, \code{JSONField} is designed to serialize Python
-objects and deserialize JSON-encoded strings by utilizing the built-in
-\code{json} library in Python. The serialization process is needed in order to
-store Python objects as JSON in the database. Meanwhile, the deserialization
-process is needed in order to load the JSON data from the database as Python
-objects.
+objects into JSON-encoded strings by utilizing the built-in \code{json} library
+in Python. The serialization process is needed in order to store Python objects
+as JSON in the database. To convert Python objects to query values, the
+\verb|get_prep_value()| method should be overridden. The serialization is shown
+by line 7 of \autoref{code:jsonfield-ser}, where the Python object is passed
+to the \verb|json.dumps()| function, which also accepts an optional encoder
+class as the \verb|cls| argument. Lines 5 and 6 of the listing show that the
+\verb|None| value should not be serialized, because it is reserved for SQL
+\verb|NULL| as previously explained.
+
+\listing
+[0 pt]{Python}
+{The \code{from\_db\_value()} method of \code{JSONField}.}
+{code:jsonfield-des}
+{codes/4-jsonfield-des.py}
+
+\code{JSONField} is also designed to deserialize JSON-encoded strings to Python
+objects. The deserialization process is needed in order to load JSON data from
+the database as Python objects. To convert database values to Python objects,
+the \verb|from_db_value()| method can be overridden. The deserialization
+process is shown by line 8 of \autoref{code:jsonfield-des}, where the database
+value is passed to the \verb|json.loads()| function, which also accepts an
+optional decoder class as the \verb|cls| argument. When extracting JSON scalar
+values, the database systems return them in deserialized forms, which may cause
+\verb|json.JSONDecodeError| to be raised. Therefore, the \verb|json.loads()|
+call is put inside a \verb|try ... except| block, and the value is directly
+returned if \verb|json.JSONDecodeError| is raised. Like
+\verb|get_prep_value()|, the \verb|None| value is reserved for SQL \verb|NULL|,
+as shown by lines 5 and 6 of the listing.
 
 
 
@@ -69,4 +101,3 @@ Setiap nama berkas e.g. bab1.tex merepresentasikan bab dimana tulisan tersebut a
 Sebagai contoh, kode dimana tulisan ini dibaut berada dalam berkas dengan nama \code{bab4.tex}.
 Ada enam buah berkas yang telah disiapkan untuk mengakomodir enam bab dari laporan Anda, diluar bab kesimpulan dan saran.
 Jika Anda tidak membutuhkan sebanyak itu, silahkan hapus kode dalam berkas \code{thesis.tex} yang memasukan berkas \latex~yang tidak dibutuhkan; contohnya perintah \code{\bslash{}include\{bab6.tex\}} merupakan kode untuk memasukan berkas \code{bab6.tex} kedalam laporan.
-
