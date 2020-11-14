@@ -57,7 +57,38 @@ returned if \verb|json.JSONDecodeError| is raised. Like
 \verb|get_prep_value()|, the \verb|None| value is reserved for SQL \verb|NULL|,
 as shown by lines 5 and 6 of the listing.
 
+\listing
+{Python}
+{The \code{\_\_init\_\_()} method (constructor) of \code{JSONField}.}
+{code:jsonfield-init}
+{codes/4-jsonfield-init.py}
 
+The custom encoder and decoder are stored as instance attributes of the field,
+as shown by lines 16 and 17 of \autoref{code:jsonfield-init}. It is important
+to note that the encoder and decoder are subclasses of \verb|json.JSONEncoder|
+and \verb|json.JSONDecoder|, rather than instances of those classes. In Python,
+a class is a callable that returns an instance of the class, so the encoder and
+decoder have to be callables. To enforce this requirement, the \verb|JSONField|
+constructor checks whether the encoder and decoder are callables and raises
+descriptive error messages if they are not, as shown by lines 8 to 15 of the
+listing.
+
+\listing
+{Python}
+{The \code{deconstruct()} method of \code{JSONField}.}
+{code:jsonfield-dec}
+{codes/4-jsonfield-dec.py}
+
+In order to preserve the encoder and decoder classes in database migrations,
+the \verb|deconstruct()| method needs to be overridden. The method returns a
+4-tuple that consists of: the name of the field on the model, the import path
+of the field, a list of positional arguments, and a dictionary of keyword
+arguments \cite{django:model_fields}. These values will be used to reconstruct
+the field from a database migration. The encoder and decoder are defined as
+keyword arguments of the constructor. Therefore, the \verb|deconstruct()|
+method is overridden to add the encoder and decoder classes (if they are set,
+i.e. not \verb|None|) to the keyword arguments dictionary, as shown by lines 6
+to 9 of \autoref{code:jsonfield-dec}.
 
 %-----------------------------------------------------------------------------%
 \section{laporan\_setting.tex}
