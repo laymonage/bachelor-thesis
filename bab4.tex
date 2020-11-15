@@ -14,11 +14,11 @@ In the Django codebase, model fields are defined in the
 \code{django.db.models.fields} module as subclasses of \code{Field}, but they
 can be imported from the \code{django.db.models} module for simplicity. Model
 fields that are relatively simple are implemented in the \verb|__init__.py|
-file of the module. For model fields that require more complex implementation,
-they are defined in their own files in the \code{fields} directory. Due to the
-complexity of \code{JSONField} and its extended querying capabilities, the
-implementation is defined in the \code{json.py} file in the \code{fields}
-directory.
+file of the module. For model fields that require more complex implementation
+(e.g. file fields and relational fields), they are defined in their own files
+in the \code{fields} directory. Due to the complexity of \code{JSONField} and
+its extended querying capabilities, the implementation is defined in the
+\code{json.py} file in the \code{fields} directory.
 
 \listing
 {Python}
