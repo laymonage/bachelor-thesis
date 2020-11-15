@@ -1,4 +1,4 @@
-class JSONField(Field):
+class JSONField(CheckFieldDefaultMixin, Field):
     ...
 
     def deconstruct(self):
