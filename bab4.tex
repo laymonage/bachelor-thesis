@@ -38,7 +38,8 @@ class as the \verb|cls| argument. Lines 5 and 6 of the listing show that the
 \verb|NULL| as previously explained.
 
 \listing
-[0 pt]{Python}
+[0 pt]
+{Python}
 {The \code{from\_db\_value()} method of \code{JSONField}.}
 {code:jsonfield-des}
 {codes/4-jsonfield-des.py}
@@ -58,6 +59,25 @@ cause \verb|json.JSONDecodeError| to be raised. Therefore, as shown by lines 7
 to 10 of \autoref{code:jsonfield-des}, the \verb|json.loads()| call is put
 inside a \verb|try ... except| block and the value is directly returned if
 \verb|json.JSONDecodeError| is raised.
+
+\listing
+{Python}
+{Registration of a stub function for JSONB converter of Psycopg 2.}
+{code:defaultjsonb}
+{codes/4-defaultjsonb.py}
+
+To allow custom decoder for \verb|JSONField| on PostgreSQL, Psycopg 2's
+automatic deserialization of JSON data should be disabled. Disabling the
+feature can be done by casting the data to \verb|TEXT| or registering a stub
+function for Psycopg 2's JSONB converter \cite{psycopg2:json-adaptation}.
+Initially, the casting option was chosen during this research. After the
+release of Django 3.1, a bug was found as a result of this option, so the
+Django developers have opted to register a stub function \cite{ticket_31956}.
+The registration is done in the \verb|get_new_connection()| method of the
+database wrapper for PostgreSQL, which gets called every time a new connection
+is created. As shown by lines 8 to 10 of \autoref{code:defaultjsonb}, the
+\verb|loads| argument is a stub lambda function that returns the parameter
+as-is.
 
 \listing
 {Python}
