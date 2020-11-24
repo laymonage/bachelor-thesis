@@ -47,37 +47,55 @@ class as the \verb|cls| argument. Lines 5 and 6 of the listing show that the
 \verb|JSONField| is also designed to deserialize JSON-encoded strings to Python
 objects in order to load the JSON data from the database. To convert database
 values to Python objects, the \verb|from_db_value()| method can be overridden.
-The deserialization process is shown by line 8 of \autoref{code:jsonfield-des},
-where the database value is passed to the \verb|json.loads()| function, which
-also accepts an optional decoder class as the \verb|cls| argument. Similar to
+On some database systems that have a native JSON data type, the database driver
+may already deserialize the value before Django receives it.\footnote{Only
+PostgreSQL's Psycopg 2 driver does this at the time of writing, but this may
+change in the future.} Line 7 and 8 of \autoref{code:jsonfield-des} show that
+the value is returned as-is, unless a custom decoder is used. On other database
+systems, the deserialization process is shown by line 10 of the listing, where
+the database value is passed to the \verb|json.loads()| function, which also
+accepts an optional decoder class as the \verb|cls| argument. Similar to
 \verb|get_prep_value()|, the \verb|None| value is reserved for SQL \verb|NULL|,
-as shown by lines 5 and 6 of \autoref{code:jsonfield-des}.
+as shown by lines 5 and 6 of the listing.
 
-When extracting JSON scalar values, the database systems return them as
-deserialized values. Passing deserialized values to \verb|json.loads()| may
-cause \verb|json.JSONDecodeError| to be raised. Therefore, as shown by lines 7
-to 10 of \autoref{code:jsonfield-des}, the \verb|json.loads()| call is put
-inside a \verb|try ... except| block and the value is directly returned if
-\verb|json.JSONDecodeError| is raised.
+When extracting JSON string values, the database systems return them as
+deserialized values (i.e. without JSON double quotes). Passing deserialized
+strings to \verb|json.loads()| may cause \verb|json.JSONDecodeError| to be
+raised. Therefore, as shown by lines 7 to 10 of \autoref{code:jsonfield-des},
+the \verb|json.loads()| call is put inside a \verb|try ... except| block and
+the value is directly returned if \verb|json.JSONDecodeError| is raised.
 
-\listing
-{Python}
-{Registration of a stub function for JSONB converter of Psycopg 2.}
-{code:defaultjsonb}
-{codes/4-defaultjsonb.py}
-
-To allow custom decoder for \verb|JSONField| on PostgreSQL, Psycopg 2's
+To allow a custom decoder for \verb|JSONField| on PostgreSQL, Psycopg 2's
 automatic deserialization of JSON data should be disabled. Disabling the
 feature can be done by casting the data to \verb|TEXT| or registering a stub
 function for Psycopg 2's JSONB converter \cite{psycopg2:json-adaptation}.
-Initially, the casting option was chosen during this research. After the
-release of Django 3.1, a bug was found as a result of this option, so the
-Django developers have opted to register a stub function \cite{ticket_31956}.
-The registration is done in the \verb|get_new_connection()| method of the
-database wrapper for PostgreSQL, which gets called every time a new connection
-is created. As shown by lines 8 to 10 of \autoref{code:defaultjsonb}, the
-\verb|loads| argument is a stub lambda function that returns the parameter
-as-is.
+The casting option was chosen during this research, as registering a stub
+function may break compatibility with the previous implementation that
+relied on the automatic deserialization. As noted on the Psycopg 2
+documentation, the casting operation is efficient and does not involve a copy.
+
+\listing
+[0 pt]
+{Python}
+{The \code{select\_format()} method of \code{JSONField}.}
+{code:selectformat}
+{codes/4-selectformat.py}
+
+\listing
+{Python}
+{The \code{json\_cast\_text\_sql()} method of the \code{DatabaseOperations}
+class in Django's PostgreSQL database backend.}
+{code:pgops}
+{codes/4-pgops.py}
+
+To cast JSON data to \verb|TEXT| on the database level, the
+\verb|select_format()| method is overridden in the \verb|JSONField| class. As
+the name suggests, this method determines the format of the \verb|SELECT|
+clause of the SQL query. The casting is done only if a custom decoder is used
+with a database backend that has a native JSON data type (and automatically
+deserializes it), as shown by lines 5 to 9 of \autoref{code:selectformat}.
+In the case of PostgreSQL, casting data to \verb|TEXT| can be done using the
+\verb|::text| syntax, as shown by \autoref{code:pgops}.
 
 \listing
 {Python}
@@ -133,7 +151,7 @@ respectively.
 {code:formfield-dumps}
 {codes/4-formfield-dumps.py}
 
-To utilize the custom encoder, some of the \verb|JSONField| form field methods
+To utilize a custom encoder, some of the \verb|JSONField| form field methods
 had to be updated. Line 7 of \autoref{code:formfield-dumps} shows the encoder
 class used in the \verb|json.dumps()| call inside the \verb|prepare_value()|
 method, which is used to prepare the value before it is shown to the user (e.g.
@@ -142,7 +160,6 @@ in an HTML form). Lines 15 and 16 show the encoder class used in the
 to check whether the value inside the form field has changed.
 
 \listing
-[0 pt]
 {Python}
 {The \code{to\_python()} and \code{bound\_data()} methods of \code{JSONField}
 form field.}
@@ -158,14 +175,10 @@ is raised, as shown by lines 20 to 24. Line 34 shows the decoder class used in
 the \verb|json.loads()| call inside the \verb|bound_data()| method, which is
 used to load the input data to the form field.
 
-The new form field implementation remains largely unchanged from the existing
-implementation. As explained above, the implementation changes were only made
-so that the form field has custom encoder and decoder support. Other than that,
-the form field has now been moved from the \verb|django.contrib.postgres.forms|
-module to the \verb|django.forms| module. The reason behind the small amount of
-changes is the fact that the form field only handles user input and does not
-interact with the database directly, which means it's already possible to use
-it with any database backend.
+The form field only handles user input and does not interact with the database
+directly. Thus, it is possible to use it with any database backend. As a
+result, the form field has now been moved from the
+\verb|django.contrib.postgres.forms| module to the \verb|django.forms| module.
 
 \listing
 {Python}
