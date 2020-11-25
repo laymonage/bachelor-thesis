@@ -165,6 +165,14 @@ JSON functions introduced in the 9.4 release enable users to extract and
 manipulate JSON data with a performance that matches or surpasses
 document-based databases.
 
+For the PostgreSQL database backend, Django uses the Psycopg 2 database driver.
+Psycopg 2 supports the \code{JSON} and \code{JSONB} data types as of version
+2.5.4. It offers a JSON adapter that serializes Python objects before they are
+sent to the database. By default, it also automatically deserializes JSON data
+from the database as Python objects. Psycopg 2 uses Python's built-in JSON
+library to perform the serialization and deserialization
+\cite{psycopg2:json-adaptation}.
+
 \subsection{MariaDB and MySQL}
 
 MariaDB is highly compatible with MySQL, albeit with some behavior differences
@@ -311,12 +319,11 @@ label=code:pgjsonfield]{codes/2-jsonfield.py}
 Before this research, the existing implementation of \code{JSONField} relied on
 features that are only available on PostgreSQL as shown in
 \autoref{code:pgjsonfield} \cite{django:pgjsonfield}. For example, it used the
-\code{Json} adapter included in psycopg2, the PostgreSQL database driver for
-Python. The adapter was used to encode a Python object into a JSON-encoded
-string before it's sent to the database (implemented in the
-\code{get\_prep\_value} method). In addition, it used the \code{JSONB} data
-type that's available on PostgreSQL, but not on other database backends
-supported by Django.
+\code{Json} adapter included in Psycopg 2. The adapter was used to encode a
+Python object into a JSON-encoded string before it's sent to the database
+(implemented in the \code{get\_prep\_value} method). In addition, it used the
+\code{JSONB} data type that's available on PostgreSQL, but not on other
+database backends supported by Django.
 
 In order to reimplement \code{JSONField} for all of the database backends, the
 implementation design has to take into account the behavior differences of the

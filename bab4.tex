@@ -10,15 +10,94 @@ database backends supported by Django.
 \section{\code{JSONField}}
 %-----------------------------------------------------------------------------%
 
+Before we implement the \verb|JSONField| class, it is important to remember
+that each database system requires a certain minimum version to be compatible
+with \verb|JSONField|. The database systems also have different behaviors when
+handling JSON data. For example, the PostgreSQL database driver automatically
+deserializes JSON data as a Python object, while other database drivers return
+it as a JSON-encoded string.
+
+The database systems' different features and behaviors are tracked by Django
+in the \verb|DatabaseFeatures| class of each database backend. The
+\verb|DatabaseFeatures| class stores boolean flags and other feature-related
+information as the class' attributes. Default values for these attributes are
+defined in the \verb|BaseDatabaseFeatures| class.
+
+\listing
+{Python}
+{The three additional flags in the \code{BaseDatabaseFeatures} class.}
+{code:basedbfeatures}
+{codes/4-basedbfeatures.py}
+
+To implement the \verb|JSONField| class, three flags are added to the the
+\verb|BaseDatabaseFeatures| class. The first flag is
+\verb|supports_json_field|, which shows whether the database system supports
+\verb|JSONField| or not. The second flag is
+\verb|supports_primitives_in_json_field|, which is used to determine whether
+the database system supports storing JSON scalar values (strings, numbers,
+booleans, and \verb|null|) directly in a \verb|JSONField|. The third flag is
+\verb|has_native_json_field|, which shows whether the database system has a
+native JSON data type and automatically deserializes JSON data as Python
+objects.
+
+\listing
+{Python}
+{The \code{DatabaseFeatures} class of the MySQL backend.}
+{code:dbfeatures-mysql}
+{codes/4-dbfeatures-mysql.py}
+
+The new feature flags are overridden in each database backend's
+\verb|DatabaseFeatures| class as necessary. For the MySQL backend, which is
+used by MariaDB and MySQL, the \verb|supports_json_property| is turned into a
+cached property method. The method returns true for MariaDB version 10.2.7 or
+greater and MySQL version 5.7.8 or greater, as shown by lines 4 to 8 of
+\autoref{code:dbfeatures}.
+
+\listing
+{Python}
+{The \code{DatabaseFeatures} class of the Oracle Database backend.}
+{code:dbfeatures-oracle}
+{codes/4-dbfeatures-oracle.py}
+
+For the Oracle Database backend, the
+\verb|supports_primitives_in_json_field| flag is overridden to \verb|False|
+as shown by line 13 of \autoref{code:dbfeatures-oracle}. Oracle Database supports JSON data as of
+version 12.1.0.2. Django supports Oracle Database version 12.2 and higher,
+which means that JSON support is always available.
+
+\listing
+{Python}
+{The \code{DatabaseFeatures} class of the PostgreSQL backend.}
+{code:dbfeatures-postgresql}
+{codes/4-dbfeatures-postgresql.py}
+
+\listing
+{Python}
+{The \code{DatabaseFeatures} class of the SQLite backend.}
+{code:dbfeatures-sqlite3}
+{codes/4-dbfeatures-sqlite3.py}
+
+For the PostgreSQL backend, the \verb|has_native_json_field| is set to \verb|True|, as
+shown by line 18 of the listing. For the SQLite backend,
+\verb|supports_json_field| is determined by trying to execute a \verb|SELECT|
+query with the \verb|JSON()| function included in the JSON1 extension. If the
+query does not throw an exception, it means the JSON1 extension is enabled and
+the flag is set to \verb|True| (and \verb|False| otherwise), as shown by lines
+23 to 30 of the listing. The support check is done this way because SQLite does
+not provide a direct way to check whether the JSON1 extension is loaded.
+
 In the Django codebase, model fields are defined in the
-\code{django.db.models.fields} module as subclasses of \code{Field}, but they
-can be imported from the \code{django.db.models} module for simplicity. Model
+\verb|django.db.models.fields| module as subclasses of \verb|Field|, but they
+can be imported from the \verb|django.db.models| module for simplicity. Model
 fields that are relatively simple are implemented in the \verb|__init__.py|
 file of the module. For model fields that require more complex implementation
 (e.g. file fields and relational fields), they are defined in their own files
-in the \code{fields} directory. Due to the complexity of \code{JSONField} and
+in the \verb|fields| directory. Due to the complexity of \verb|JSONField| and
 its extended querying capabilities, the implementation is defined in the
-\code{json.py} file in the \code{fields} directory.
+\verb|json.py| file in the \verb|fields| directory.
+
+As explained in the previous chapter, \verb|JSONField| requires a certain
+minimum version for each database system.
 
 \listing
 {Python}
@@ -26,8 +105,8 @@ its extended querying capabilities, the implementation is defined in the
 {code:jsonfield-ser}
 {codes/4-jsonfield-ser.py}
 
-In the previous chapter, \code{JSONField} is designed to serialize Python
-objects into JSON-encoded strings by utilizing the built-in \code{json} library
+In the previous chapter, \verb|JSONField| is designed to serialize Python
+objects into JSON-encoded strings by utilizing the built-in \verb|json| library
 in Python. The serialization process is needed in order to store Python objects
 as JSON in the database. To convert Python objects to query values, the
 \verb|get_prep_value()| method should be overridden. The serialization is shown
