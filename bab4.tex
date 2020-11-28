@@ -7,18 +7,20 @@ This chapter explains the implementation of \code{JSONField} and
 database backends supported by Django.
 
 %-----------------------------------------------------------------------------%
-\section{\code{JSONField}}
+\section{Database Backend Adjustments}
 %-----------------------------------------------------------------------------%
 
-Before we implement the \verb|JSONField| class, it is important to remember
-that each database system requires a certain minimum version to be compatible
-with \verb|JSONField|. The database systems also have different behaviors when
-handling JSON data. For example, the PostgreSQL database driver automatically
-deserializes JSON data as a Python object, while other database drivers return
-it as a JSON-encoded string.
+Before implementing the \verb|JSONField| class, it is important to remember
+that there are differences between the database systems in regards to handling
+JSON data. For example, each database system uses a different data type to
+store JSON data. In addition, the database driver (e.g. Psycopg 2 for
+PostgreSQL) may automatically deserialize JSON data into Python objects.
 
-The database systems' different features and behaviors are tracked by Django
-in the \verb|DatabaseFeatures| class of each database backend. The
+Django keeps track of the database systems' differences in the
+\verb|django.db.backends| module. Each database system has its own database
+backend submodule.\footnote{Except for MariaDB and MySQL, as they can share the
+same driver and backend.} The database backends' classes are extended from the
+classes in the \verb|django.db.backends.base| submodule. For example, the
 \verb|DatabaseFeatures| class stores boolean flags and other feature-related
 information as the class' attributes. Default values for these attributes are
 defined in the \verb|BaseDatabaseFeatures| class.
@@ -29,62 +31,158 @@ defined in the \verb|BaseDatabaseFeatures| class.
 {code:basedbfeatures}
 {codes/4-basedbfeatures.py}
 
-To implement the \verb|JSONField| class, three flags are added to the the
+To implement the \verb|JSONField| class, three flags are added to the
 \verb|BaseDatabaseFeatures| class. The first flag is
 \verb|supports_json_field|, which shows whether the database system supports
-\verb|JSONField| or not. The second flag is
-\verb|supports_primitives_in_json_field|, which is used to determine whether
-the database system supports storing JSON scalar values (strings, numbers,
-booleans, and \verb|null|) directly in a \verb|JSONField|. The third flag is
-\verb|has_native_json_field|, which shows whether the database system has a
-native JSON data type and automatically deserializes JSON data as Python
-objects.
+\verb|JSONField|. The second flag is \verb|supports_primitives_in_json_field|,
+which is used to determine whether the database system supports storing JSON
+scalar values (strings, numbers, booleans, and \verb|null|) directly in a
+\verb|JSONField|.\footnote{This flag is not used in the \code{JSONField}
+implementation itself, but it is useful to store this information to be used in
+tests.} The third flag is \verb|has_native_json_field|, which shows whether the
+database system has a native JSON data type and automatically deserializes JSON
+data as Python objects. These flags are overridden in each database backend's
+\verb|DatabaseFeatures| class as necessary.
+
+\listing
+[0 pt]
+{Python}
+{The \code{DatabaseWrapper} and \code{DatabaseFeatures} classes
+of the PostgreSQL backend.}
+{code:backends-postgresql}
+{codes/4-backends-postgresql.py}
+
+\autoref{code:backends-postgresql} shows the \verb|DatabaseWrapper| and
+\verb|DatabaseFeatures| classes of the PostgreSQL backend after the
+modification needed for \verb|JSONField|. The \verb|data_types| property is
+updated to map \verb|JSONField| to the \verb|jsonb| data type, as shown by line
+7 of the listing. The \verb|jsonb| data type automatically checks whether the
+data is valid JSON, so there is no need for a \verb|CHECK| constraint.
+PostgreSQL has a native JSON data type and the driver (Psycopg 2) automatically
+deserializes JSON data into Python objects, so the \verb|has_native_json_field|
+is set to \verb|True|, as shown by line 4 of the listing. The other flags
+(\verb|supports_json_field|\footnote{Django supports PostgreSQL 9.5 and higher,
+while the \code{jsonb} is available from version 9.4, so \code{JSONField} is
+always supported.} and \verb|supports_primitives_in_json_field|) are not
+overridden, as their values from \verb|BaseDatabaseFeatures| are already
+correct.
+
+\listing
+{Python}
+{The \code{DatabaseWrapper} class of the MySQL backend.}
+{code:backends-mysql-1}
+{codes/4-backends-mysql-1.py}
+
+The MySQL database backend, which is used for MariaDB and MySQL, is modified to
+add support for \verb|JSONField|. For this backend, the \verb|DatabaseWrapper|
+class is modified by adding a mapping from \verb|JSONField| to the \verb|json|
+data type in the \verb|data_types| property, as shown by line 6 of
+\autoref{code:backends-mysql-1}. The \verb|data_type_check_constraints|
+property is also modified to add the \verb|JSON_VALID()| function as a
+\verb|CHECK| constraint for MariaDB prior to version 10.4.3, as shown by lines
+15 and 16 of the listing. Later versions of MariaDB have the \verb|CHECK|
+constraint automatically enabled when using the \verb|JSON| data type alias,
+while MySQL automatically validates the JSON syntax when using the \verb|JSON|
+data type. Therefore, there is no need to modify
+\verb|data_type_check_constraints| for these systems.
 
 \listing
 {Python}
 {The \code{DatabaseFeatures} class of the MySQL backend.}
-{code:dbfeatures-mysql}
-{codes/4-dbfeatures-mysql.py}
+{code:backends-mysql-2}
+{codes/4-backends-mysql-2.py}
 
-The new feature flags are overridden in each database backend's
-\verb|DatabaseFeatures| class as necessary. For the MySQL backend, which is
-used by MariaDB and MySQL, the \verb|supports_json_property| is turned into a
-cached property method. The method returns true for MariaDB version 10.2.7 or
-greater and MySQL version 5.7.8 or greater, as shown by lines 4 to 8 of
-\autoref{code:dbfeatures}.
+Meanwhile, the \verb|DatabaseFeatures| class is modified by turning
+\verb|supports_json_field| into a cached property method. The method returns
+\verb|True| for MariaDB version 10.2.7 or greater and MySQL version 5.7.8 or
+greater (and \verb|False| otherwise), as shown by lines 4 to 8 of
+\autoref{code:backends-mysql-2}. The other flags
+(\verb|supports_primitives_in_json_field| and \verb|has_native_json_field|)
+use the values from \verb|BaseDatabaseFeatures| as they are already correct.
+
+\listing
+{Python}
+{The \code{DatabaseWrapper} and \code{DatabaseOperations} classes
+of the Oracle Database backend.}
+{code:backends-oracle-1}
+{codes/4-backends-oracle-1.py}
+
+For the Oracle Database backend, the \verb|DatabaseWrapper| and
+\verb|DatabaseOperations| classes are modified to map the correct data types
+between Python and the database. The \verb|DatabaseWrapper| class is modified
+by updating the \verb|data_types| property to map \verb|JSONField| to
+\verb|NCLOB|\footnote{The \code{NCLOB} data type is chosen to allow data larger
+than 32767 bytes and to have Unicode support \cite{oracle:overview-json}.}
+(shown by line 7 of \autoref{code:backends-oracle-1}) and updating the
+\verb|data_type_check_constraints| property to apply the \verb|IS JSON|
+constraint for \verb|JSONField| (shown by line 12). The cx\_Oracle database
+driver returns \verb|CLOB| and \verb|BLOB| values from the database as
+\verb|LOB| objects in Python\cite{cxoracle:lob}. Meanwhile, the \verb|LOB|
+objects need to be converted to Python strings in order to perform
+deserialization. To do this, the \verb|get_db_converters()| method in the
+\verb|DatabaseOperations| class is overridden so that \verb|JSONField| uses the
+\verb|convert_textfield_value| converter, as shown by lines 22 and 23 of the
+listing.\footnote{\code{TextField} also uses the \code{NCLOB} data type on
+Oracle Database, so its converter can be reused for \code{JSONField}.}
 
 \listing
 {Python}
 {The \code{DatabaseFeatures} class of the Oracle Database backend.}
-{code:dbfeatures-oracle}
-{codes/4-dbfeatures-oracle.py}
+{code:backends-oracle-2}
+{codes/4-backends-oracle-2.py}
 
-For the Oracle Database backend, the
-\verb|supports_primitives_in_json_field| flag is overridden to \verb|False|
-as shown by line 13 of \autoref{code:dbfeatures-oracle}. Oracle Database supports JSON data as of
-version 12.1.0.2. Django supports Oracle Database version 12.2 and higher,
-which means that JSON support is always available.
+As for the \verb|DatabaseFeatures| class, the \verb|supports_primitives_in_json_field|
+flag is overridden to \verb|False|, as shown by line 4 of
+\autoref{code:backends-oracle-2}. This flag reflects the behavior of Oracle
+Database that only allows storing JSON objects and arrays in a column with the
+\verb|IS JSON| constraint enabled. The other flags
+(\verb|supports_json_field|\footnote{Oracle Database introduced JSON support in
+version 12.1.0.2 and Django supports Oracle Database version 12.2 and higher,
+so \code{JSONField} is always supported.} and \verb|has_native_json_field|) are
+derived from \verb|BaseDatabaseFeatures|.
 
 \listing
 {Python}
-{The \code{DatabaseFeatures} class of the PostgreSQL backend.}
-{code:dbfeatures-postgresql}
-{codes/4-dbfeatures-postgresql.py}
+{The \code{DatabaseWrapper} class of the SQLite backend.}
+{code:backends-sqlite3-1}
+{codes/4-backends-sqlite3-1.py}
 
 \listing
+[0 pt]
 {Python}
 {The \code{DatabaseFeatures} class of the SQLite backend.}
-{code:dbfeatures-sqlite3}
-{codes/4-dbfeatures-sqlite3.py}
+{code:backends-sqlite3-2}
+{codes/4-backends-sqlite3-2.py}
 
-For the PostgreSQL backend, the \verb|has_native_json_field| is set to \verb|True|, as
-shown by line 18 of the listing. For the SQLite backend,
-\verb|supports_json_field| is determined by trying to execute a \verb|SELECT|
-query with the \verb|JSON()| function included in the JSON1 extension. If the
-query does not throw an exception, it means the JSON1 extension is enabled and
-the flag is set to \verb|True| (and \verb|False| otherwise), as shown by lines
-23 to 30 of the listing. The support check is done this way because SQLite does
-not provide a direct way to check whether the JSON1 extension is loaded.
+The \verb|DatabaseWrapper| class of the SQLite backend is modified to add the
+mapping from \verb|JSONField| to \verb|text| in the \verb|data_types| property,
+as shown by line 7 of \autoref{code:backends-sqlite3-1}. It is also modified to
+apply the \verb|JSON_VALID()| check constraint to the database column. As the
+function returns \verb|0| (false) for SQL \verb|NULL| values, an
+\verb|OR "%(column)s" IS NULL| clause is added to support storing SQL
+\verb|NULL| values, as shown by line 12 of the listing.
+
+Meanwhile, \verb|DatabaseFeatures| class is modified to check for JSON support
+on SQLite. The \verb|supports_json_field| flag is turned into a cached property
+method and the value is determined by trying to execute a \verb|SELECT| query
+with the \verb|JSON()| function included in the JSON1 extension, as shown by
+lines 4 to 8 of \autoref{code:backends-sqlite3-2}. If the query does not throw
+an exception, it means the JSON1 extension is enabled and the flag is set to
+\verb|True| (and \verb|False| otherwise), as shown by lines 9 to 11 of the
+listing. The support check is done this way because SQLite does not provide a
+direct way to check whether the JSON1 extension is loaded. The other flags
+(\verb|supports_primitives_in_json_field| and \verb|has_native_json_field|)
+are derived from \verb|BaseDatabaseFeatures|.
+
+All of the database backends have now been adjusted with the necessary changes.
+The changes were mostly made for mapping \verb|JSONField| to the correct data
+type on the database, as well as the \verb|CHECK| constraints to ensure that
+the data is valid JSON. With these changes in place, the \verb|JSONField| class
+can now be implemented.
+
+%-----------------------------------------------------------------------------%
+\section{\code{JSONField}}
+%-----------------------------------------------------------------------------%
 
 In the Django codebase, model fields are defined in the
 \verb|django.db.models.fields| module as subclasses of \verb|Field|, but they
@@ -96,10 +194,8 @@ in the \verb|fields| directory. Due to the complexity of \verb|JSONField| and
 its extended querying capabilities, the implementation is defined in the
 \verb|json.py| file in the \verb|fields| directory.
 
-As explained in the previous chapter, \verb|JSONField| requires a certain
-minimum version for each database system.
-
 \listing
+[0 pt]
 {Python}
 {The \code{get\_prep\_value()} method of \code{JSONField} model field.}
 {code:jsonfield-ser}
@@ -117,7 +213,6 @@ class as the \verb|cls| argument. Lines 5 and 6 of the listing show that the
 \verb|NULL| as previously explained.
 
 \listing
-[0 pt]
 {Python}
 {The \code{from\_db\_value()} method of \code{JSONField} model field.}
 {code:jsonfield-des}
@@ -147,14 +242,13 @@ the value is directly returned if \verb|json.JSONDecodeError| is raised.
 To allow a custom decoder for \verb|JSONField| on PostgreSQL, Psycopg 2's
 automatic deserialization of JSON data should be disabled. Disabling the
 feature can be done by casting the data to \verb|TEXT| or registering a stub
-function for Psycopg 2's JSONB converter \cite{psycopg2:json-adaptation}.
+function for Psycopg 2's \verb|jsonb| converter \cite{psycopg2:json-adaptation}.
 The casting option was chosen during this research, as registering a stub
 function may break compatibility with the previous implementation that
 relied on the automatic deserialization. As noted on the Psycopg 2
 documentation, the casting operation is efficient and does not involve a copy.
 
 \listing
-[0 pt]
 {Python}
 {The \code{select\_format()} method of \code{JSONField}.}
 {code:selectformat}
