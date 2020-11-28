@@ -147,18 +147,18 @@ subsections explain how those database systems provide JSON support.
 
 \subsection{PostgreSQL}
 
-PostgreSQL supports a native \code{JSON} data type and JSON functions as of
-version 9.2 \cite{postgresql:9.2}. Data stored using the \code{JSON} data type
+PostgreSQL supports a native \code{json} data type and JSON functions as of
+version 9.2 \cite{postgresql:9.2}. Data stored using the \code{json} data type
 is stored as text. However, it has the advantage of validating that each stored
 value is valid JSON. The two JSON functions included in the 9.2 release allow
-users to convert a row or array in the database into \code{JSON}.
+users to convert a row or array in the database into \code{json}.
 
-As of version 9.4, PostgreSQL also supports a \code{JSONB} data type and more
-JSON functions \cite{postgresql:9.4}. The \code{JSONB} data type supports fast
+As of version 9.4, PostgreSQL also supports a \code{jsonb} data type and more
+JSON functions \cite{postgresql:9.4}. The \code{jsonb} data type supports fast
 data retrievals and simple expression search queries using Generalized Inverted
-Indexes (GIN). Data stored using the \code{JSONB} data type is stored as
-binary. This makes storing data with the \code{JSONB} data type slightly slower
-compared to the \code{JSON} data type as it needs to be encoded into binary
+Indexes (GIN). Data stored using the \code{jsonb} data type is stored as
+binary. This makes storing data with the \code{jsonb} data type slightly slower
+compared to the \code{json} data type as it needs to be encoded into binary
 prior to saving. However, it is significantly faster to process, since the
 processing functions do not need to reparse the data on each execution. The
 JSON functions introduced in the 9.4 release enable users to extract and
@@ -166,10 +166,10 @@ manipulate JSON data with a performance that matches or surpasses
 document-based databases.
 
 For the PostgreSQL database backend, Django uses the Psycopg 2 database driver.
-Psycopg 2 supports the \code{JSON} and \code{JSONB} data types as of version
+Psycopg 2 supports the \code{jsonb} and \code{jsonb} data types as of version
 2.5.4. It offers a JSON adapter that serializes Python objects before they are
 sent to the database. By default, it also automatically deserializes JSON data
-from the database as Python objects. Psycopg 2 uses Python's built-in JSON
+from the database into Python objects. Psycopg 2 uses Python's built-in JSON
 library to perform the serialization and deserialization
 \cite{psycopg2:json-adaptation}.
 
@@ -183,17 +183,17 @@ uses the same database backend for MariaDB and MySQL \cite{django:databases}.
 Despite the similarities, their behaviors are different when operating on JSON
 data.
 
-MySQL supports a native \code{JSON} data type as of version 5.7.8
-\cite{mysql:json}. The \code{JSON} data type provides automatic validation of
+MySQL supports a native \code{json} data type as of version 5.7.8
+\cite{mysql:json}. The \code{json} data type provides automatic validation of
 JSON data. It is internally stored as binary, which permits quick read access
 as the value does not need to be parsed from a text representation. Data stored
-using the \code{JSON} data type can be indexed by using a generated column that
+using the \code{json} data type can be indexed by using a generated column that
 extracts a scalar value from the JSON data.
 
-MariaDB has a \code{JSON} data type as of version 10.2.7 \cite{mariadb:json}.
-The \code{JSON} data type was introduced for compatibility reasons with MySQL's
-\code{JSON} data type. However, the \code{JSON} data type is just an alias for
-the \code{LONGTEXT} data type. Despite the data is stored as a string rather
+MariaDB has a \code{json} data type as of version 10.2.7 \cite{mariadb:json}.
+The \code{json} data type was introduced for compatibility reasons with MySQL's
+\code{json} data type. However, the \code{json} data type is just an alias for
+the \code{longtext} data type. Despite the data is stored as a string rather
 than binary, it can be validated using the provided \code{JSON\_VALID} function
 as a \code{CHECK} constraint.
 
@@ -223,14 +223,13 @@ argument returns SQL \code{NULL} on MariaDB and MySQL, but it returns \code{0}
 
 Oracle Database supports storing, validating, querying, and indexing JSON data
 as of version 12.1.0.2 \cite{oracle:12.1.0.2}. JSON data is stored using the
-\code{VARCHAR2}, \code{CLOB}, and \code{BLOB} data types \cite{oracle:json}.
-Unlike the other database systems, Oracle Database does not support storing
-scalar values in JSON columns, which means that the top-level values in JSON
-columns are either JSON objects or JSON arrays. JSON validation can be enforced
-using the \code{IS JSON} condition as a \code{CHECK} constraint. Querying JSON
-data can be performed by utilizing the provided JSON functions. Indexing JSON
-data can be implemented using bitmap, function-based, or composite B-tree
-indexes.
+\code{VARCHAR2} and \code{LOB} data types \cite{oracle:json}. Unlike the other
+database systems, Oracle Database does not support storing scalar values in
+JSON columns, which means that the top-level values in JSON columns are either
+JSON objects or JSON arrays. JSON validation can be enforced using the \code{IS
+JSON} condition as a \code{CHECK} constraint. Querying JSON data can be
+performed by utilizing the provided JSON functions. Indexing JSON data can be
+implemented using bitmap, function-based, or composite B-tree indexes.
 
 As with the other database systems, Oracle Database has functions to operate on
 JSON data, but they are named differently. For example, instead of
@@ -322,7 +321,7 @@ features that are only available on PostgreSQL as shown in
 \code{Json} adapter included in Psycopg 2. The adapter was used to encode a
 Python object into a JSON-encoded string before it's sent to the database
 (implemented in the \code{get\_prep\_value} method). In addition, it used the
-\code{JSONB} data type that's available on PostgreSQL, but not on other
+\code{jsonb} data type that's available on PostgreSQL, but not on other
 database backends supported by Django.
 
 In order to reimplement \code{JSONField} for all of the database backends, the

@@ -102,34 +102,40 @@ use the values from \verb|BaseDatabaseFeatures| as they are already correct.
 
 \listing
 {Python}
-{The \code{DatabaseWrapper} and \code{DatabaseOperations} classes
-of the Oracle Database backend.}
+{The \code{DatabaseWrapper} class of the Oracle Database backend.}
 {code:backends-oracle-1}
 {codes/4-backends-oracle-1.py}
 
-For the Oracle Database backend, the \verb|DatabaseWrapper| and
-\verb|DatabaseOperations| classes are modified to map the correct data types
-between Python and the database. The \verb|DatabaseWrapper| class is modified
-by updating the \verb|data_types| property to map \verb|JSONField| to
-\verb|NCLOB|\footnote{The \code{NCLOB} data type is chosen to allow data larger
-than 32767 bytes and to have Unicode support \cite{oracle:overview-json}.}
-(shown by line 7 of \autoref{code:backends-oracle-1}) and updating the
-\verb|data_type_check_constraints| property to apply the \verb|IS JSON|
-constraint for \verb|JSONField| (shown by line 12). The cx\_Oracle database
-driver returns \verb|CLOB| and \verb|BLOB| values from the database as
-\verb|LOB| objects in Python\cite{cxoracle:lob}. Meanwhile, the \verb|LOB|
-objects need to be converted to Python strings in order to perform
-deserialization. To do this, the \verb|get_db_converters()| method in the
-\verb|DatabaseOperations| class is overridden so that \verb|JSONField| uses the
-\verb|convert_textfield_value| converter, as shown by lines 22 and 23 of the
-listing.\footnote{\code{TextField} also uses the \code{NCLOB} data type on
-Oracle Database, so its converter can be reused for \code{JSONField}.}
+For the Oracle Database backend, the \verb|DatabaseWrapper| class is modified
+to add the data type mapping and \verb|CHECK| constraint. The \verb|data_types|
+property is updated to map \verb|JSONField| to \verb|NCLOB|, as shown by line 7
+of \autoref{code:backends-oracle-1}. The \code{NCLOB} data type is chosen to
+allow data larger than 32,767 bytes and to have Unicode support
+\cite{oracle:overview-json}. The \verb|data_type_check_constraints| property is
+also updated to apply the \verb|IS JSON| constraint for \verb|JSONField|, as
+shown by line 12 of the listing.
+
+\listing
+{Python}
+{The \code{DatabaseOperations} class of the Oracle Database backend.}
+{code:backends-oracle-2}
+{codes/4-backends-oracle-2.py}
+
+The cx\_Oracle database driver returns \verb|CLOB| and \verb|BLOB| values from
+the database as \verb|LOB| objects in Python \cite{cxoracle:lob}. Meanwhile,
+the \verb|LOB| objects need to be converted to Python strings in order to
+perform deserialization. To do this, the \verb|get_db_converters()| method in
+the \verb|DatabaseOperations| class is overridden so that \verb|JSONField| uses
+the \verb|convert_textfield_value| converter, as shown by lines 7 and 8 of
+\autoref{code:backends-oracle-2}.\footnote{\code{TextField} also uses the
+\code{NCLOB} data type on Oracle Database, so its converter can be reused for
+\code{JSONField}.}
 
 \listing
 {Python}
 {The \code{DatabaseFeatures} class of the Oracle Database backend.}
-{code:backends-oracle-2}
-{codes/4-backends-oracle-2.py}
+{code:backends-oracle-3}
+{codes/4-backends-oracle-3.py}
 
 As for the \verb|DatabaseFeatures| class, the \verb|supports_primitives_in_json_field|
 flag is overridden to \verb|False|, as shown by line 4 of
@@ -195,7 +201,6 @@ its extended querying capabilities, the implementation is defined in the
 \verb|json.py| file in the \verb|fields| directory.
 
 \listing
-[0 pt]
 {Python}
 {The \code{get\_prep\_value()} method of \code{JSONField} model field.}
 {code:jsonfield-ser}
