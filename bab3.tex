@@ -176,7 +176,7 @@ On MariaDB and SQLite, the \code{JSON\_VALID} function can be used as a
 \code{CHECK} constraint \cite{mariadb:json_valid, sqlite:json1}. On Oracle
 Database, the \code{IS JSON} condition can be applied to the table column
 \cite{oracle:is_json}. On PostgreSQL and MySQL, the JSON data is automatically
-validated when using the \code{JSON} data type (or \code{JSONB} on PostgreSQL)
+validated when using the \code{json} data type (or \code{jsonb} on PostgreSQL)
 \cite{postgres:json, mysql:json}. These constraints only validate the syntax of
 the JSON data and not the information contained within the data.
 
@@ -327,7 +327,7 @@ the \code{->} operator for shallow paths and the \code{\#>} operator for nested
 paths \cite{postgres:json_operators}. When the transforms are chained with
 lookups that expect a string value on the left-hand side, the \code{->>} and
 \code{\#>>} operators are used instead, so that the value is extracted as
-\code{TEXT} instead of \code{JSONB}. On MariaDB, MySQL, and SQLite, the
+\code{text} instead of \code{jsonb}. On MariaDB, MySQL, and SQLite, the
 \code{JSON\_EXTRACT} function can be used \cite{mariadb:json_extract,
 mysql:json_search, sqlite:json1}.\footnote{As of version 5.7.13, MySQL also has
 \code{->} and \code{->>} operators that work similarly to the \code{\#>} and

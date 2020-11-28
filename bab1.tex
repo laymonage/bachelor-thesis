@@ -86,9 +86,9 @@ allowing the simplicity and flexibility of semi-structured data.
 From version 1.9 until version 3.0, Django had provided an implementation of
 \code{JSONField}. However, it was exclusively available for PostgreSQL. This
 \code{JSONField} allowed its users to store and query JSON data in a relational
-database column using the \code{JSONB} data type found only on PostgreSQL at
-the time.\footnote{PostgreSQL has two JSON data types: \code{JSON} and
-\code{JSONB}. Django's \code{JSONField} uses \code{JSONB}.} Django officially
+database column using the \code{jsonb} data type found only on PostgreSQL at
+the time.\footnote{PostgreSQL has two JSON data types: \code{json} and
+\code{jsonb}. Django's \code{JSONField} uses \code{jsonb}.} Django officially
 supports PostgreSQL, SQLite, MySQL, MariaDB, and Oracle Database backends. Over
 the years since the initial PostgreSQL \code{JSONField} implementation, those
 database systems have developed their own support for managing JSON data.
@@ -257,11 +257,12 @@ implementation and the analysis demonstrations. The \code{JSONField}
 implementation part of the research was done on a Git branch in a GitHub fork
 of the Django repository. The branch was submitted as a pull request to the
 Django repository to fix ticket \#12990 on the Django issue tracker
-\cite{ticket_12990}. The pull request allowed the Django contributors to review
-the code and give feedback on the implementation. The data validation and
-performance benchmarking analysis demonstrations were done in a separate
-repository in the form of two small Django projects. The position of this
-research is illustrated by \autoref{fig:position3}.
+\cite{ticket_12990} and was included in the Django 3.1.0 release. The pull
+request allowed the Django contributors to review the code and give feedback
+on the implementation. The data validation and performance benchmarking
+analysis demonstrations were done in a separate repository in the form of
+two small Django projects. The position of this research is illustrated by
+\autoref{fig:position3}.
 
 \begin{figure}
 	\centering
