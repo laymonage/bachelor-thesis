@@ -246,9 +246,9 @@ objects into JSON-encoded strings by utilizing the built-in \verb|json| library
 in Python. The serialization process is needed in order to store Python objects
 as JSON in the database. To convert Python objects to query values, the
 \verb|get_prep_value()| method should be overridden. The serialization is shown
-by line 7 of \autoref{code:jsonfield-ser}, where the Python object is passed
+by line 4 of \autoref{code:jsonfield-ser}, where the Python object is passed
 to the \verb|json.dumps()| function, which also accepts an optional encoder
-class as the \verb|cls| argument. Lines 5 and 6 of the listing show that the
+class as the \verb|cls| argument. Lines 2 and 3 of the listing show that the
 \verb|None| value should not be serialized, because it is reserved for SQL
 \verb|NULL| as previously explained.
 
@@ -264,13 +264,13 @@ values to Python objects, the \verb|from_db_value()| method can be overridden.
 On some database systems that have a native JSON data type, the database driver
 may already deserialize the value before Django receives it.\footnote{Only
 PostgreSQL's Psycopg 2 driver does this at the time of writing, but this may
-change in the future.} Line 7 and 8 of \autoref{code:jsonfield-des} show that
-the value is returned as-is, unless a custom decoder is used. On other database
-systems, the deserialization process is shown by line 10 of the listing, where
+change in the future.} Lines 4 and 5 of \autoref{code:jsonfield-des} show that
+the value is returned as-is, unless a custom decoder is used. In other cases,
+the deserialization process is shown by line 7 of the listing, where
 the database value is passed to the \verb|json.loads()| function, which also
 accepts an optional decoder class as the \verb|cls| argument. Similar to
 \verb|get_prep_value()|, the \verb|None| value is reserved for SQL \verb|NULL|,
-as shown by lines 5 and 6 of the listing.
+as shown by lines 2 and 3 of the listing.
 
 When extracting JSON string values, the database systems return them as
 deserialized values (i.e. without JSON double quotes). Passing deserialized
@@ -291,8 +291,8 @@ documentation, the casting operation is efficient and does not involve a copy.
 \listing
 {Python}
 {The \code{select\_format()} method of \code{JSONField}.}
-{code:selectformat}
-{codes/4-selectformat.py}
+{code:jsonfield-selectformat}
+{codes/4-jsonfield-selectformat.py}
 
 \listing
 {Python}
@@ -306,9 +306,10 @@ To cast JSON data to \verb|TEXT| on the database level, the
 the name suggests, this method determines the format of the \verb|SELECT|
 clause of the SQL query. The casting is done only if a custom decoder is used
 with a database backend that has a native JSON data type (and automatically
-deserializes it), as shown by lines 5 to 9 of \autoref{code:selectformat}.
-In the case of PostgreSQL, casting data to \verb|TEXT| can be done using the
-\verb|::text| syntax, as shown by \autoref{code:pgops}.
+deserializes it), as shown by lines 2 to 6 of
+\autoref{code:jsonfield-selectformat}. In the case of PostgreSQL, casting data
+to \verb|TEXT| can be done using the \verb|::text| syntax, as shown by
+\autoref{code:pgops}.
 
 \listing
 {Python}
@@ -318,13 +319,13 @@ model field.}
 {codes/4-jsonfield-init.py}
 
 The custom encoder and decoder are stored as instance attributes of the field,
-as shown by lines 16 and 17 of \autoref{code:jsonfield-init}. It is important
+as shown by lines 13 and 14 of \autoref{code:jsonfield-init}. It is important
 to note that the encoder and decoder are subclasses of \verb|json.JSONEncoder|
 and \verb|json.JSONDecoder|, rather than instances of those classes. In Python,
 a class is a callable that returns an instance of the class, so the encoder and
 decoder have to be callables. To enforce this requirement, the \verb|JSONField|
 constructor checks whether the encoder and decoder are callables and raises
-descriptive error messages if they are not, as shown by lines 8 to 15 of the
+descriptive error messages if they are not, as shown by lines 5 to 12 of the
 listing.
 
 \listing
@@ -341,8 +342,8 @@ arguments \cite{django:model_fields}. These values will be used to reconstruct
 the field from a database migration. The encoder and decoder are defined as
 keyword arguments of the constructor. Therefore, the \verb|deconstruct()|
 method is overridden to add the encoder and decoder classes (if they are set,
-i.e. not \verb|None|) to the keyword arguments dictionary, as shown by lines 6
-to 9 of \autoref{code:jsonfield-dec}.
+i.e. not \verb|None|) to the keyword arguments dictionary, as shown by lines 3
+to 6 of \autoref{code:jsonfield-dec}.
 
 \listing
 {Python}
@@ -365,10 +366,10 @@ respectively.
 {codes/4-formfield-dumps.py}
 
 To utilize a custom encoder, some of the \verb|JSONField| form field methods
-had to be updated. Line 7 of \autoref{code:formfield-dumps} shows the encoder
+had to be updated. Line 4 of \autoref{code:formfield-dumps} shows the encoder
 class used in the \verb|json.dumps()| call inside the \verb|prepare_value()|
 method, which is used to prepare the value before it is shown to the user (e.g.
-in an HTML form). Lines 15 and 16 show the encoder class used in the
+in an HTML form). Lines 12 and 13 show the encoder class used in the
 \verb|json.dumps()| calls inside the \verb|has_changed()| method, which is used
 to check whether the value inside the form field has changed.
 
@@ -380,11 +381,11 @@ form field.}
 {codes/4-formfield-loads.py}
 
 Some of the \verb|JSONField| form field methods also had to be updated to
-support the use of a custom decoder. Line 18 of \autoref{code:formfield-loads}
+support the use of a custom decoder. Line 4 of \autoref{code:formfield-loads}
 shows the decoder class used in the \verb|json.loads()| call inside the
 \verb|to_python()| method, which is used in the form field validation process.
 If the value cannot be deserialized with the decoder, a \verb|ValidationError|
-is raised, as shown by lines 20 to 24. Line 34 shows the decoder class used in
+is raised, as shown by lines 5 to 10. Line 16 shows the decoder class used in
 the \verb|json.loads()| call inside the \verb|bound_data()| method, which is
 used to load the input data to the form field.
 
@@ -404,4 +405,4 @@ generate form fields for them \cite{django:modelform}. The form fields are
 generated by calling the \verb|formfield()| method of the model fields. In
 order to use the encoder and decoder from the \verb|JSONField| model field in
 the \verb|JSONField| form field, they need to be passed as keyword arguments,
-as shown by lines 7 and 8 of \autoref{code:jsonfield-form}.
+as shown by lines 4 and 5 of \autoref{code:jsonfield-form}.
