@@ -263,6 +263,22 @@ the flag's value is \verb|False| and the model is not explicitly defined to
 require the feature flag, then a system error is added to the lists of errors
 to be returned by the \verb|check| method and shown to the programmer.
 
+\listing
+{Python}
+{The \code{get\_internal\_type()} method of \code{JSONField} model field.}
+{code:jsonfield-getinternaltype}
+{codes/4-jsonfield-getinternaltype.py}
+
+To determine the key that is used to get the data type and check constraints
+from the database backends, the \verb|get_internal_type()| method is used. By
+default, the method returns the name of the class (using
+\verb|self.__class__.__name__|), so it is not necessary to override it.
+However, other model fields override the method to explicitly return the name
+of the class, so that other classes may extend the model fields without having
+to override the \verb|get_internal_type()| method unless it is needed. Thus,
+the \verb|get_internal_type()| method is overridden to explicitly return the
+string \verb|'JSONField'|, as shown by line 2 of
+\autoref{code:jsonfield-getinternaltype}.
 
 \listing
 {Python}
