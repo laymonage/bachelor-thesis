@@ -204,6 +204,39 @@ its extended querying capabilities, the implementation is defined in the
 
 \listing
 {Python}
+{The \code{check()} method of \code{JSONField} model field.}
+{code:jsonfield-check}
+{codes/4-jsonfield-check.py}
+
+The \verb|JSONField| class implements some checks to make sure that it is
+used correctly. In addition to the checks included from the \verb|Field| class,
+\verb|JSONField| also extends the \verb|CheckFieldDefaultMixin| class, as shown
+by line 1 of \autoref{code:jsonfield-check}. The mixin adds a check to ensure
+that any default value set for the field should be a callable instead of an
+instance, so that it's not shared between all instances of the field. The
+\verb|JSONField| class also overrides the \verb|check()| method to include the
+\verb|_check_supported()| method in the checking process, as shown by lines 4
+to 8 of the listing.
+
+\listing
+{Python}
+{The \code{\_check\_supported()} method of \code{JSONField} model field.}
+{code:jsonfield-checksupported}
+{codes/4-jsonfield-checksupported.py}
+
+The \verb|_check_supported()| method checks all of the connected databases for
+\verb|JSONField| support. If migrations for the model (that the field is
+attached to) are not allowed on the database by the database router, then the
+database is skipped from the check, as shown by lines 4 and 5 of
+\autoref{code:jsonfield-checksupported}. Otherwise, the
+\verb|supports_json_field| feature flag is checked. Lines 7 to 17 show that if
+the flag's value is \verb|False| and the model is not explicitly defined to
+require the feature flag, then a system error is added to the lists of errors
+to be returned by the \verb|check| method and shown to the programmer.
+
+
+\listing
+{Python}
 {The \code{get\_prep\_value()} method of \code{JSONField} model field.}
 {code:jsonfield-ser}
 {codes/4-jsonfield-ser.py}
