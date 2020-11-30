@@ -299,6 +299,25 @@ class as the \verb|cls| argument. Lines 2 and 3 of the listing show that the
 
 \listing
 {Python}
+{The \code{value\_to\_string()} method of \code{JSONField} model field.}
+{code:jsonfield-valuetostring}
+{codes/4-jsonfield-valuetostring.py}
+
+In addition to the serialization needed to store a Python object inside
+\verb|JSONField| to the database, Django also has a serialization framework
+that can be used for model objects. The framework can be used to dump model
+objects into XML, JSON, and YAML files. The model objects are serialized by
+calling the \verb|value_to_string()| method of their fields. Normally, the
+method returns a string that is ready to be used by the serializer. However,
+\verb|JSONField| represents JSON data in its Python built-in format that
+can be serialized by the built-in serializers. Therefore, the method should
+just return the Python object as-is and let the serializers handle the
+serialization process. To achieve this, the \verb|value_to_string()| method
+is overridden to just return the object using the \verb|value_from_object()|
+method, as shown by line 2 of \autoref{code:jsonfield-valuetostring}.
+
+\listing
+{Python}
 {The \code{from\_db\_value()} method of \code{JSONField} model field.}
 {code:jsonfield-des}
 {codes/4-jsonfield-des.py}
