@@ -191,6 +191,26 @@ functions provided by the database systems.
 \section{\code{JSONField} Lookups and Transforms}
 %-----------------------------------------------------------------------------%
 
+In Django, lookups and transforms are part of the query expressions API. The
+API consists of classes that define methods that translate instances of the
+classes into SQL expressions. Therefore, lookups and transforms can be used to
+change how SQL queries are composed by Django.
+
+A lookup is a query expression with a left-hand side (\verb|lhs|), right-hand
+side (\verb|rhs|), and a \verb|lookup_name| that is used to create a boolean
+comparison between \verb|lhs| and \verb|rhs|, such as \verb|lhs < rhs|
+\cite{django:lookups}. To use a lookup in a query expression, the notation is
+\verb|<lhs>__<lookup_name>=<rhs>|. Since it contains \verb|=<rhs>|, lookups
+have to be at the end of a query expression.
+
+Meanwhile, a transform is a query expression that can be used to transform one
+field (in an expression) into another field. To use a transform, the notation
+is \verb|<expression>__<transform>|. For example, the year transform (e.g.
+\verb|date_field__year|) transforms a \verb|DateField| into an
+\verb|IntegerField|. As transforms also follow the query expressions API, it is
+possible to chain multiple transforms in a query expression, e.g.
+(\verb|<expression>__<transform1>__<transform2>|).
+
 To query JSON data, the previous implementation of \code{JSONField} included
 \code{JSONField}-specific lookups and transforms. The lookups and transforms
 consisted of containment lookups, key existence lookups, and path transforms.
