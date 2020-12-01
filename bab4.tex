@@ -223,13 +223,29 @@ can now be implemented.
 
 In the Django codebase, model fields are defined in the
 \verb|django.db.models.fields| module as subclasses of \verb|Field|, but they
-can be imported from the \verb|django.db.models| module for simplicity. Model
+can be imported from the \verb|django.db.models| module for convenience. Model
 fields that are relatively simple are implemented in the \verb|__init__.py|
 file of the module. For model fields that require more complex implementation
 (e.g. file fields and relational fields), they are defined in their own files
 in the \verb|fields| directory. Due to the complexity of \verb|JSONField| and
 its extended querying capabilities, the implementation is defined in the
 \verb|json.py| file in the \verb|fields| directory.
+
+\listing
+{Python}
+{The \code{deconstruct()} method of \code{Field}.}
+{code:field-deconstruct}
+{codes/4-field-deconstruct.py}
+
+Model fields have a \verb|deconstruct| method that defines how the field can be
+reconstructed from a database migration. The method returns a 4-tuple that
+consists of: the name of the field on the model, the import path of the field,
+a list of positional arguments, and a dictionary of keyword arguments
+\cite{django:model_fields}. By convention, model fields that are defined in
+their own files like \verb|JSONField| should still be imported from
+\verb|django.db.models|. Thus, the \verb|deconstruct()| method of the
+\verb|Field| class is modified to shorten the path for \verb|JSONField|'s
+module, as shown by lines 15 to 17 of \autoref{code:field-deconstruct}.
 
 \listing
 {Python}
@@ -383,15 +399,11 @@ listing.
 {codes/4-jsonfield-dec.py}
 
 In order to preserve the encoder and decoder classes in database migrations,
-the \verb|deconstruct()| method needs to be overridden. The method returns a
-4-tuple that consists of: the name of the field on the model, the import path
-of the field, a list of positional arguments, and a dictionary of keyword
-arguments \cite{django:model_fields}. These values will be used to reconstruct
-the field from a database migration. The encoder and decoder are defined as
-keyword arguments of the constructor. Therefore, the \verb|deconstruct()|
-method is overridden to add the encoder and decoder classes (if they are set,
-i.e. not \verb|None|) to the keyword arguments dictionary, as shown by lines 3
-to 6 of \autoref{code:jsonfield-dec}.
+the \verb|deconstruct()| method needs to be overridden. The encoder and decoder
+are defined as keyword arguments of the constructor. Therefore, the
+\verb|deconstruct()| method is overridden to add the encoder and decoder
+classes (if they are set, i.e. not \verb|None|) to the keyword arguments
+dictionary, as shown by lines 3 to 6 of \autoref{code:jsonfield-dec}.
 
 \listing
 {Python}
