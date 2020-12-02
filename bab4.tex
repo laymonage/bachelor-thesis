@@ -481,3 +481,49 @@ basic validation mechanism by trying to serialize the field's value with the
 given encoder, as shown by lines 3 and 4 of \autoref{code:jsonfield-validate}.
 Lines 5 to 10 of the listing show that if the serialization fails, then a
 \verb|ValidationError| is raised.
+
+Now that the \verb|JSONField| class has been implemented, it is possible to
+store and load JSON data to and from the database. As explained in the previous
+chapter, there are also lookups and transforms that are specific for
+\verb|JSONField|. The lookups and transforms extend the querying capabilities
+for \verb|JSONField| by utilizing the functions and operators available on the
+database systems. The implementation of the lookups and transforms will be
+explained in the next section.
+
+%-----------------------------------------------------------------------------%
+\section{\code{JSONField} Lookups and Transforms}
+%-----------------------------------------------------------------------------%
+
+Lookups and transforms are part of Django's query expressions API. The API
+consists of classes which instances can be compiled by Django's
+\verb|SQLCompiler| objects. An \verb|SQLCompiler| object translates a query
+expression by calling its \verb|as_vendorname()|\footnote{The \code{vendorname}
+is the value of the \code{vendor} attribute in the \code{DatabaseWrapper} class
+of the database backend, i.e. \code{postgresql}, \code{mysql}, \code{sqlite},
+and \code{oracle}.} method (for vendor-specific implementation) if it exists,
+and falls back to the \verb|as_sql()| method otherwise.
+
+The lookups and transforms in this research are specific to \verb|JSONField|.
+Normally, lookups and transforms are implemented in the
+\verb|django.db.models.lookups| module. In the module, lookups are implemented
+as subclasses of the \verb|Lookup| class, while transforms are implemented as
+subclasses of the \verb|Transform| class. However, as the lookups and
+transforms in this research are specific to \verb|JSONField|, they are
+implemented as part of the \verb|django.db.models.fields.json| module.
+
+The lookups are taken from the existing lookups for the PostgreSQL-only
+\verb|JSONField| and modified to support the other database backends. The
+lookups are the containment lookups (\verb|__contains| and
+\verb|__contained_by|), as well as the key existence lookups (\verb|has_key|,
+\verb|has_keys|, and \verb|has_any_keys|). In addition to that, the
+\verb|__exact| lookup also has to be overridden in order to support the JSON
+\verb|null| value.
+
+The transforms are the key, index, and path transforms that extract the value
+of JSON data at a given path. The index transform is just a special case of
+the key transform where the key is an integer. Meanwhile, the path transform
+can be viewed as a chain of key transforms. Therefore, the transforms are
+unified as \verb|KeyTransform| in the implementation. The value extracted by
+the transforms can be chained with some of the built-in lookups and the
+\verb|JSONField|-specific lookups. As these transforms may return values of
+different data types, some of the lookups also need to be adjusted.
