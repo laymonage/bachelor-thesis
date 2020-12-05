@@ -511,19 +511,37 @@ subclasses of the \verb|Transform| class. However, as the lookups and
 transforms in this research are specific to \verb|JSONField|, they are
 implemented as part of the \verb|django.db.models.fields.json| module.
 
-The lookups are taken from the existing lookups for the PostgreSQL-only
-\verb|JSONField| and modified to support the other database backends. The
-lookups are the containment lookups (\verb|__contains| and
-\verb|__contained_by|), as well as the key existence lookups (\verb|has_key|,
-\verb|has_keys|, and \verb|has_any_keys|). In addition to that, the
-\verb|__exact| lookup also has to be overridden in order to support the JSON
-\verb|null| value.
+The existing lookups for the PostgreSQL-only \verb|JSONField| serve as the
+basis for the new implementation. The lookups are the containment lookups
+(\verb|__contains| and \verb|__contained_by|), as well as the key existence
+lookups (\verb|has_key|, \verb|has_keys|, and \verb|has_any_keys|). In addition
+to that, the \verb|__exact| lookup also has to be overridden in order to
+support the JSON \verb|null| value.
 
 The transforms are the key, index, and path transforms that extract the value
 of JSON data at a given path. The index transform is just a special case of
 the key transform where the key is an integer. Meanwhile, the path transform
 can be viewed as a chain of key transforms. Therefore, the transforms are
-unified as \verb|KeyTransform| in the implementation. The value extracted by
-the transforms can be chained with some of the built-in lookups and the
-\verb|JSONField|-specific lookups. As these transforms may return values of
-different data types, some of the lookups also need to be adjusted.
+unified as \verb|KeyTransform| in the existing implementation. The value
+extracted by the transforms can be chained with some of the built-in lookups
+and the \verb|JSONField|-specific lookups. As these transforms may return
+values of different data types, some of the lookups also need to be modified
+when they are used with on a \verb|KeyTransform|.
+
+\listing
+{Python}
+{The \code{PostgresOperatorLookup} class.}
+{code:pgop-lookup}
+{codes/4-pgop-lookup.py}
+
+In the existing PostgreSQL-only implementation, \verb|JSONField| lookups mostly
+used a simple \verb|<lhs> <operator> <rhs>| format in the SQL queries sent to
+the database (e.g. \verb|json_column @> '{"foo": "bar"}')|. To simplify the
+implementation, a \code{PostgresSimpleLookup} class was created, so that the
+lookups only needed to extend from the class and specify the operator. To
+facilitate this research, the Django developers have moved this class from
+\verb|django.contrib.postgres.lookups| to \verb|django.db.models.lookups| and
+renamed the class to \verb|PostgresOperatorLookup|
+\cite{gh-django:pgop-lookup}. By moving the class, the new implementation can
+reuse the same logic without having to rely on the
+\verb|django.contrib.postgres| module.
