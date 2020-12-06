@@ -28,7 +28,7 @@ attributes are defined in the \verb|BaseDatabaseFeatures| class.
 
 \listing
 {Python}
-{The three additional flags in the \code{BaseDatabaseFeatures} class.}
+{The new flags for \code{JSONField} in the \code{BaseDatabaseFeatures} class.}
 {code:basedbfeatures}
 {codes/4-basedbfeatures.py}
 
@@ -545,3 +545,26 @@ renamed the class to \verb|PostgresOperatorLookup|
 \cite{gh-django:pgop-lookup}. By moving the class, the new implementation can
 reuse the same logic without having to rely on the
 \verb|django.contrib.postgres| module.
+
+\listing
+{Python}
+{The new flags for the \code{JSONField} lookups in the \code{BaseDatabaseFeatures} class.}
+{code:basedbfeatures2}
+{codes/4-basedbfeatures2.py}
+
+In addition to the database feature flags added to implement \verb|JSONField|,
+there are some more of them added to implement the lookups, as shown by
+\autoref{code:basedbfeatures2}. The first flag is \verb|has_json_operators|
+that indicates whether the backend uses PostgreSQL-style JSON operators (e.g.
+\verb|->|), which is set to \verb|False| and only overridden to \verb|True| for
+PostgreSQL. The second flag is \verb|supports_json_field_contains| that
+indicates whether the backend supports the containment lookups for
+\verb|JSONField|. This flag is set to \verb|True| and overridden to
+\verb|False| for SQLite and Oracle Database because they don't support the
+containment lookups, as explained in the previous chapter. The last flag is the
+\verb|json_key_contains_list_matching_requires_list| that indicates whether the
+\verb|__contains| lookup requires matching object structure. This flag is set
+to \verb|False| and only overridden to \verb|True| for PostgreSQL as it is the
+only system with the described behavior \cite{postgres:json}. Of the three
+flags added above, the only flag used in the lookups implementation is
+\verb|supports_json_field_contains|, while the others are only used in tests.
