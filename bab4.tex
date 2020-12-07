@@ -589,6 +589,40 @@ key names as array indices.
 
 \listing
 {Python}
+{The \code{as\_sql()} method of the existing PostgreSQL-only \code{KeyTransform} class.}
+{code:keytransform-0}
+{codes/4-keytransform-0.py}
+
+During this research, a security vulnerability was found in the existing
+PostgreSQL-only implementation of \verb|KeyTransform|. Previously, the SQL
+query expression was implemented in the \verb|as_sql()| method because it's
+assumed that \verb|KeyTransform| is only used on PostgreSQL (as part of the
+\verb|django.contrib.postgres| module). In the method, when there is only one
+\verb|KeyTransform|, the key name is directly inserted into the string, rather
+than passing it in the SQL parameters, as shown by lines 6, 8, and 9 of
+\autoref{code:keytransform-0}. In addition, the key name is also not properly
+quoted using \verb|json.dumps()|.
+
+The approach in the existing implementation opened up a way for executing an
+SQL injection by using a specially crafted string as the key name. The key name
+is usually passed as a keyword argument in Python, which means that the string
+can only contain alphanumeric characters and underscores. However, keyword
+arguments can also be specified using a dictionary in Python, which allows any
+string as a key name.
+
+Using a malicious string as a key name in a dictionary that's passed as keyword
+arguments, a user can execute an SQL injection. This vulnerability was reported
+via email to the Django security team\footnote{Security issues in Django should
+be reported to
+\href{mailto:security@djangoproject.com}{security@djangoproject.com}, not the
+public issue tracker.} and it was classified as CVE-2019-14234 \cite{cve} with
+critical severity. To fix the vulnerability, a patch was issued for the Django
+1.11, 2.1, and 2.2 releases \cite{django:securityrelease}. The implementation
+of \verb|as_postgresql()| in this research has incorporated the patch, as shown
+by lines 8 to 15 of \autoref{code:keytransform-3}.
+
+\listing
+{Python}
 {The \code{compile\_json\_path()} function.}
 {code:compilejsonpath}
 {codes/4-compilejsonpath.py}
