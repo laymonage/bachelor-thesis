@@ -534,6 +534,8 @@ the transforms, they are implemented differently. Thus, before going in-depth
 with the lookups implementation, it is better to go through the transforms
 first.
 
+\subsection{\code{JSONField} Transforms}
+
 \listing
 {Python}
 {Parts of the \code{KeyTransform} class.}
@@ -672,6 +674,24 @@ is no way to tell whether the value at the given path is a JSON object/array or
 a scalar value. In addition, the path argument is added directly to the SQL
 string, as shown by lines 5 and 6, because path expressions cannot be passed as
 bind variables on Oracle Database \cite{oracle:jsonpath}.
+
+\listing
+{Python}
+{The \code{KeyTextTransform} class.}
+{code:keytexttransform}
+{codes/4-keytexttransform.py}
+
+Aside from \verb|KeyTransform|, the \verb|KeyTextTransform| class is also
+implemented. The \verb|KeyTransform| class extracts JSON values with the
+\verb|jsonb| data type on PostgreSQL. Meanwhile, some built-in lookups expect
+the \verb|lhs| to be \verb|text|. Rather than casting the value to \verb|text|,
+the \verb|KeyTextTransform| class works by using the \verb|->>| and \verb|#>>|
+operators instead of the \verb|->| and \verb|#>| operators, as shown by lines 2
+and 3 of \autoref{code:keytexttransform}. The \verb|as_vendor()| methods do not
+need to be overridden for other database backends, because they already extract
+JSON string values as \verb|text|.
+
+\subsection{\code{JSONField} Lookups}
 
 \listing
 {Python}
