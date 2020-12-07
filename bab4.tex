@@ -513,7 +513,7 @@ implemented as part of the \verb|django.db.models.fields.json| module.
 
 The existing lookups for the PostgreSQL-only \verb|JSONField| serve as the
 basis for the new implementation. The lookups are the containment lookups
-(\verb|__contains| and \verb|__contained_by|), as well as the key existence
+(\verb|contains| and \verb|contained_by|), as well as the key existence
 lookups (\verb|has_key|, \verb|has_keys|, and \verb|has_any_keys|). In addition
 to that, the \verb|__exact| lookup also has to be overridden in order to
 support the JSON \verb|null| value.
@@ -691,6 +691,48 @@ and 3 of \autoref{code:keytexttransform}. The \verb|as_vendor()| methods do not
 need to be overridden for other database backends, because they already extract
 JSON string values as \verb|text|.
 
+\listing
+{Python}
+{The \code{KeyTransformFactory} class.}
+{code:keytransformfactory}
+{codes/4-keytransformfactory.py}
+
+In order to use the transforms, a factory class (\verb|KeyTransformFactory|)
+needs to be implemented. The key name of a \verb|KeyTransform| can be any
+string as long as it doesn't clash with a registered lookup or transform.
+Normally, transforms already have a predefined name for them, so their
+\verb|__init__()| method does not have a parameter for defining the name. As
+the key name of a \verb|KeyTransform| is defined dynamically, a factory class
+is needed in order to encapsulate the key name information, as shown by line 4
+of \autoref{code:keytransformfactory}. The key name will be passed as a
+predefined argument when instantiating a \verb|KeyTransform| by calling the
+factory object, as shown by lines 6 and 7 of the listing.
+
+\listing
+{Python}
+{The \code{get\_transform()} method of the \code{JSONField} model field.}
+{code:gettransform}
+{codes/4-gettransform.py}
+
+The factory instance is then registered to \verb|JSONField| by overriding the
+\verb|get_transform()| method of \verb|JSONField| shown by
+\autoref{code:gettransform}. The method works by trying to look recursively on
+all parent classes for a registered transform with the given name and return it
+if found, as shown by lines 2 to 4 of \autoref{code:gettransform}. If the
+transform is not found, the method returns a \verb|KeyTransformFactory|
+instance with the transform name as the key name, as shown by line 5 of the
+listing.
+
+As the transforms have been implemented, the lookups can now be implemented as
+well. The lookups consist of the \verb|JSONField|-specific lookups and the
+built-in lookups. The \verb|JSONField|-specific lookups are containment lookups
+(\verb|contains| and \verb|contained_by|) and key existence lookups
+(\verb|has_key|, \verb|has_keys|, and \verb|has_any_keys|). Meanwhile, the
+built-in lookups are \verb|exact|, \verb|iexact|, \verb|isnull|,
+\verb|icontains|, \verb|startswith|, \verb|istartswith|, \verb|endswith|,
+\verb|iendswith|, \verb|regex|, \verb|iregex|, \verb|lt|, \verb|lte|,
+\verb|gt|, and \verb|gte|.
+
 \subsection{\code{JSONField} Lookups}
 
 \listing
@@ -728,7 +770,7 @@ indicates whether the backend supports the containment lookups for
 \verb|False| for SQLite and Oracle Database because they don't support the
 containment lookups, as explained in the previous chapter. The last flag is the
 \verb|json_key_contains_list_matching_requires_list| that indicates whether the
-\verb|__contains| lookup requires matching object structure. This flag is set
+\verb|contains| lookup requires matching object structure. This flag is set
 to \verb|False| and only overridden to \verb|True| for PostgreSQL as it is the
 only system with the described behavior \cite{postgres:json}. Of the three
 flags added above, the only flag used in the lookups implementation is
