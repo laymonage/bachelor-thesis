@@ -528,6 +528,117 @@ and the \verb|JSONField|-specific lookups. As these transforms may return
 values of different data types, some of the lookups also need to be modified
 when they are used with on a \verb|KeyTransform|.
 
+The lookups can be used directly on a \verb|JSONField| or on
+\verb|KeyTransform|s applied to the field. When some of the lookups are used on
+the transforms, they are implemented differently. Thus, before going in-depth
+with the lookups implementation, it is better to go through the transforms
+first.
+
+\listing
+{Python}
+{Parts of the \code{KeyTransform} class.}
+{code:keytransform-1}
+{codes/4-keytransform-1.py}
+
+The key, index, and path
+transforms are unified as the \verb|KeyTransform| class, which can be used to
+extract the value of a \verb|JSONField| at a given path. The class includes the
+{PostgreSQL} operators for extracting JSON values as shown by lines 2 and 3
+of \autoref{code:keytransform-1}. Line 7 shows that the key name is normalized
+as a string on initialization.
+
+\listing
+{Python}
+{The \code{preprocess\_lhs()} method of the \code{KeyTransform} class.}
+{code:keytransform-2}
+{codes/4-keytransform-2.py}
+
+To process a chain of \verb|KeyTransform|s that make up a path transform, the
+\verb|preprocess_lhs()| method is created. Lines 4 to 8 of
+\autoref{code:keytransform-2} show how the method separates the chain of
+\verb|KeyTransform|s from the previous \verb|lhs|. The separation is done by
+traversing the \verb|lhs| attribute of the \verb|KeyTransforms| until the
+\verb|lhs| is not a \verb|KeyTransform|. While traversing, the key names that
+construct the path are saved into a list. The method then compiles the original
+\verb|lhs| and its parameters, and return them along with the list of
+\verb|KeyTransforms|, as shown by lines 9 and 12. Lines 10 and 11 show that on
+Oracle Database, any \verb|%| character in the key name is replaced by
+\verb|%%| to escape string formatting (this will be explained later). In
+addition, the method also has an \verb|lhs_only| parameter for optimization by
+not saving and returning the key names if they are not needed, as shown by
+lines 1, 2, 6, and 12.
+
+\listing
+{Python}
+{The \code{as\_postgresql()} method of the \code{KeyTransform} class.}
+{code:keytransform-3}
+{codes/4-keytransform-3.py}
+
+To compile a \verb|KeyTransform| into an SQL query expression, the
+\verb|as_vendor()| method is used, e.g. \verb|as_postgresql()| for the
+PostgreSQL backend. The method uses the \verb|preprocess_lhs()| method
+described previously, as shown by line 2 of \autoref{code:keytransform-3}. If
+there are multiple \verb|KeyTransform|s, the \verb|postgres_nested_operator|
+(\verb|#>|) is used, as shown by lines 3 to 7 of the listing. Otherwise, the
+\verb|postgres_operator| (\verb|->|) is used, as shown by lines 12 to 15. For
+consistency, if there is only one \verb|KeyTransform| and the key is an
+integer, it is assumed to be an array index by converting it to the \verb|int|
+data type, as shown by line 9. The conversion is not needed for the nested
+operator because for this operator, PostgreSQL automatically interprets integer
+key names as array indices.
+
+\listing
+{Python}
+{The \code{compile\_json\_path()} function.}
+{code:compilejsonpath}
+{codes/4-compilejsonpath.py}
+
+On other database systems, the JSON extraction functions use the JSONPath
+notation to specify the path to be extracted. For reusability, the
+\verb|compile_json_path()| function is created to convert a list of key names
+into its JSONPath representation. The function works by iterating through the
+list of key names and keeping a list of strings that make up the JSONPath. If
+the key name is an integer, the string \verb|'[num]'| (where \verb|num| is the
+integer) is appended to the list, as shown by lines 4, 5, 9, and 10 of
+\autoref{code:compilejsonpath}. Otherwise, the key name is enclosed in double
+quotes (so that it may contain spaces) by passing it through
+\verb|json.dumps()|, as shown by lines 6 to 8. Additionally, the method also
+has a \verb|include_root| parameter to control whether the resulting path
+should include the root notation (\verb|$|), as shown by lines 1 and 2.
+Finally, the list of strings is concatenated by joining the strings with an
+empty string, as shown by line 11.
+
+\listing
+{Python}
+{The \code{as\_mysql()} and \code{as\_sqlite()} methods of the \code{KeyTransform} class.}
+{code:keytransform-4}
+{codes/4-keytransform-4.py}
+
+The \verb|as_vendor()| methods for MariaDB, MySQL, and SQLite are similar. The
+methods utilize the \verb|preprocess_lhs()| method and
+\verb|compile_json_path()| to construct the JSONPath notation of the key
+transforms, as shown by lines 2, 3, 7, and 8 of \autoref{code:keytransform-4}.
+To extract the value, the \verb|JSON_EXTRACT()| function is used, where the
+first argument is the \verb|lhs| and the second argument is the JSONPath, as
+shown by lines 4 and 9.
+
+\listing
+{Python}
+{The \code{as\_oracle()} method of the \code{KeyTransform} class.}
+{code:keytransform-5}
+{codes/4-keytransform-5.py}
+
+Meanwhile, the \verb|as_oracle()| method needs some adjustments to work with
+the behavior of Oracle Database. The method still uses the
+\verb|preprocess_lhs()| method and \verb|compile_json_path()| function, as
+shown by lines 2 and 3 of \autoref{code:keytransform-5}. However, to extract
+the value, the \verb|JSON_QUERY()| and \verb|JSON_VALUE()| functions are
+combined using the \verb|COALESCE()| function. This approach is needed as there
+is no way to tell whether the value at the given path is a JSON object/array or
+a scalar value. In addition, the path argument is added directly to the SQL
+string, as shown by lines 5 and 6, because path expressions cannot be passed as
+bind variables on Oracle Database \cite{oracle:jsonpath}.
+
 \listing
 {Python}
 {The \code{PostgresOperatorLookup} class.}
