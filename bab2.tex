@@ -134,16 +134,27 @@ JSON objects) and an ordered list of values (called JSON arrays)
 booleans, or \code{null}. However, they can also be JSON objects or JSON
 arrays, which means that they can be nested to form more complex data
 structures. An example of a JSON object that contains a JSON array and other
-JSON objects can be seen in \autoref{code:json}. As seen in the example, the
-schema of a JSON object is defined within the data structure itself, which
-allows each object to define its own schema for flexibility.
+JSON objects can be seen in \autoref{code:json}.
 
-To utilize the flexibility of JSON, some relational databases have implemented
-support for storing and querying JSON data. This support is commonly
-implemented by providing database functions to operate on JSON data stored as
-text or, in some cases, a native JSON data type. JSON support on the database
-systems supported by Django varies between one another. The following
-subsections explain how those database systems provide JSON support.
+To specify the value at a given path in some JSON data, the JSONPath notation
+is commonly used. The JSONPath notation has no formal specification, but the
+creator has written an article that describes the notation
+\cite{goessner:jsonpath}. The notation is based on the XPath notation for XML.
+The basic concept of JSONPath is the use of \verb|$| to indicate the root
+object/element, \verb|.key| or \verb|['key']| to select a key, and \verb|[i]|
+to select the element at index \verb|i| of an array. For example, using a
+JSONPath like \verb|$.phoneNumbers[0].number| on the JSON object shown by
+\autoref{code:json} will select the string \verb|"001 123 4567"|.
+
+As seen in the example shown by \autoref{code:json}, the schema of a JSON
+object is defined within the data structure itself, which allows each object to
+define its own schema for flexibility. To utilize the flexibility of JSON, some
+relational databases have implemented support for storing and querying JSON
+data. This support is commonly implemented by providing database functions to
+operate on JSON data stored as text or, in some cases, a native JSON data type.
+JSON support on the database systems supported by Django varies between one
+another. The following subsections explain how those database systems provide
+JSON support.
 
 \subsection{PostgreSQL}
 
