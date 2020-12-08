@@ -775,3 +775,36 @@ to \verb|False| and only overridden to \verb|True| for PostgreSQL as it is the
 only system with the described behavior \cite{postgres:json}. Of the three
 flags added above, the only flag used in the lookups implementation is
 \verb|supports_json_field_contains|, while the others are only used in tests.
+
+\listing
+{Python}
+{The \code{DataContains} class.}
+{code:lookups-contains}
+{codes/4-lookups-contains.py}
+
+With the additional database feature flags added, the containment lookups can
+now be implemented. One of the containment lookups is the \verb|contains|
+lookup that matches JSON objects (\verb|lhs|) that contain the lookup value
+(\verb|rhs|) as a subset. The lookup is implemented in the \verb|DataContains|
+class shown by \autoref{code:lookups-contains}. On PostgreSQL, the lookup uses
+the \verb|@>| operator, as shown by line 3 of the listing. On MariaDB and
+MySQL, it uses the \verb|JSON_CONTAINS(lhs, rhs)| function, as shown by line
+13. The lookup is not supported on other database backends, so the
+\verb|NotSupportedError| is raised, as shown by lines 6 to 9.
+
+\listing
+{Python}
+{The \code{ContainedBy} class.}
+{code:lookups-contained_by}
+{codes/4-lookups-contained_by.py}
+
+The other containment lookup is the \verb|contained_by| lookup, implemented in
+the \verb|ContainedBy| class shown by \autoref{code:lookups-contained_by}. The
+lookup is the inverse of the \verb|contains| lookup, so it matches JSON objects
+(\verb|lhs|) that are a subset of the lookup value (\verb|rhs|). The
+implementation is similar to \verb|DataContains|, but the operator is changed
+for PostgreSQL and the arguments switched for MariaDB and MySQL. On PostgreSQL,
+the \verb|<@| is used. On MariaDB and MySQL, the \verb|JSON_CONTAINS(rhs, lhs)|
+function is used, with the parameters switched, as shown by lines 13 and 14 of
+the listing. As with \verb|DataContains|, the lookup is not supported by the
+other database backends.
