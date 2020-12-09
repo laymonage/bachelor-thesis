@@ -807,4 +807,118 @@ for PostgreSQL and the arguments switched for MariaDB and MySQL. On PostgreSQL,
 the \verb|<@| is used. On MariaDB and MySQL, the \verb|JSON_CONTAINS(rhs, lhs)|
 function is used, with the parameters switched, as shown by lines 13 and 14 of
 the listing. As with \verb|DataContains|, the lookup is not supported by the
-other database backends.
+other database backends. With both of the lookups implemented, the containment
+lookups are now complete.
+
+The next set of lookups are the key existence lookups, which consist of the
+\verb|has_key|, \verb|has_keys|, and \verb|has_any_keys| lookups. These
+lookups have many similarities in their implementation. Thus, an abstraction
+for these lookups are created as the \verb|HasKeyLookup| class.
+
+\listing
+{Python}
+{The \code{as\_postgresql()} method of the \code{HasKeyLookup} class.}
+{code:lookups-haskeylookup-1}
+{codes/4-lookups-haskeylookup-1.py}
+
+For PostgreSQL, the lookups make use of the \verb|?|, \verb|?&|, and \verb=?|=
+operators, so the class extends from the \verb|PostgresOperatorLookup| class.
+In the implementation of \verb|as_postgresql()|, the code also checks whether
+the \verb|rhs| is a \verb|KeyTransform| rather than just a string. If so, then
+the key names of the \verb|rhs| are retrieved and moved to the \verb|lhs|,
+except the last one, as shown by lines 4 to 9 of
+\autoref{code:lookups-haskeylookup-1}. After that, the \verb|rhs| is replaced
+by the last key name, as shown by line 10. The adjustment is needed because
+the key existence operators can only be used at the top-level of the data. To
+check for keys at a certain depth, the \verb|lhs| needs to be extracted to
+reach that depth in advance, so that the operators work on the extracted value.
+Once the \verb|rhs| has been reduced to a single key, the method returns the
+SQL expression produced by the \verb|PostgresOperatorLookup| class.
+
+\listing
+{Python}
+{The \code{as\_sql()} method of the \code{HasKeyLookup} class.}
+{code:lookups-haskeylookup-2}
+{codes/4-lookups-haskeylookup-2.py}
+
+For other database backends, they work similarly by using the JSONPath
+notation. The JSONPath is used as the argument for the functions that check for
+the existence of the JSONPath. To group the similarities found in the
+\verb|as_vendor()| methods, the \verb|as_sql()| method is overridden, as shown
+by \autoref{code:lookups-haskeylookup-2}.
+
+The lookups can be used on a \verb|JSONField| or a \verb|KeyTransform|, so the
+\verb|lhs| can be either of the two. If the \verb|lhs| is a
+\verb|KeyTransform|, then all of the previous transforms are compiled into a
+JSONPath, as shown by lines 6 to 10 of \autoref{code:lookups-haskeylookup-1}.
+Otherwise, the \verb|lhs| is processed normally and the JSONPath is the root
+(\verb|$|), as shown by lines 11 to 13.
+
+The \verb|has_key| lookup accepts a key name (string) as the \verb|rhs|, but
+the \verb|has_keys| and \verb|has_any_keys| lookup accepts a list or tuple of
+key names. To unify the implementation, the \verb|rhs| is wrapped into a list
+if it's not a list or tuple, as shown by lines 18 and 19 of
+\autoref{code:lookups-haskeylookup-1}. Then, each key name in the \verb|rhs| is
+compiled into a JSONPath that is prepended with the JSONPath from the lhs, as
+shown by lines 20 to 30. After that, the JSONPaths are joined with a logical
+operator defined by the class, as shown by lines 2 and 32 to 35. Finally, line
+36 shows that the string result is returned along with the parameters.
+
+\listing
+{Python}
+{The \code{as\_vendor()} methods of the \code{HasKeyLookup} class.}
+{code:lookups-haskeylookup-3}
+{codes/4-lookups-haskeylookup-3.py}
+
+The differences between the database backends for \verb|HasKeyLookup| is
+defined in the \verb|as_vendor()| methods. After the unification in
+\verb|as_sql()| the \verb|as_vendor()| methods only need to define the
+functions that are used on each database backend. MariaDB and MySQL use the
+\verb|JSON_CONTAINS_PATH()| function, as shown by lines 1 to 4 of
+\autoref{code:lookups-haskeylookup-3}. SQLite uses the \verb|JSON_TYPE()|
+function with the \verb|IS NOT NULL| condition, as shown by lines 6 to 9.
+Oracle Database uses the \verb|JSON_EXISTS()| function, as shown by lines 11 to
+14. Additionally, the JSONPath needs to be added directly into the SQL
+expression string, as shown by line 15, because it cannot be passed as bind
+variables.
+
+\listing
+{Python}
+{The \code{HasKey} class.}
+{code:lookups-haskey}
+{codes/4-lookups-haskey.py}
+
+\listing
+{Python}
+{The \code{HasKeys} class.}
+{code:lookups-haskeys}
+{codes/4-lookups-haskeys.py}
+
+\listing
+{Python}
+{The \code{HasAnyKeys} class.}
+{code:lookups-hasanykeys}
+{codes/4-lookups-hasanykeys.py}
+
+After the \verb|HasKeyLookup| class is defined, the concrete classes for the
+lookups only need to define the operators. The \verb|has_key| lookup is defined
+in the \verb|HasKey| class and uses the \verb|?| PostgreSQL operator with no
+logical operator for the other database backends, as shown by
+\autoref{code:lookups-haskey}. The \verb|has_keys| lookup is defined in the
+\verb|HasKeys| class and uses the \verb|?&| PostgreSQL operator and the
+\verb|AND| logical operator for the other database backends, as shown by
+\autoref{code:lookups-haskeys}. The \verb|has_any_keys| lookup is defined in
+the \verb|HasAnyKeys| class and uses the \verb=?|= PostgreSQL operator and the
+\verb|OR| logical operator for the other database backends, as shown by
+\autoref{code:lookups-hasanykeys}.
+
+In addition, the lookups need to prevent the \verb|rhs| from being serialized
+into a JSON string because it would incorrectly add double quotes to the key
+name. To do so, the \verb|prepare_rhs| flag is set to \verb|False| for the
+\verb|HasKey| class. For the \verb|HasKeys| class, the \verb|rhs| is only
+normalized (rather than serialized) as a list of strings by overriding the
+\verb|get_prep_lookup()| method, as shown by lines 6 and 7 of
+\autoref{code:lookups-haskeys}. The \verb|HasAnyKeys| class extends from the
+\verb|HasKeys| lookup, so the overridden \verb|get_prep_lookup()| method is
+inherited. As the concrete classes have been implemented, the key existence
+lookups are now complete.
