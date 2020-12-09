@@ -922,3 +922,64 @@ normalized (rather than serialized) as a list of strings by overriding the
 \verb|HasKeys| lookup, so the overridden \verb|get_prep_lookup()| method is
 inherited. As the concrete classes have been implemented, the key existence
 lookups are now complete.
+
+\listing
+{Python}
+{The \code{JSONExact} class.}
+{code:lookups-jsonexact}
+{codes/4-lookups-jsonexact.py}
+
+Aside from the \verb|JSONField|-specific lookups, the \verb|exact| lookup also
+needs to be modified in order to work with \verb|JSONField|. The lookup is
+implemented in the \verb|JSONExact| class that extends \verb|lookups.Exact|, as
+shown by line 1 of \autoref{code:lookups-jsonexact}. Line 2 shows that the
+class has the \verb|can_use_none_as_rhs| flag set to \verb|True|. This override
+prevents Django from automatically swapping the \verb|exact=None| lookup with
+the \verb|isnull=True| lookup, which would turn the lookup into a query for SQL
+\verb|NULL|. By disabling the automatic swapping, it is possible to query for
+JSON \verb|null| value using \verb|exact=None|.
+
+The \verb|process_lhs()| and \verb|process_rhs()| methods of the \verb|exact|
+lookup are also overridden. The \verb|process_lhs()| is modified so that the
+\verb|lhs| is wrapped with the \verb|JSON_TYPE()| function on SQLite if the
+\verb|rhs| is \verb|None|, as shown by lines 6 to 9 of
+\autoref{code:lookups-jsonexact}. On the other hand, the \verb|process_rhs()|
+is modified by replacing \verb|None| with \verb|'null'| for all database
+backends, as shown by lines 14 and 15. To make MariaDB and MySQL treat the
+\verb|rhs| as a JSON value, the \verb|JSON_EXTRACT()| function is used, as
+shown by lines 16 to 18.
+
+\listing
+{Python}
+{The \code{field\_cast\_sql()} and \code{lookup\_cast()} methods in Oracle
+Database backend's \code{DatabaseOperations} class.}
+{code:oracle-operations}
+{codes/4-oracle-operations.py}
+
+Once again, the \verb|DatabaseOperations| of the Oracle Database backend also
+needs to be modified. As JSON data is stored using the \verb|NCLOB| data type,
+directly including the value in the \verb|WHERE| clause of an SQL query is not
+supported \cite{oracle:comparison}. To work around this limitation, the LOB
+object is read using the \verb|DBMS_LOB.SUBSTR()| function, as shown by lines 8
+and 9 of \autoref{code:oracle-operations}. To avoid unnecessary calls to
+\verb|DBMS_LOB.SUBSTR()| in other situations, an additional check is added to
+the \verb|field_cast_sql()| method, as shown by line 2. After applying these
+modifications to the backend and the lookup class, the \verb|exact| lookup is
+now compatible with \verb|JSONField|.
+
+\listing
+{Python}
+{The registration of \code{JSONField} lookups.}
+{code:register-jsonfield}
+{codes/4-register-jsonfield.py}
+
+Before custom lookups can be used on a model field, they need to be registered
+using the \verb|register_lookup()| method of the field. The customized lookups
+for \verb|JSONField| are the containment lookups, the key existence lookups,
+and the \verb|exact| lookup. Therefore, the \verb|DataContains|,
+\verb|ContainedBy|, \verb|HasKey|, \verb|HasKeys|, \verb|HasAnyKeys|, and
+\verb|JSONExact| classes are registered on \verb|JSONField|, as shown by
+\autoref{code:register-jsonfield}. After registering the lookups, they can now
+be used on \verb|JSONField|. However, these lookups and other built-in lookups
+still need to be modified in order to be used on \verb|KeyTransform|s, as
+explained in the next subsection.
