@@ -1,0 +1,6 @@
+JSONField.register_lookup(DataContains)
+JSONField.register_lookup(ContainedBy)
+JSONField.register_lookup(HasKey)
+JSONField.register_lookup(HasKeys)
+JSONField.register_lookup(HasAnyKeys)
+JSONField.register_lookup(JSONExact)
