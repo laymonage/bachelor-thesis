@@ -1205,3 +1205,11 @@ shows that all of the lookups are registered to \verb|KeyTransform| using the
 \verb|register_lookup()| method. The \verb|JSONField|-specific lookups can be
 used without explicitly registering them to \verb|KeyTransform|, because
 the output field of \verb|KeyTransform| is also \verb|JSONField|.
+
+In this chapter, the overall implementation of \verb|JSONField| has been
+explained. The implementation includes the \verb|JSONField| model field,
+\verb|JSONField| form field, \verb|JSONField|-specific lookups and transforms,
+and \verb|KeyTransform| lookups. As the implementation of \verb|JSONField| has
+been completed, it is now possible to store and query JSON data with Django's
+ORM tool. In the next chapter, \verb|JSONField| usage and JSON data validation
+examples will be explained.
