@@ -1043,3 +1043,23 @@ by checking that the key exists and that the value (when extracted) is
 \verb|NULL|. The checks are implemented by combining the \verb|has_key| lookup
 and the \verb|isnull| lookup, as shown by
 \autoref{code:lookups-keytransformexact-3}.
+
+\listing
+{Python}
+{The \code{KeyTransformIsNull} class.}
+{code:lookups-keytransformisnull}
+{codes/4-lookups-keytransformisnull.py}
+
+The next lookup to be modified is the \verb|isnull| lookup, which is
+implemented in the \verb|KeyTransformIsNull| class. When used on a
+\verb|KeyTransform|, the \verb|isnull=True| lookup matches objects that do not
+have the path specified by the \verb|KeyTransform|s, and vice versa. On
+PostgreSQL, MariaDB, and MySQL, the JSON extraction functions used in
+\verb|KeyTransform| already return the correct result for the \verb|isnull|
+lookup. However, on SQLite and Oracle Database, the JSON extraction functions
+return SQL \verb|NULL| when extracting JSON \verb|null|. The behavior affects
+the \verb|isnull=False| lookup as it doesn't match objects where the path
+exists but the value is \verb|null|. This issue can be fixed by replacing the
+\verb|isnull=False| lookup with a \verb|HasKey| lookup performed on the
+\verb|lhs|, as shown by lines 3, 4, 8, and 9 of
+\autoref{code:lookups-keytransformisnull}.
