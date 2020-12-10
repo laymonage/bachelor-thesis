@@ -951,8 +951,8 @@ shown by lines 16 to 18.
 
 \listing
 {Python}
-{The \code{field\_cast\_sql()} and \code{lookup\_cast()} methods in Oracle
-Database backend's \code{DatabaseOperations} class.}
+{The \code{field\_cast\_sql()} and \code{lookup\_cast()} methods in the
+Oracle Database backend's \code{DatabaseOperations} class.}
 {code:oracle-operations}
 {codes/4-oracle-operations.py}
 
@@ -1038,11 +1038,11 @@ SQLite, the \verb|JSON_EXTRACT()| function is used (unless the value is
 {codes/4-lookups-keytransformexact-3.py}
 
 In addition, the \verb|as_oracle()| method of \verb|KeyTransformExact| is also
-overridden. On Oracle Database, querying for the JSON \verb|null| value works
-by checking that the key exists and that the value (when extracted) is
-\verb|NULL|. The checks are implemented by combining the \verb|has_key| lookup
-and the \verb|isnull| lookup, as shown by
-\autoref{code:lookups-keytransformexact-3}.
+overridden to work with the JSON \verb|null| value. On Oracle Database,
+querying for the JSON \verb|null| value works by checking that the key exists
+and that the value (when extracted) is \verb|NULL|. The checks are implemented
+by combining the \verb|has_key| lookup and the \verb|isnull| lookup, as shown
+by \autoref{code:lookups-keytransformexact-3}.
 
 \listing
 {Python}
@@ -1063,3 +1063,127 @@ exists but the value is \verb|null|. This issue can be fixed by replacing the
 \verb|isnull=False| lookup with a \verb|HasKey| lookup performed on the
 \verb|lhs|, as shown by lines 3, 4, 8, and 9 of
 \autoref{code:lookups-keytransformisnull}.
+
+The remaining lookups for \verb|KeyTransform| can be divided into two groups:
+the text lookups and the numeric lookups. The text lookups are the
+\verb|iexact|, \verb|icontains|, \verb|startswith|, \verb|istartswith|,
+\verb|endswith|, \verb|iendswith|, \verb|regex|, and \verb|iregex| lookups. The
+text lookups that start with \verb|i| are case-insensitive. Meanwhile, the
+numeric lookups are the \verb|lt|, \verb|lte|, \verb|gt|, and \verb|gte|
+lookups.
+
+To use the built-in text lookups, the \verb|lhs| needs to be in the form of an
+SQL string. On PostgreSQL, JSON values can be extracted as \verb|text| (rather
+than \verb|jsonb|) using the \verb|->>| and \verb|#>>| operators, which have
+been implemented in the \verb|KeyTransformText| class. On MariaDB and MySQL,
+after using the \verb|JSON_EXTRACT()| function to extract the value, JSON
+strings need to be unquoted using the \verb|JSON_UNQUOTE| function. On SQLite,
+the \verb|JSON_EXTRACT()| function automatically unquotes JSON strings, so no
+modification is needed. On Oracle Database, the \verb|JSON_VALUE()| function
+also automatically unquotes JSON strings, so there is no modification needed as
+well.
+
+\listing
+{Python}
+{The \code{KeyTransformTextLookupMixin} class.}
+{code:mixins-keytransformtextlookup}
+{codes/4-mixins-keytransformtextlookup.py}
+
+In order to use \verb|KeyTransformText| for lookups that expect the \verb|lhs|
+as \verb|text|, the \verb|KeyTransformTextLookupMixin| class is created. The
+mixin works by replacing the \verb|KeyTransform| with a \verb|KeyTextTransform|
+in the \verb|__init__()| method, as shown by lines 8 to 12 of
+\autoref{code:mixins-keytransformtextlookup}. If the class is instantiated with
+a transform other than a \verb|KeyTransform|, a \verb|TypeError| is raised, as
+shown by lines 3 to 7.
+
+\listing
+{Python}
+{The \code{lookup\_cast()} method in the MySQL backend's
+\code{DatabaseOperations} class.}
+{code:mysql-operations}
+{codes/4-mysql-operations.py}
+
+To utilize the \verb|JSON_UNQUOTE()| function when performing lookups that
+expect a string \verb|lhs| on MariaDB and MySQL, the \verb|DatabaseOperations|
+class of the MySQL backend is modified by overriding the \verb|lookup_cast()|
+method. If the \verb|lookup_type| argument of the method is one of the text
+lookups and it is performed on a \verb|JSONField|, the method returns the
+\verb|JSON_UNQUOTE()| function to be interpolated, as shown by lines 3 to 8 of
+\autoref{code:mysql-operations}. In addition, as MariaDB does not have a native
+JSON data type, it may require the \verb|JSON_UNQUOTE()| function regardless of
+the lookup. Thus, the condition for MariaDB is added accordingly.
+
+\listing
+{Python}
+{The \code{CaseInsensitiveMixin} class.}
+{code:mixins-caseinsensitivemixin}
+{codes/4-mixins-caseinsensitivemixin.py}
+
+The text lookups also include case-insensitive lookups, but comparison of JSON
+strings on MariaDB and MySQL is case-sensitive by default.\footnote{MariaDB and
+MySQL handle strings in JSON context using the \code{utf8mb4\_bin} collation,
+which is case sensitive.} To allow case-insensitive comparison of JSON values
+on MariaDB and MySQL, the \verb|CaseInsensitiveMixin| class is created. The
+mixin works by converting the \verb|lhs| and \verb|rhs| to lowercase using the
+\verb|LOWER()| function, as shown by
+\autoref{code:mixins-caseinsensitivemixin}.
+
+\listing
+{Python}
+{The text lookup classes for \code{KeyTransform}.}
+{code:lookups-keytransformtext}
+{codes/4-lookups-keytransformtext.py}
+
+With the necessary mixins created and the backend modification applied, the
+text lookups for \verb|KeyTransform| can be implemented. The lookups are
+implemented by extending the mixins and the built-in lookups accordingly, as
+shown by \autoref{code:lookups-keytransformtext}. All of the lookup classes
+extend the \verb|KeyTransformTextLookupMixin| class and their respective
+built-in lookups. For case-insensitive lookups, the classes also extend the
+\verb|CaseInsensitiveMixin| class. There are no methods or attributes to be
+overridden, as Python automatically resolve any nonexistent properties to the
+superclasses using its multiple inheritance logic.
+
+\listing
+{Python}
+{The \code{KeyTransformNumericLookupMixin} class.}
+{code:mixins-keytransformnumeric}
+{codes/4-mixins-keytransformnumeric.py}
+
+The remaining lookups for \verb|KeyTransform| are the numeric lookups, which
+may or may not require the \verb|rhs| to be in a numeric type. To implement
+the lookups, the \verb|KeyTransformNumericLookupMixin| class is created. For
+database systems that have a native JSON data type, the \verb|rhs| should be
+passed in its serialized form, so there is no modification needed. For other
+database systems, the \verb|rhs| should be in a numeric (deserialized) type.
+The mixin works by conditionally deserializing the rhs using the
+\verb|json.loads()| function, as shown by
+\autoref{code:mixins-keytransformnumeric}.
+
+\listing
+{Python}
+{The numeric lookup classes for \code{KeyTransform}.}
+{code:lookups-keytransformnumeric}
+{codes/4-lookups-keytransformnumeric.py}
+
+As with the text lookups, the numeric lookups can be implemented by extending
+the mixins and built-in lookups. All of the numeric lookups extend from the
+\verb|KeyTransformNumericLookupMixin| to ensure the \verb|rhs| is correct.
+After that, the classes can just extend from the built-in lookups without
+having to override any properties, as shown by
+\autoref{code:lookups-keytransformnumeric}.
+
+\listing
+{Python}
+{The registration of \code{KeyTransform} lookups.}
+{code:register-keytransform}
+{codes/4-register-keytransform.py}
+
+With all of the necessary classes implemented, the lookups are now compatible
+with \verb|KeyTransform|s. As with the \verb|JSONField| lookups, they need to
+be registered on \verb|KeyTransform|. \autoref{code:register-keytransform}
+shows that all of the lookups are registered to \verb|KeyTransform| using the
+\verb|register_lookup()| method. The \verb|JSONField|-specific lookups can be
+used without explicitly registering them to \verb|KeyTransform|, because
+the output field of \verb|KeyTransform| is also \verb|JSONField|.
