@@ -515,7 +515,7 @@ The existing lookups for the PostgreSQL-only \verb|JSONField| serve as the
 basis for the new implementation. The lookups are the containment lookups
 (\verb|contains| and \verb|contained_by|), as well as the key existence
 lookups (\verb|has_key|, \verb|has_keys|, and \verb|has_any_keys|). In addition
-to that, the \verb|__exact| lookup also has to be overridden in order to
+to that, the \verb|exact| lookup also has to be overridden in order to
 support the JSON \verb|null| value.
 
 The transforms are the key, index, and path transforms that extract the value
@@ -983,3 +983,63 @@ and the \verb|exact| lookup. Therefore, the \verb|DataContains|,
 be used on \verb|JSONField|. However, these lookups and other built-in lookups
 still need to be modified in order to be used on \verb|KeyTransform|s, as
 explained in the next subsection.
+
+\subsection{\code{KeyTransform} Lookups}
+
+The \verb|KeyTransform| class can be chained with \verb|JSONField|-specific
+lookups and other built-in lookups. The \verb|KeyTransform| class works by
+extracting the value of some JSON data at a given path. The extracted value
+may be of any type: boolean, number, string, object, array, or \verb|null|.
+In addition, the path may also be nonexistent. To implement the lookups on
+\verb|KeyTransform|s, the different possibilities of the extracted value must
+be taken into account.
+
+\listing
+{Python}
+{The \code{process\_lhs()} method of \code{KeyTransformExact}.}
+{code:lookups-keytransformexact-1}
+{codes/4-lookups-keytransformexact-1.py}
+
+One of the lookups that needs to be modified is the \verb|exact| lookup. The
+lookup is implemented in the \verb|KeyTransformExact| class that extends
+\verb|JSONExact|. As with \verb|JSONExact|, the \verb|process_lhs()| method is
+overridden to wrap the \verb|lhs| with the \verb|JSON_TYPE()| function when
+querying JSON \verb|null| value, as shown by line 10 of
+\autoref{code:lookups-keytransformexact-1}. However, as the \verb|rhs_params|
+are retrieved from the \verb|process_rhs()| of \verb|JSONExact|, the value has
+changed from \verb|[None]| to \verb|['null']|, as shown by line 6. In addition,
+the \verb|preprocess_lhs()| method is used to retrieve the original \verb|lhs|
+before the \verb|KeyTransform|s are applied, as shown by lines 7 to 9 of the
+listing.
+
+\listing
+{Python}
+{The \code{process\_rhs()} method of \code{KeyTransformExact}.}
+{code:lookups-keytransformexact-2}
+{codes/4-lookups-keytransformexact-2.py}
+
+The \verb|process_rhs()| method of \verb|KeyTransformExact| also needs to be
+overridden. The \verb|rhs| of \verb|KeyTransformExact| can also be a
+\verb|KeyTransform| expression, in which case the \verb|process_rhs()| of the
+built-in \verb|exact| lookup is used, as shown by
+\autoref{code:lookups-keytransformexact-2}. In other cases, the \verb|rhs|
+needs to be wrapped in a JSON extraction function to be treated as JSON. On
+Oracle Database, each value of the \verb|rhs_params| is wrapped inside a JSON
+object at the key \verb|value|, as shown by lines 13 to 16. If the value is a
+JSON object or array, the \verb|JSON_QUERY()| function is used. Otherwise, the
+\verb|JSON_VALUE()| function is used, as shown by lines 9 to 12. Meanwhile on
+SQLite, the \verb|JSON_EXTRACT()| function is used (unless the value is
+\verb|null|), as shown by lines 19 to 24.
+
+\listing
+{Python}
+{The \code{as\_oracle()} method of \code{KeyTransformExact}.}
+{code:lookups-keytransformexact-3}
+{codes/4-lookups-keytransformexact-3.py}
+
+In addition, the \verb|as_oracle()| method of \verb|KeyTransformExact| is also
+overridden. On Oracle Database, querying for the JSON \verb|null| value works
+by checking that the key exists and that the value (when extracted) is
+\verb|NULL|. The checks are implemented by combining the \verb|has_key| lookup
+and the \verb|isnull| lookup, as shown by
+\autoref{code:lookups-keytransformexact-3}.
