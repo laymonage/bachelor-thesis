@@ -654,8 +654,8 @@ The \verb|as_vendor()| methods for MariaDB, MySQL, and SQLite are similar. The
 methods utilize the \verb|preprocess_lhs()| method and
 \verb|compile_json_path()| to construct the JSONPath notation of the key
 transforms, as shown by lines 2, 3, 7, and 8 of \autoref{code:keytransform-4}.
-To extract the value, the \verb|JSON_EXTRACT()| function is used, where the
-first argument is the \verb|lhs| and the second argument is the JSONPath, as
+To extract the value, the \verb|JSON_EXTRACT()| function is used, with
+\verb|lhs| as the first argument and the JSONPath as the second argument, as
 shown by lines 4 and 9.
 
 \listing
@@ -674,6 +674,24 @@ is no way to tell whether the value at the given path is a JSON object/array or
 a scalar value. In addition, the path argument is added directly to the SQL
 string, as shown by lines 5 and 6, because path expressions cannot be passed as
 bind variables on Oracle Database \cite{oracle:jsonpath}.
+
+\listing
+{Python}
+{Parts of the \code{Cast} class.}
+{code:cast}
+{codes/4-cast.py}
+
+The JSON extraction functions are also useful for casting other fields to
+\verb|JSONField| if the database system does not have a true data type for
+JSON. To cast from one model field to another, Django provides the \verb|Cast|
+class that can be used to perform casting on the database level. To support
+casting to \verb|JSONField| on databases without a true data type for JSON, the
+\verb|as_vendor()| methods of the \verb|Cast| class is overridden. The
+\verb|JSON_EXTRACT()| function is used on MariaDB to force data to be
+recognized as JSON, as shown by lines 6 to 8 of \autoref{code:cast}. Lines 14
+to 16 show that on Oracle Database, the \verb|JSON_QUERY()| function is used.
+For SQLite, using the \verb|JSON_EXTRACT()| function is not necessary as the
+database can handle JSON data in its string form correctly.
 
 \listing
 {Python}
@@ -951,7 +969,7 @@ shown by lines 16 to 18.
 
 \listing
 {Python}
-{The \code{field\_cast\_sql()} and \code{lookup\_cast()} methods in the
+{The \code{field\_cast\_sql()} and \code{lookup\_cast()} methods of the
 Oracle Database backend's \code{DatabaseOperations} class.}
 {code:oracle-operations}
 {codes/4-oracle-operations.py}
