@@ -14,8 +14,8 @@ Before implementing the \verb|JSONField| class, it is important to remember
 that there are differences between the database systems in regards to handling
 JSON data. For example, each database system uses a different data type to
 store JSON data. In addition, the database driver (e.g. Psycopg 2 for
-PostgreSQL) may automatically deserialize JSON data into Python objects. These
-differences need to be taken into account when implementing \verb|JSONField|.
+PostgreSQL) may automatically deserialize JSON data into Python objects. When
+implementing \verb|JSONField|, these differences need to be taken into account.
 
 Django keeps track of the database systems' differences in the
 \verb|django.db.backends| module. Each database system has its own database
@@ -57,8 +57,8 @@ For the PostgreSQL database backend, the \verb|DatabaseWrapper| class is
 modified to add support for \verb|JSONField|. The \verb|data_types| property of
 the class is updated to map \verb|JSONField| to the \verb|jsonb| data type, as
 shown by line 7 of the listing. The \verb|jsonb| data type automatically checks
-whether the data is valid JSON, so there is no need for a \verb|CHECK|
-constraint.
+whether the data is valid according to the JSON syntax, so there is no need for
+a \verb|CHECK| constraint.
 
 \listing
 {Python}
@@ -808,7 +808,7 @@ class shown by \autoref{code:lookups-contains}. On PostgreSQL, the lookup uses
 the \verb|@>| operator, as shown by line 3 of the listing. On MariaDB and
 MySQL, it uses the \verb|JSON_CONTAINS(lhs, rhs)| function, as shown by line
 13. The lookup is not supported on other database backends, so the
-\verb|NotSupportedError| is raised, as shown by lines 6 to 9.
+\verb|NotSupportedError| is raised, as shown by lines 6 to 9 of the listing.
 
 \listing
 {Python}
@@ -830,8 +830,8 @@ lookups are now complete.
 
 The next set of lookups are the key existence lookups, which consist of the
 \verb|has_key|, \verb|has_keys|, and \verb|has_any_keys| lookups. These
-lookups have many similarities in their implementation. Thus, an abstraction
-for these lookups are created as the \verb|HasKeyLookup| class.
+lookups have many similarities in their implementation. To maximize code reuse,
+an abstraction for these lookups are created as the \verb|HasKeyLookup| class.
 
 \listing
 {Python}
