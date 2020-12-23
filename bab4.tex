@@ -11,9 +11,9 @@ database backends supported by Django.
 %-----------------------------------------------------------------------------%
 
 Before implementing the \verb|JSONField| class, it is important to remember
-that there are differences between the database systems in regards to handling
-JSON data. For example, each database system uses a different data type to
-store JSON data. In addition, the database driver (e.g. Psycopg 2 for
+that there are differences between the database systems in regards to how they
+handle JSON data. For example, each database system uses a different data type
+to store JSON data. In addition, the database driver (e.g. Psycopg 2 for
 PostgreSQL) may automatically deserialize JSON data into Python objects. When
 implementing \verb|JSONField|, these differences need to be taken into account.
 
@@ -38,13 +38,12 @@ To implement the \verb|JSONField| class, three flags are added to the
 \verb|JSONField|. The second flag is \verb|supports_primitives_in_json_field|,
 which is used to determine whether the database system supports storing JSON
 scalar values (strings, numbers, booleans, and \verb|null|) directly in a
-\verb|JSONField|.\footnote{This flag is not used in the \code{JSONField}
-implementation itself, but it is useful to store this information to be used in
-tests.} The third flag is \verb|has_native_json_field|, which shows whether the
-database system has a native JSON data type and the database driver
-automatically deserializes JSON data into Python objects. These flags are
-overridden in each database backend's \verb|DatabaseFeatures| class as
-necessary.
+\verb|JSONField|. This flag is not used in the \code{JSONField} implementation
+itself, but it is used for testing. The third flag is
+\verb|has_native_json_field|, which shows whether the database system has a
+native JSON data type and the database driver automatically deserializes JSON
+data into Python objects. These flags are overridden in each database backend's
+\verb|DatabaseFeatures| class as necessary.
 
 \listing
 [0 pt]
@@ -66,16 +65,16 @@ a \verb|CHECK| constraint.
 {code:backends-postgresql-2}
 {codes/4-backends-postgresql-2.py}
 
-PostgreSQL has a native JSON data type and the driver (Psycopg 2) automatically
-deserializes JSON data into Python objects. Thus, the
+Among the new database feature flags, only one flag is overridden for
+PostgreSQL. PostgreSQL has a native JSON data type and the driver (Psycopg 2)
+automatically deserializes JSON data into Python objects. Thus, the
 \verb|has_native_json_field| flag in the \verb|DatabaseFeatures| class of the
 backend is set to \verb|True|, as shown by line 4 of
-\autoref{code:backends-postgresql-2}. The other flags
-(\verb|supports_json_field|\footnote{Django supports PostgreSQL 9.5 and higher,
-while \code{jsonb} is available as of version 9.4, so \code{JSONField} is
-always supported.} and \verb|supports_primitives_in_json_field|) are not
-overridden, as their values from \verb|BaseDatabaseFeatures| are already
-correct.
+\autoref{code:backends-postgresql-2}. The \verb|supports_json_field| flag is
+not overridden because Django supports PostgreSQL 9.5 and higher, while
+\code{jsonb} is available as of version 9.4, so \code{JSONField} is always
+supported. The \verb|supports_primitives_in_json_field| flag is also not
+overridden, as the value from \verb|BaseDatabaseFeatures| is already correct.
 
 \listing
 {Python}
@@ -89,14 +88,13 @@ feature can be done by casting the data to \verb|text| or registering a stub
 function for Psycopg 2's \verb|jsonb| converter
 \cite{psycopg2:json-adaptation}. The casting option was chosen during this
 research, as registering a stub function may break compatibility with the
-previous implementation that relied on the automatic
-deserialization.\footnote{The casting operation is efficient and does not
-involve a copy, so this decision should not significantly affect the
-performance of \code{JSONField} \cite{psycopg2:json-adaptation}.} The casting
-operation is stored as a method in the \verb|DatabaseOperations| class of the
-backend. In the case of PostgreSQL, casting data to \verb|text| can be done
-using the \verb|::text| syntax, as shown by line 6 of
-\autoref{code:backends-postgresql-3}.
+previous implementation that relied on the automatic deserialization. The
+casting operation is efficient and does not involve a copy, so this decision
+should not significantly affect the performance of \code{JSONField}
+\cite{psycopg2:json-adaptation}. The casting operation is stored as a method in
+the \verb|DatabaseOperations| class of the backend. In the case of PostgreSQL,
+casting data to \verb|text| can be done using the \verb|::text| syntax, as
+shown by line 6 of \autoref{code:backends-postgresql-3}.
 
 \listing
 {Python}
@@ -191,9 +189,9 @@ the \verb|LOB| objects need to be converted to Python strings in order to
 perform deserialization. To do this, the \verb|get_db_converters()| method in
 the \verb|DatabaseOperations| class is overridden so that \verb|JSONField| uses
 the \verb|convert_textfield_value| converter, as shown by lines 7 and 8 of
-\autoref{code:backends-oracle-2}.\footnote{\code{TextField} also uses the
-\code{NCLOB} data type on Oracle Database, so its converter can be reused for
-\code{JSONField}.}
+\autoref{code:backends-oracle-2}. The \code{TextField} model field also uses
+the \code{NCLOB} data type on Oracle Database, so its converter can be reused
+for \code{JSONField}.
 
 \listing
 {Python}
@@ -201,15 +199,16 @@ the \verb|convert_textfield_value| converter, as shown by lines 7 and 8 of
 {code:backends-oracle-3}
 {codes/4-backends-oracle-3.py}
 
-As for the \verb|DatabaseFeatures| class, the \verb|supports_primitives_in_json_field|
-flag is overridden to \verb|False|, as shown by line 4 of
-\autoref{code:backends-oracle-2}. This flag reflects the behavior of Oracle
-Database that only allows storing JSON objects and arrays in a column with the
-\verb|IS JSON| constraint enabled. The other flags
-(\verb|supports_json_field|\footnote{Oracle Database introduced JSON support in
-version 12.1.0.2 and Django supports Oracle Database version 12.2 and higher,
-so \code{JSONField} is always supported.} and \verb|has_native_json_field|) are
-derived from \verb|BaseDatabaseFeatures|.
+For Oracle Database, only the \verb|supports_primitives_in_json_field| flag is
+overridden in the \verb|DatabaseFeatures| class. The flag is overridden to
+\verb|False|, as shown by line 4 of \autoref{code:backends-oracle-2}. This flag
+reflects the behavior of Oracle Database that only allows storing JSON objects
+and arrays in a column with the \verb|IS JSON| constraint enabled. The
+\verb|supports_json_field| flag is not overridden because Oracle Database
+introduced JSON support in version 12.1.0.2 and Django supports Oracle Database
+version 12.2 and higher, so \code{JSONField} is always supported. The
+\verb|has_native_json_field| flag is derived from \verb|BaseDatabaseFeatures|
+because the value is already correct.
 
 All of the database backends have now been adjusted with the necessary changes.
 The changes were mostly made for mapping \verb|JSONField| to the correct data
@@ -313,24 +312,26 @@ class as the \verb|cls| argument. Lines 2 and 3 of the listing show that the
 \verb|None| value should not be serialized, because it is reserved for SQL
 \verb|NULL| as previously explained.
 
+In addition to the serialization needed to store a Python object inside
+\verb|JSONField| to the database, Django also has a serialization framework
+that can be used for model objects. The framework can be used to dump model
+objects into XML, JSON, and YAML files. The framework serializes model objects
+by calling the \verb|value_to_string()| method of their fields.
+
 \listing
 {Python}
 {The \code{value\_to\_string()} method of \code{JSONField} model field.}
 {code:jsonfield-valuetostring}
 {codes/4-jsonfield-valuetostring.py}
 
-In addition to the serialization needed to store a Python object inside
-\verb|JSONField| to the database, Django also has a serialization framework
-that can be used for model objects. The framework can be used to dump model
-objects into XML, JSON, and YAML files. The model objects are serialized by
-calling the \verb|value_to_string()| method of their fields. Normally, the
-method returns a string that is ready to be used by the serializer. However,
-\verb|JSONField| represents JSON data in its Python built-in format that
-can be serialized by the built-in serializers. Therefore, the method should
-just return the Python object as-is and let the serializers handle the
-serialization process. To achieve this, the \verb|value_to_string()| method
-is overridden to just return the object using the \verb|value_from_object()|
-method, as shown by line 2 of \autoref{code:jsonfield-valuetostring}.
+Normally, the \verb|value_to_string()| method returns a string that is ready to
+be used by the serializer. However, \verb|JSONField| represents JSON data in
+its Python built-in format that can be serialized by the built-in serializers.
+Therefore, the method should just return the Python object as-is and let the
+serializers handle the serialization process. To achieve this, the
+\verb|value_to_string()| method is overridden to just return the field's value.
+To get the field's value prior to serialization, the \verb|value_from_object()|
+method is used, as shown by line 2 of \autoref{code:jsonfield-valuetostring}.
 
 \listing
 {Python}
@@ -361,19 +362,19 @@ the value is directly returned if \verb|json.JSONDecodeError| is raised.
 
 \listing
 {Python}
-{The \code{select\_format()} method of \code{JSONField}.}
+{The \code{select\_format()} method of \code{JSONField} model field.}
 {code:jsonfield-selectformat}
 {codes/4-jsonfield-selectformat.py}
 
 To cast JSON data to \verb|text| on the database level, the
-\verb|select_format()| method is overridden in the \verb|JSONField| class. As
-the name suggests, this method determines the format of the \verb|SELECT|
-clause of the SQL query. The casting operation is needed in order to enable the
-use of a custom decoder with a database system that automatically deserializes
-JSON data into Python objects. Thus, the casting operation is performed only if
-a custom decoder is used with a database backend that has the
-\verb|has_native_json_field| feature flag set to \verb|True|, as shown by lines
-2 to 6 of \autoref{code:jsonfield-selectformat}.
+\verb|select_format()| method is overridden in the \verb|JSONField| class. The
+method determines the format of the \verb|SELECT| clause of the SQL query. The
+casting operation is needed in order to enable the use of a custom decoder with
+a database system that automatically deserializes JSON data into Python
+objects. Thus, the casting operation is performed only if a custom decoder is
+used with a database backend that has the \verb|has_native_json_field| feature
+flag set to \verb|True|, as shown by lines 2 to 6 of
+\autoref{code:jsonfield-selectformat}.
 
 \listing
 {Python}
@@ -398,9 +399,10 @@ listing.
 {code:jsonfield-dec}
 {codes/4-jsonfield-dec.py}
 
-In order to preserve the encoder and decoder classes in database migrations,
-the \verb|deconstruct()| method needs to be overridden. The encoder and decoder
-are defined as keyword arguments of the constructor. Therefore, the
+As the \verb|JSONField| constructor has been modified to add support for custom
+encoder and decoder, the \verb|deconstruct()| method needs to be overridden so
+that the encoder and decoder are preserved in database migrations. The encoder
+and decoder are defined as keyword arguments of the constructor. Therefore, the
 \verb|deconstruct()| method is overridden to add the encoder and decoder
 classes (if they are set, i.e. not \verb|None|) to the keyword arguments
 dictionary, as shown by lines 3 to 6 of \autoref{code:jsonfield-dec}.
@@ -511,22 +513,24 @@ subclasses of the \verb|Transform| class. However, as the lookups and
 transforms in this research are specific to \verb|JSONField|, they are
 implemented as part of the \verb|django.db.models.fields.json| module.
 
-The existing lookups for the PostgreSQL-only \verb|JSONField| serve as the
-basis for the new implementation. The lookups are the containment lookups
-(\verb|contains| and \verb|contained_by|), as well as the key existence
-lookups (\verb|has_key|, \verb|has_keys|, and \verb|has_any_keys|). In addition
-to that, the \verb|exact| lookup also has to be overridden in order to
-support the JSON \verb|null| value.
+The lookups that can be used on \verb|JSONField| are the
+\verb|JSONField|-specific lookups and some of the built-in lookups. The
+\verb|JSONField|-specific lookups are the containment lookups (\verb|contains|
+and \verb|contained_by|), as well as the key existence lookups (\verb|has_key|,
+\verb|has_keys|, and \verb|has_any_keys|). In addition to the
+\verb|JSONField|-specific lookups, some of the built-in lookups (e.g.
+\verb|exact|, \verb|isnull|, etc.) need to be modified so that they can be used
+on \verb|JSONField|.
 
-The transforms are the key, index, and path transforms that extract the value
-of JSON data at a given path. The index transform is just a special case of
-the key transform where the key is an integer. Meanwhile, the path transform
-can be viewed as a chain of key transforms. Therefore, the transforms are
-unified as \verb|KeyTransform| in the existing implementation. The value
-extracted by the transforms can be chained with some of the built-in lookups
-and the \verb|JSONField|-specific lookups. As these transforms may return
-values of different data types, some of the lookups also need to be modified
-when they are used with on a \verb|KeyTransform|.
+The \verb|JSONField| transforms are the key, index, and path transforms that
+extract the value of JSON data at a given path. The index transform is just a
+special case of the key transform where the key is an integer. Meanwhile, the
+path transform can be viewed as a chain of key transforms. Therefore, the
+transforms are unified as \verb|KeyTransform| in the existing implementation.
+The value extracted by the transforms can be chained with some of the built-in
+lookups and the \verb|JSONField|-specific lookups. As these transforms may
+return values of different data types, some of the lookups also need to be
+modified when they are used with on a \verb|KeyTransform|.
 
 The lookups can be used directly on a \verb|JSONField| or on
 \verb|KeyTransform|s applied to the field. When some of the lookups are used on
@@ -759,14 +763,14 @@ built-in lookups are \verb|exact|, \verb|iexact|, \verb|isnull|,
 {code:pgop-lookup}
 {codes/4-pgop-lookup.py}
 
-In the existing PostgreSQL-only implementation, \verb|JSONField| lookups mostly
-used a simple \verb|<lhs> <operator> <rhs>| format in the SQL queries sent to
-the database (e.g. \verb|json_column @> '{"foo": "bar"}')|. To simplify the
-implementation, a \code{PostgresSimpleLookup} class was created, so that the
-lookups only needed to extend from the class and specify the operator. To
-facilitate this research, the Django developers have moved this class from
-\verb|django.contrib.postgres.lookups| to \verb|django.db.models.lookups| and
-renamed the class to \verb|PostgresOperatorLookup|
+In the existing PostgreSQL-only implementation, \verb|JSONField| lookups were
+implemented by extending the \verb|PostgresSimpleLookup| class. The class was
+an abstraction for the \verb|<lhs> <operator> <rhs>| format in the SQL queries
+sent to the database for the lookups (e.g.
+\verb|json_column @> '{"foo": "bar"}')|. By extending the class, the lookups
+only needed to specify the operator. To facilitate this research, the Django
+developers have moved this class from \verb|django.contrib.postgres.lookups| to
+\verb|django.db.models.lookups| and renamed it to \verb|PostgresOperatorLookup|
 \cite{gh-django:pgop-lookup}. By moving the class, the new implementation can
 reuse the same logic without having to rely on the
 \verb|django.contrib.postgres| module.
@@ -778,18 +782,18 @@ reuse the same logic without having to rely on the
 {codes/4-basedbfeatures2.py}
 
 In addition to the database feature flags added to implement \verb|JSONField|,
-there are some more of them added to implement the lookups, as shown by
+some feature flags are also added to implement the lookups, as shown by
 \autoref{code:basedbfeatures2}. The first flag is \verb|has_json_operators|
 that indicates whether the backend uses PostgreSQL-style JSON operators (e.g.
-\verb|->|), which is set to \verb|False| and only overridden to \verb|True| for
-PostgreSQL. The second flag is \verb|supports_json_field_contains| that
+\verb|->|), which defaults to \verb|False| and only overridden to \verb|True|
+for PostgreSQL. The second flag is \verb|supports_json_field_contains| that
 indicates whether the backend supports the containment lookups for
-\verb|JSONField|. This flag is set to \verb|True| and overridden to
-\verb|False| for SQLite and Oracle Database because they don't support the
-containment lookups, as explained in the previous chapter. The last flag is the
+\verb|JSONField|, which defaults to \verb|True| and overridden to \verb|False|
+for SQLite and Oracle Database because they don't support the containment
+lookups, as explained in the previous chapter. The last flag is the
 \verb|json_key_contains_list_matching_requires_list| that indicates whether the
-\verb|contains| lookup requires matching object structure. This flag is set
-to \verb|False| and only overridden to \verb|True| for PostgreSQL as it is the
+\verb|contains| lookup requires matching object structure, which defaults to
+\verb|False| and only overridden to \verb|True| for PostgreSQL as it is the
 only system with the described behavior \cite{postgres:json}. Of the three
 flags added above, the only flag used in the lookups implementation is
 \verb|supports_json_field_contains|, while the others are only used in tests.
@@ -825,8 +829,8 @@ for PostgreSQL and the arguments switched for MariaDB and MySQL. On PostgreSQL,
 the \verb|<@| is used. On MariaDB and MySQL, the \verb|JSON_CONTAINS(rhs, lhs)|
 function is used, with the parameters switched, as shown by lines 13 and 14 of
 the listing. As with \verb|DataContains|, the lookup is not supported by the
-other database backends. With both of the lookups implemented, the containment
-lookups are now complete.
+other database backends. With the \verb|contains| and \verb|contained_by|
+lookups implemented, the containment lookups are now complete.
 
 The next set of lookups are the key existence lookups, which consist of the
 \verb|has_key|, \verb|has_keys|, and \verb|has_any_keys| lookups. These
@@ -877,10 +881,11 @@ the \verb|has_keys| and \verb|has_any_keys| lookup accepts a list or tuple of
 key names. To unify the implementation, the \verb|rhs| is wrapped into a list
 if it's not a list or tuple, as shown by lines 18 and 19 of
 \autoref{code:lookups-haskeylookup-1}. Then, each key name in the \verb|rhs| is
-compiled into a JSONPath that is prepended with the JSONPath from the lhs, as
-shown by lines 20 to 30. After that, the JSONPaths are joined with a logical
-operator defined by the class, as shown by lines 2 and 32 to 35. Finally, line
-36 shows that the string result is returned along with the parameters.
+compiled into a JSONPath that is prepended with the JSONPath from the
+\verb|lhs|, as shown by lines 20 to 30. After that, the JSONPaths are joined
+with a logical operator defined by the class, as shown by lines 2 and 32 to 35.
+Finally, line 36 shows that the string result is returned along with the
+parameters.
 
 \listing
 {Python}
@@ -1139,12 +1144,12 @@ the lookup. Thus, the condition for MariaDB is added accordingly.
 {codes/4-mixins-caseinsensitivemixin.py}
 
 The text lookups also include case-insensitive lookups, but comparison of JSON
-strings on MariaDB and MySQL is case-sensitive by default.\footnote{MariaDB and
-MySQL handle strings in JSON context using the \code{utf8mb4\_bin} collation,
-which is case sensitive.} To allow case-insensitive comparison of JSON values
-on MariaDB and MySQL, the \verb|CaseInsensitiveMixin| class is created. The
-mixin works by converting the \verb|lhs| and \verb|rhs| to lowercase using the
-\verb|LOWER()| function, as shown by
+strings on MariaDB and MySQL is case-sensitive by default. The comparison is
+case-sensitive because MariaDB and MySQL handle strings in JSON context using
+the \code{utf8mb4\_bin} collation \cite{mysql:json}. To allow case-insensitive
+comparison of JSON values on MariaDB and MySQL, the \verb|CaseInsensitiveMixin|
+class is created. The mixin works by converting the \verb|lhs| and \verb|rhs|
+to lowercase using the \verb|LOWER()| function, as shown by
 \autoref{code:mixins-caseinsensitivemixin}.
 
 \listing
