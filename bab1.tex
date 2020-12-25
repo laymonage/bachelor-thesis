@@ -100,7 +100,7 @@ create their own \code{JSONField} implementations for other database backends.
 Some of them target one specific database backend and utilize various functions
 provided by the database system to add extended querying capabilities
 \cite{mysql_jsonfield, oracle_jsonfield}. Some other implementations
-focus on cross-database support, so they are only implemented as text-based
+focus on cross-database support, thus they are only implemented as text-based
 fields that do not have any extended querying capabilities
 \cite{ryan_jsonfield}.
 
@@ -124,9 +124,9 @@ be implemented.
 
 In addition, recent studies showed interest in measuring the performance of
 relational databases in handling JSON data. Relational databases are not
-dedicated for storing JSON data, so they may not perform well compared to NoSQL
-databases. However, recent benchmarks by EnterpriseDB showed that PostgreSQL
-outperformed MongoDB in varied workloads with JSON data
+dedicated for storing JSON data, thus they may not perform well compared to
+NoSQL databases. However, recent benchmarks by EnterpriseDB showed that
+PostgreSQL outperformed MongoDB in varied workloads with JSON data
 \cite{enterprisedb_benchmark}.\footnote{MongoDB is one of the most popular
 document-oriented NoSQL database systems.} Some extensive benchmarks on
 PostgreSQL, MySQL, and MongoDB also showed that the performance differences
@@ -208,7 +208,7 @@ The following assumptions were made prior to the execution of this research:
           field type of \code{JSONField}, with the form field type as a
           secondary priority.
     \item The \code{JSONField} implementation has to take into account the
-          limitations of each database backend, so there may be features that
+          limitations of each database backend, thus there may be features that
           behave differently or are not supported on some database backends.
 \end{itemize}
 

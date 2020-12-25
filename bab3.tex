@@ -126,13 +126,13 @@ label=code:null]{codes/3-null.py}
 \autoref{code:null} demonstrate storing SQL \code{NULL}, while lines 3 and 4
 demonstrate storing JSON \code{null} as the top-level value of the field. When
 querying as shown by lines 5 and 6, \code{None} is interpreted as JSON
-\code{null}, so the query returns the second object. Lines 7 and 8 show that
+\code{null}, hence the query returns the second object. Lines 7 and 8 show that
 when querying, using \code{None} is similar to \code{Value('null')}. Lines
 9 and 10 show that querying for SQL \code{NULL} can be done using the
 \code{isnull} lookup. Lines 11 and 12 show that JSON \code{null} is different
-from SQL \code{NULL}, so the query returns the second object. The \code{data}
-field in both objects are represented in Python as \code{None}, so it can be
-hard to distinguish between the two.
+from SQL \code{NULL}, hence the query returns the second object. The
+\code{data} field in both objects are represented in Python as \code{None},
+thus it may be hard to distinguish between the two.
 
 The behavior of \code{JSONField} in regards to SQL \code{NULL} and JSON
 \code{null} may cause confusion, as briefly discussed on the GitHub pull
@@ -261,7 +261,7 @@ On MariaDB and MySQL, both lookups can be implemented using the
 \code{JSON\_CONTAINS} function by switching the target and candidate arguments
 for the \code{contained\_by} lookup \cite{mariadb:json_contains,
 mysql:json_search}. Unfortunately, SQLite and Oracle Database do not have a
-similar function, so these lookups are left unsupported on both databases.
+similar function, thus these lookups are left unsupported on both databases.
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -352,7 +352,7 @@ lookups that expect a string value on the left-hand side, the \code{->>} and
 mysql:json_search, sqlite:json1}.\footnote{As of version 5.7.13, MySQL also has
 \code{->} and \code{->>} operators that work similarly to the \code{\#>} and
 \code{\#>>} operators on PostgreSQL. However, MariaDB does not have these
-operators, so the function equivalents are used instead.} When extracting
+operators, hence the function equivalents are used instead.} When extracting
 string values on MariaDB and MySQL, the \code{JSON\_UNQUOTE} function should be
 used to unquote the JSON double quotes \cite{mariadb:json_unquote,
 mysql:json_modify}. On Oracle Database, extraction can be done using the

@@ -146,8 +146,8 @@ information of the \verb|Product| model (line 11). Line 13 of the listing shows
 that the set of \verb|product_ids| is subtracted by the set of \verb|id|s
 retrieved from the database (\verb|valid_ids|). If the subtraction results in a
 non-empty set, that means the list of \verb|products| contain \verb|Product|
-information with invalid \verb|id|s, so a \verb|ValidationError| is raised, as
-shown by lines 14 to 17 of the listing. As all of the validators have been
+information with invalid \verb|id|s. Thus, a \verb|ValidationError| is raised,
+as shown by lines 14 to 17 of the listing. As all of the validators have been
 implemented, they can now be used to validate the list of \verb|products|.
 
 %-----------------------------------------------------------------------------%
@@ -174,8 +174,8 @@ that is assigned to the \verb|user| variable, which will be assigned to a
 \verb|Cart| object. The second object is a \verb|Product| model object that is
 assigned to the \verb|product| variable, which will be added to a \verb|Cart|
 object. Both of these objects are created with the \verb|create()| method,
-so they are immediately saved to the database. After these objects are created,
-the validators are demonstrated below.
+thus they are immediately saved to the database. After these objects are
+created, the validators are demonstrated below.
 
 \begin{figure}
 	\centering
