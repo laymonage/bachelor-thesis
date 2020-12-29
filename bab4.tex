@@ -4,18 +4,20 @@
 
 This chapter explains the implementation of \code{JSONField} and
 \code{JSONField}-specific lookups and transforms that can be used on all
-database backends supported by Django.
+database backends supported by Django. The code can be seen in the pull requests
+to the Django repository on GitHub
+\cite{django:jsonfield-pr, django:contains-pr}.
 
 %-----------------------------------------------------------------------------%
 \section{Database Backend Adjustments}
 %-----------------------------------------------------------------------------%
 
 Before implementing the \verb|JSONField| class, it is important to remember
-that there are differences between the database systems in regards to how they
-handle JSON data. For example, each database system uses a different data type
-to store JSON data. In addition, the database driver (e.g. Psycopg 2 for
-PostgreSQL) may automatically deserialize JSON data into Python objects. When
-implementing \verb|JSONField|, these differences need to be taken into account.
+that the database systems have different ways of handling JSON data. For
+example, each database system uses a different data type to store JSON data. In
+addition, the database driver (e.g. Psycopg 2 for PostgreSQL) may automatically
+deserialize JSON data into Python objects. When implementing \verb|JSONField|,
+these differences need to be taken into account.
 
 Django keeps track of the database systems' differences in the
 \verb|django.db.backends| module. Each database system has its own database
