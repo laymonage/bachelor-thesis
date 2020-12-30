@@ -159,11 +159,9 @@ constructed for this research:
 
 \begin{enumerate}
     \item How can \code{JSONField} in Django be reimplemented with
-          cross-database support and compatibility with the previous
+          cross-database support and compatibility with the PostgreSQL-only
           \code{JSONField} implementation?
     \item How can Django users enforce validation rules on a \code{JSONField}?
-    \item How is the performance of the cross-database \code{JSONField} on all
-          of the database backends supported by Django?
 \end{enumerate}
 
 %-----------------------------------------------------------------------------%
@@ -176,9 +174,7 @@ The objectives of this research are to:
     \item Implement a new \code{JSONField} that can be used on all database
           backends supported by Django.
     \item Demonstrate how semi-structured data in a \code{JSONField} can be
-    validated.
-    \item Provide a performance analysis of \code{JSONField} across different
-          database backends.
+          validated.
 \end{itemize}
 
 %-----------------------------------------------------------------------------%
@@ -190,8 +186,8 @@ This research would hopefully bring the following benefits:
 \begin{itemize}
     \item Provide Django users with a \code{JSONField} that has a consistent
           experience on all database backends supported by Django.
-    \item Give insights to Django users about the inner workings, validation
-          examples, and performance considerations of \code{JSONField}.
+    \item Give insights to Django users about the inner workings and validation
+          examples of \code{JSONField}.
 \end{itemize}
 
 %-----------------------------------------------------------------------------%
@@ -204,9 +200,6 @@ The following assumptions were made prior to the execution of this research:
     \item The \code{JSONField} implementation would be submitted as a pull
           request and merged to the upstream Django repository instead of being
           made as a separate package.
-    \item The primary focus of this research would be on implementing the model
-          field type of \code{JSONField}, with the form field type as a
-          secondary priority.
     \item The \code{JSONField} implementation has to take into account the
           limitations of each database backend, thus there may be features that
           behave differently or are not supported on some database backends.
@@ -259,10 +252,9 @@ of the Django repository. The branch was submitted as a pull request to the
 Django repository to fix ticket \#12990 on the Django issue tracker
 \cite{ticket_12990} and was included in the Django 3.1.0 release. The pull
 request allowed the Django contributors to review the code and give feedback
-on the implementation. The data validation and performance benchmarking
-analysis demonstrations were done in a separate repository in the form of
-two small Django projects. The position of this research is illustrated by
-\autoref{fig:position3}.
+on the implementation. The data validation examples were created in a separate
+repository in the form of two small Django projects. The position of this
+research is illustrated by \autoref{fig:position3}.
 
 \begin{figure}
 	\centering
@@ -340,13 +332,15 @@ The structure of this report is as follows:
         This chapter covers the design and analysis to prepare for the
         implementation.
     \item Chapter 4 \babEmpat \\
-        This chapter covers the \code{JSONField}, the data validation example,
-        and the benchmarking implementations.
+        This chapter covers the implementation of \code{JSONField} and its
+        extended querying capabilities.
     \item Chapter 5 \babLima \\
-        This chapter covers the analysis of the implementation results. This
-        also covers the comparison of the benchmarking results between the
-        database backends.
-    \item Chapter 6 \kesimpulan \\
+        This chapter covers the demonstration of validation rules applied on
+        a \code{JSONField} to validate the JSON data inside the field.
+    \item Chapter 6 \babEnam \\
+        This chapter covers the tests for \code{JSONField} and the deprecation
+        of the previous PostgreSQL-only implementation.
+    \item Chapter 7 \kesimpulan \\
         This chapter covers the conclusions of the research and some
-        recommendations for further research.
+        recommendations for future research.
 \end{itemize}

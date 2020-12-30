@@ -292,7 +292,7 @@ model and declare a field with an instance of \code{JSONField} as shown in
 in \autoref{code:jsonshell}. Lines 2 and 3 of the listing demonstrate that the
 field accepts a Python object that can be encoded into JSON, in this case a
 dictionary. When calling the \code{create()} method, the object inside the
-field gets encoded before it's saved into the database. Upon retrieval, the
+field gets encoded before it is saved to the database. Upon retrieval, the
 data gets decoded back into a Python object, as demonstrated on lines 5 to 9.
 Since the data is a Python dictionary, modifying the data using dictionary
 operations is possible, as shown on line 10. After saving the modified model
@@ -330,7 +330,7 @@ Before this research, the existing implementation of \code{JSONField} relied on
 features that are only available on PostgreSQL as shown in
 \autoref{code:pgjsonfield} \cite{django:pgjsonfield}. For example, it used the
 \code{Json} adapter included in Psycopg 2. The adapter was used to encode a
-Python object into a JSON-encoded string before it's sent to the database
+Python object into a JSON-encoded string before it is saved to the database
 (implemented in the \code{get\_prep\_value} method). In addition, it used the
 \code{jsonb} data type that's available on PostgreSQL, but not on other
 database backends supported by Django.
