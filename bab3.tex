@@ -83,7 +83,7 @@ JSON-encoded \code{'null'} string on the database. However, according to the
 Python DB-API 2.0 specification (which Django follows), the \code{None} object
 is reserved for the SQL \code{NULL} value for both input and output
 \cite{db-api2}. Therefore, the model field should skip the serialization and
-deserialization for \code{None} (if it's stored as the top-level value) and let
+deserialization for \code{None} (if it is stored as the top-level value) and let
 the database driver store it as SQL \code{NULL}.\footnote{Storing some data as
 the top-level value means that the data is stored directly inside the field,
 rather than contained inside a Python dictionary or list.}
@@ -191,7 +191,7 @@ functions provided by the database systems.
 \section{\code{JSONField} Lookups and Transforms}
 %-----------------------------------------------------------------------------%
 
-In Django, lookups and transforms are part of the query expressions API. The
+In Django, lookups and transforms are part of the query expression API. The
 API consists of classes that define methods that translate instances of the
 classes into SQL expressions. Therefore, lookups and transforms can be used to
 change how SQL queries are composed by Django.
@@ -207,7 +207,7 @@ Meanwhile, a transform is a query expression that can be used to transform one
 field (in an expression) into another field. To use a transform, the notation
 is \verb|<expression>__<transform>|. For example, the year transform (e.g.
 \verb|date_field__year|) transforms a \verb|DateField| into an
-\verb|IntegerField|. As transforms also follow the query expressions API, it is
+\verb|IntegerField|. As transforms also follow the query expression API, it is
 possible to chain multiple transforms in a query expression, e.g.
 (\verb|<expression>__<transform1>__<transform2>|).
 

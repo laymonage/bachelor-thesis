@@ -140,8 +140,8 @@ use the values from \verb|BaseDatabaseFeatures| as they are already correct.
 The \verb|DatabaseWrapper| class of the SQLite backend is modified to add the
 mapping from \verb|JSONField| to \verb|text| in the \verb|data_types| property,
 as shown by line 7 of \autoref{code:backends-sqlite3-1}. It is also modified to
-apply the \verb|JSON_VALID()| check constraint to the database column. As the
-function returns \verb|0| (false) for SQL \verb|NULL| values, an
+apply the \verb|JSON_VALID()| SQL \verb|CHECK| constraint to the database
+column. As the function returns \verb|0| (false) for SQL \verb|NULL| values, an
 \verb|OR "%(column)s" IS NULL| clause is added to support storing SQL
 \verb|NULL| values, as shown by line 12 of the listing.
 
@@ -260,7 +260,7 @@ correctly. In addition to the checks included from the \verb|Field| class,
 by line 1 of \autoref{code:jsonfield-check}. The mixin\footnote{A mixin is a
 class that defines methods to be used by other classes through inheritance.}
 adds a check to ensure that any default value set for the field should be a
-callable instead of an instance, so that it's not shared between all instances
+callable instead of an instance, so that it is not shared between all instances
 of the field. The \verb|JSONField| class also overrides the \verb|check()|
 method to include the \verb|_check_supported()| method in the checking process,
 as shown by lines 4 to 8 of the listing.
@@ -604,7 +604,7 @@ key names as array indices.
 
 During this research, a security vulnerability was found in the existing
 PostgreSQL-only implementation of \verb|KeyTransform|. Previously, the SQL
-query expression was implemented in the \verb|as_sql()| method because it's
+query expression was implemented in the \verb|as_sql()| method because it is
 assumed that \verb|KeyTransform| is only used on PostgreSQL (as part of the
 \verb|django.contrib.postgres| module). In the method, when there is only one
 \verb|KeyTransform|, the key name is directly inserted into the string, rather
@@ -882,7 +882,7 @@ Otherwise, the \verb|lhs| is processed normally and the JSONPath is the root
 The \verb|has_key| lookup accepts a key name (string) as the \verb|rhs|, but
 the \verb|has_keys| and \verb|has_any_keys| lookup accepts a list or tuple of
 key names. To unify the implementation, the \verb|rhs| is wrapped into a list
-if it's not a list or tuple, as shown by lines 18 and 19 of
+if it is not a list or tuple, as shown by lines 18 and 19 of
 \autoref{code:lookups-haskeylookup-1}. Then, each key name in the \verb|rhs| is
 compiled into a JSONPath that is prepended with the JSONPath from the
 \verb|lhs|, as shown by lines 20 to 30. After that, the JSONPaths are joined
