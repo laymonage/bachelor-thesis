@@ -126,10 +126,11 @@ will be explained in the next section.
 %-----------------------------------------------------------------------------%
 
 Django has a deprecation policy that should be followed when deprecating the
-PostgreSQL-only \verb|JSONField| implementation \cite{django:deprecation-policy}.
-According to the policy, the release of Django 3.1 should contain a
-backwards-compatible replica of the field that raises a
-\verb|RemovedInDjango40Warning|. The replica will still be included in the
+PostgreSQL-only \verb|JSONField| implementation
+\cite{django:deprecation-policy}. According to the policy and the deprecation
+guide, the release of Django 3.1 should contain a backwards-compatible replica
+of the field that raises a \verb|RemovedInDjango40Warning|
+\cite{django:deprecation-guide}. The replica will still be included in the
 Django 3.2 release, but it will be removed in the Django 4.0 release.
 
 \listing
