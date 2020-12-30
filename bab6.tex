@@ -105,10 +105,96 @@ values are asserted to be equal in Python, i.e. \verb|None|.
 At the time of research, the tests were run on all of the database systems with
 Python 3.6, 3.7, and 3.8. The tests were run on Django's Jenkins
 instance\footnote{\url{https://djangoci.com}} and the summary that shows the
-tests have passed on all of the database systems can be seen on GitHub, as
-shown by \autoref{fig:checks}. For Oracle Database, the tests have to be
+tests have passed on all of the database systems can be seen on
+GitHub\footnote{\url{https://github.com/django/django/commit/6789ded0a6ab797f0dcdfa6ad5d1cfa46e23abcd}},
+as shown by \autoref{fig:checks}. For Oracle Database, the tests have to be
 triggered manually by the Django maintainers. In the final version of the Git
 commit, the maintainers did not trigger the tests for Oracle Database, hence
 the result cannot be seen in \autoref{fig:checks}. Unfortunately, the build
 details and logs for the commit (and the previous iterations) could no longer
 be retrieved from the Jenkins instance at the time of writing.
+
+The tests for the new \verb|JSONField| have incorporated the tests from the
+previous PostgreSQL-only implementation. Passing the tests means that the new
+implementation retains the functionalities of the previous implementation.
+To avoid redundancy, the PostgreSQL-only implementation is deprecated and
+programmers are advised to use the new implementation instead. The deprecation
+will be explained in the next section.
+
+%-----------------------------------------------------------------------------%
+\section{Deprecation of the PostgreSQL-only \code{JSONField}}
+%-----------------------------------------------------------------------------%
+
+Django has a deprecation policy that should be followed when deprecating the
+PostgreSQL-only \verb|JSONField| implementation \cite{django:deprecation-policy}.
+According to the policy, the release of Django 3.1 should contain a
+backwards-compatible replica of the field that raises a
+\verb|RemovedInDjango40Warning|. The replica will still be included in the
+Django 3.2 release, but it will be removed in the Django 4.0 release.
+
+\listing
+{Python}
+{The deprecated \code{JSONField} model field.}
+{code:depjsonfield}
+{codes/6-depjsonfield.py}
+
+The \verb|JSONField| model field in the
+\verb|django.contrib.postgres.fields.jsonb| module is now deprecated and
+replaced with a backwards-compatible replica shown by
+\autoref{code:depjsonfield}. The replica is created by extending the new
+\verb|JSONField| (imported as \verb|BuiltinJSONField|) without overriding any
+methods. Thus, the replica works the same way as the new implementation. The
+only differences between the two are the module locations and the
+\verb|system_check_deprecated_details| property defined in the replica (lines 2
+to 10), which makes the replica raise a system check warning on initialization.
+The warning has a hint to use the \verb|django.db.models.JSONField| instead
+(line 8). The Django developers assigned the warning \verb|id| to be
+\verb|fields.W904| (line 9).
+
+\listing
+{Python}
+{The deprecated \code{JSONField} form field.}
+{code:depformfield}
+{codes/6-depformfield.py}
+
+The \verb|JSONField| form field in the
+\verb|django.contrib.postgres.forms.jsonb| is also deprecated and replaced with
+a replica shown by \autoref{code:depformfield}. As with the model field, the
+replica is created by extending the new \verb|JSONField| form field without
+overriding any methods. However, unlike the model field, the base \verb|Field|
+class for form fields does not use the \verb|system_check_deprecated_details|
+property. Therefore, the warning is raised explicitly in the constructor by
+calling \verb|warnings.warn|, as shown by lines 2 to 7 of the listing. The
+\verb|RemovedInDjango40Warning| class is used as the \verb|category| argument
+of \verb|warnings.warn|, as shown by line 6.
+
+\listing
+{Python}
+{The deprecated \code{KeyTransform} and \code{KeyTextTransform}.}
+{code:deptransforms}
+{codes/6-deptransforms.py}
+
+In addition to the \verb|JSONField| model and form fields, the transform
+classes are also deprecated and replaced with replicas shown by
+\autoref{code:deptransforms}. The replicas are needed because there are use
+cases (covered in tests) that need the classes to be instantiated directly. As
+with the form field, the replicas are created by extending the classes from the
+new implementation. The system warnings are also raised explicitly in the
+constructor, as shown by the calls to \verb|warnings.warn| in the listing.
+
+Unlike the \verb|KeyTransform| and \verb|KeyTextTransform| classes, the lookup
+classes of the PostgreSQL-only implementation are deprecated by removing them.
+The reason for the removal is that the classes are not meant to be instantiated
+directly. Instead, the classes are meant to be used with the
+\verb|__lookup_name| syntax as keyword arguments in the QuerySet API. The
+classes from the previous implementation can safely be removed because the
+lookups are already registered in the new implementation of the model field, so
+the replica also has the lookups registered.
+
+By replacing the PostgreSQL-only fields and transforms with the replicas, the
+deprecation is now complete. The tests described in the previous section also
+guarantee the new implementation to be compatible with the previous
+PostgreSQL-only implementation. Thus, backward compatibility is preserved and
+programmers will be notified to update their code. With the deprecation and
+tests written, the goals of this research are completed. Therefore, the next
+chapter will discuss the conclusions of this research.
