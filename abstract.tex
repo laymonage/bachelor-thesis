@@ -19,23 +19,29 @@
 \vspace*{0.5cm}
 
 \noindent
-This thesis explains the implementation and analysis of JSONField in the Django
-web framework. JSONField allows the user to store and query semi-structured
-data in a relational database through the use of Django's object-relational
-mapping (ORM) tool. The implementation has to account for the compatibility
-with all the database systems officially supported by Django, namely
-PostgreSQL, SQLite, MySQL, MariaDB, and Oracle Database. The implementation was
-created as part of the Google Summer of Code 2019 program and was merged into
-the Django codebase for the release of Django 3.1. In addition, this thesis
-also covers an analysis of JSONField usage with Django's built-in model
-validation feature to validate the JSON data, as well as a benchmark analysis
-of JSONField usage with a JSON testbed.\\
+In web development, it is a common practice to use a web framework to build web
+applications. One of the most popular web frameworks is Django, a free and
+open-source web framework written in Python. Among the wide range of features
+in Django, the object-relational mapping (ORM) system is the most complex. The
+ORM system in Django maps data models to relational database tables. The data
+models are defined as Python classes that have attributes known as model
+fields. One of the model fields available in Django is \verb|JSONField| that
+allows programmers to store and query semi-structured data using the JSON data
+format in a relational database. Before this research, \verb|JSONField| was
+only available for the PostgreSQL database system. Meanwhile, Django officially
+supports PostgreSQL, MariaDB, MySQL, SQLite, and Oracle Database. This research
+aimed to implement a new \verb|JSONField| that is compatible with all database
+systems supported by Django. The implementation was created as part of the
+Google Summer of Code 2019 program and was merged into the Django codebase for
+the release of Django 3.1. In addition to the implementation, this research
+also covers some examples of \verb|JSONField| usage with Django's built-in
+model validation feature to validate the JSON data in a \verb|JSONField|.\\
 
 \vspace*{0.2cm}
 
 \noindent \bo{Keywords:} \\
-JSONField, JSON, Django, database, object-relational mapping, semi-structured
-data \\
+\verb|JSONField|, JSON, Django, database, object-relational mapping,
+semi-structured data \\
 
 \onehalfspacing
 \newpage
