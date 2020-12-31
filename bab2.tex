@@ -43,17 +43,32 @@ complex and is central to this research.
 \section{Object-Relational Mapping (ORM) in Django}
 %-----------------------------------------------------------------------------%
 
-ORM is a programming technique that allows its users to query and
-manipulate data stored in a relational database using an object-oriented
-paradigm \cite{linskey:orm}. Object query, load, and delete operations are
-translated into SQL \code{SELECT} and \code{DELETE} statements, while object
-allocation and modification operations are translated into SQL \code{INSERT}
-and \code{UPDATE} statements. To achieve this, the scalar values retrieved from
-the database are converted into object instances in the program and vice versa.
+Object-relational mapping (ORM) is a programming technique that allows its
+users to query and manipulate data stored in a relational database using an
+object-oriented paradigm \cite{linskey:orm}. Object query, load, and delete
+operations are translated into SQL \verb|SELECT| and \verb|DELETE| statements,
+while object allocation and modification operations are translated into SQL
+\verb|INSERT| and \verb|UPDATE| statements. To create this mapping, scalar
+values retrieved from the database are converted into object instances in the
+program and vice versa.
 
-\lstinputlisting[language=Python, caption={A \code{Person} model with a
-\code{CharField} to store the name and a \code{DateField} to store the date
-of birth.}, label=code:personmodel]{codes/2-personmodel.py}
+The ORM system in Django maps data models to relational database tables. The
+data models are represented as Python classes. A model class has attributes,
+called model fields, which represent the columns of the database table. These
+model fields define the data types and constraints that are used in the
+database.
+
+\listing
+{Python}
+{A \code{Person} model.}
+{code:personmodel}
+{codes/2-personmodel.py}
+
+As an example, to store user information, a \verb|Person| model as shown by
+\autoref{code:personmodel} can be created. The \verb|Person| model has a
+\verb|name| attribute as a \verb|CharField| to store the name of the user. The
+model also has a \verb|dob| attribute as a \verb|DateField| to store the user's
+date of birth.
 
 \begin{table}
 	\centering
@@ -68,47 +83,45 @@ of birth.}, label=code:personmodel]{codes/2-personmodel.py}
 	\label{table:myapp_person}
 \end{table}
 
-The ORM system in Django maps data models to relational database tables. The
-data models are represented as Python classes. A model class also has
-attributes, called model fields, which represent the columns of the database
-table. These model fields define the data types and constraints that are used
-in the database. For example, to store user information, a \code{Person} model
-as shown in \autoref{code:personmodel} can be created. The \code{Person} model
-consists of a \code{name} attribute as a \code{CharField} to store the name of
-the user and a \code{dob} attribute as a \code{DateField} to store the user's
-date of birth. The \code{Person} model represents the relational database table
-shown in \autoref{table:myapp_person}. The table name is derived from the
-Django application name and the model name. The table schema is derived from
-the model fields: the \code{name} field corresponds to the \code{name} column
-with the SQL \code{VARCHAR} data type, while the \code{dob} field corresponds
-to the \code{dob} column with the SQL \code{DATE} data type and without the
-\code{NOT NULL} constraint.
+The \verb|Person| model shown by \autoref{code:personmodel} represents the
+relational database table shown by \autoref{table:myapp_person}. The table name
+is derived from the Django application name (in this case \verb|myapp|) and the
+model name. The table schema is derived from the model fields: the \verb|name|
+field corresponds to the \verb|name| column with the SQL \verb|VARCHAR| data
+type, while the \verb|dob| field corresponds to the \verb|dob| column with the
+SQL \verb|DATE| data type and without the \verb|NOT NULL| constraint.
 
-\lstinputlisting[language=Python, caption={A query on a \code{DateField} named
-	\code{pub\_date} with the \code{year} transform and \code{gte} lookup.},
-	label=code:query1py]{codes/2-query1.py}
+\listing
+{Python}
+{A query on a \code{DateField} named \code{pub\_date} with the \code{year}
+transform and \code{gte} lookup.}
+{code:query1py}
+{codes/2-query1.py}
 
-\lstinputlisting[language=SQL, caption={An SQL query equivalent to
-	\autoref{code:query1py}.}, label=code:query1sql]{codes/2-query1.sql}
+\listing
+[0 pt]
+{SQL}
+{An SQL query equivalent to \autoref{code:query1py}.}
+{code:query1sql}
+{codes/2-query1.sql}
 
 Aside from storing and loading data, the ORM system in Django also provides
 querying capabilities through the use of lookups and transforms. Lookups and
 transforms are specified using keyword arguments in the form of
-\code{field\_\_lookuptype=value}, where \code{lookuptype} can be a lookup or
-transform name. Lookups define how the \code{WHERE} clause of an SQL query is
+\verb|field__lookuptype=value|, where \verb|lookuptype| can be a lookup or
+transform name. Lookups define how the \verb|WHERE| clause of an SQL query is
 composed by Django. Transforms are used to transform a model field from one
-form to another (e.g. extracting the year from a \code{DateField}). For
-example, a query specified in Python as shown in \autoref{code:query1py} will
-be translated into an SQL query equivalent shown in \autoref{code:query1sql}.
+form to another (e.g. extracting the year from a \verb|DateField|). For
+example, a query specified in Python as shown by \autoref{code:query1py} will
+be translated into an SQL query equivalent shown by \autoref{code:query1sql}.
 
 Django officially supports five database backends: PostgreSQL, MariaDB, MySQL,
 SQLite, and Oracle Database \cite{django:databases}. Each database backend
-(other than SQLite) requires a compatible database driver to be installed. The
-database backends provided by Django adapt the database drivers so that they
-can be used with the ORM system. These backends are implemented in the
-\code{django.db.backends} module. In order to implement \code{JSONField} for
-all of the database backends, further study of the database systems is
-required.
+requires a compatible database driver to be installed. The database backends
+provided by Django adapt the database drivers so that they can be used with the
+ORM system. These backends are implemented in the \verb|django.db.backends|
+module. To implement \verb|JSONField| that works on all database backends,
+further study of the database systems is required.
 
 %-----------------------------------------------------------------------------%
 \section{JSON on Relational Database Systems Supported by Django}
@@ -131,7 +144,7 @@ label=code:json]{codes/2-json.json}
 JSON is built on two structures: an unordered set of key-value pairs (called
 JSON objects) and an ordered list of values (called JSON arrays)
 \cite{json:org}. The values can be scalar values such as strings, numbers,
-booleans, or \code{null}. However, they can also be JSON objects or JSON
+booleans, or \verb|null|. However, they can also be JSON objects or JSON
 arrays, which means that they can be nested to form more complex data
 structures. An example of a JSON object that contains a JSON array and other
 JSON objects can be seen in \autoref{code:json}.
@@ -158,18 +171,18 @@ JSON support.
 
 \subsection{PostgreSQL}
 
-PostgreSQL supports a native \code{json} data type and JSON functions as of
-version 9.2 \cite{postgresql:9.2}. Data stored using the \code{json} data type
+PostgreSQL supports a native \verb|json| data type and JSON functions as of
+version 9.2 \cite{postgresql:9.2}. Data stored using the \verb|json| data type
 is stored as text. However, it has the advantage of validating that each stored
-value is valid JSON. The two JSON functions included in the 9.2 release allow
-users to convert a row or array in the database into \code{json}.
+value is valid JSON. The two JSON functions included in version 9.2 allow the
+users to convert a row or array in the database into \verb|json|.
 
-As of version 9.4, PostgreSQL also supports a \code{jsonb} data type and more
-JSON functions \cite{postgresql:9.4}. The \code{jsonb} data type supports fast
+As of version 9.4, PostgreSQL also supports a \verb|jsonb| data type and more
+JSON functions \cite{postgresql:9.4}. The \verb|jsonb| data type supports fast
 data retrievals and simple expression search queries using Generalized Inverted
-Indexes (GIN). Data stored using the \code{jsonb} data type is stored as
-binary. This makes storing data with the \code{jsonb} data type slightly slower
-compared to the \code{json} data type as it needs to be encoded into binary
+Indexes (GIN). Data stored using the \verb|jsonb| data type is stored as
+binary. This makes storing data with the \verb|jsonb| data type slightly slower
+compared to the \verb|json| data type as it needs to be encoded into binary
 prior to saving. However, it is significantly faster to process, since the
 processing functions do not need to reparse the data on each execution. The
 JSON functions introduced in the 9.4 release enable users to extract and
@@ -177,7 +190,7 @@ manipulate JSON data with a performance that matches or surpasses
 document-based databases.
 
 For the PostgreSQL database backend, Django uses the Psycopg 2 database driver.
-Psycopg 2 supports the \code{jsonb} and \code{jsonb} data types as of version
+Psycopg 2 supports the \verb|jsonb} and \code{jsonb| data types as of version
 2.5.4. It offers a JSON adapter that serializes Python objects before they are
 sent to the database. By default, it also automatically deserializes JSON data
 from the database into Python objects. Psycopg 2 uses Python's built-in JSON
@@ -187,73 +200,72 @@ library to perform the serialization and deserialization
 \subsection{MariaDB and MySQL}
 
 MariaDB is highly compatible with MySQL, albeit with some behavior differences
-\cite{mariadb:compatibility}. This is because MariaDB is originally designed to
-be a completely open-source drop-in replacement for MySQL. MariaDB's client
-protocol is binary compatible with MySQL's client protocol, therefore Django
-uses the same database backend for MariaDB and MySQL \cite{django:databases}.
-Despite the similarities, their behaviors are different when operating on JSON
-data.
+\cite{mariadb:compatibility}. They are compatible because MariaDB was
+originally designed to be a completely open-source drop-in replacement for
+MySQL. MariaDB's client protocol is binary compatible with MySQL's client
+protocol, hence Django uses the same database backend for MariaDB and MySQL
+\cite{django:databases}. Despite the similarities, their behaviors are
+different when operating on JSON data.
 
-MySQL supports a native \code{json} data type as of version 5.7.8
-\cite{mysql:json}. The \code{json} data type provides automatic validation of
+MySQL supports a native \verb|json| data type as of version 5.7.8
+\cite{mysql:json}. The \verb|json| data type provides automatic validation of
 JSON data. It is internally stored as binary, which permits quick read access
 as the value does not need to be parsed from a text representation. Data stored
-using the \code{json} data type can be indexed by using a generated column that
+using the \verb|json| data type can be indexed by using a generated column that
 extracts a scalar value from the JSON data.
 
-MariaDB has a \code{json} data type as of version 10.2.7 \cite{mariadb:json}.
-The \code{json} data type was introduced for compatibility reasons with MySQL's
-\code{json} data type. However, the \code{json} data type is just an alias for
-the \code{longtext} data type. Despite the data is stored as a string rather
-than binary, it can be validated using the provided \code{JSON\_VALID} function
-as a \code{CHECK} constraint.
+MariaDB has a \verb|json| data type as of version 10.2.7 \cite{mariadb:json}.
+The \verb|json| data type was introduced for compatibility reasons with MySQL's
+\verb|json| data type. However, on MariaDB, the \verb|json| data type is just
+an alias for the \verb|longtext| data type. Even though the data is stored as a
+string rather than binary, it can be validated using the provided
+\verb|JSON_VALID| function as a \verb|CHECK| constraint.
 
 \subsection{SQLite}
 
 SQLite has the JSON1 extension as of version 3.9.0 \cite{sqlite:3.9.0}. The
 JSON1 extension is a loadable extension that includes functions that can be
 used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
-extension stores JSON data as text. The JSON1 extension includes a
-\code{JSON\_VALID} function that can be used as a \code{CHECK} constraint for
+extension stores JSON data as \verb|text|. The JSON1 extension includes a
+\verb|JSON_VALID| function that can be used as a \verb|CHECK| constraint for
 JSON data.
 
 Some JSON functions provided in the JSON1 extension are similar to those found
 in MariaDB and MySQL, but they have different behaviors on SQLite. For example,
-the \code{JSON\_EXTRACT} function that can be used to extract JSON values at a
+the \verb|JSON_EXTRACT| function that can be used to extract JSON values at a
 given path is available on MySQL, MariaDB, and SQLite. However, on MariaDB and
 MySQL, the function returns string values with the JSON double quotes
-(\code{""}) intact, whereas on SQLite, the function returns strings with the
+(\verb|""|) intact, whereas on SQLite, the function returns strings with the
 double quotes removed. The function also behaves differently when extracting
-the JSON \code{null} value: it returns the SQL string \code{'null'} on
-\mbox{MariaDB} and MySQL, but it returns SQL \code{NULL} on SQLite. In
-addition, calling the \code{JSON\_VALID} function with SQL \code{NULL} as its
-argument returns SQL \code{NULL} on MariaDB and MySQL, but it returns \code{0}
-(false) on SQLite.
+the JSON \verb|null| value: it returns the SQL string \verb|'null'| on MariaDB
+and MySQL, but it returns SQL \verb|NULL| on SQLite. In addition, calling the
+\verb|JSON_VALID| function with SQL \verb|NULL| as its argument returns SQL
+\verb|NULL| on MariaDB and MySQL, but it returns \verb|0| (false) on SQLite.
 
 \subsection{Oracle Database}
 
 Oracle Database supports storing, validating, querying, and indexing JSON data
 as of version 12.1.0.2 \cite{oracle:12.1.0.2}. JSON data is stored using the
-\code{VARCHAR2} and \code{LOB} data types \cite{oracle:json}. Unlike the other
+\verb|VARCHAR2| and \verb|LOB| data types \cite{oracle:json}. Unlike the other
 database systems, Oracle Database does not support storing scalar values in
 JSON columns, which means that the top-level values in JSON columns are either
-JSON objects or JSON arrays. JSON validation can be enforced using the \code{IS
-JSON} condition as a \code{CHECK} constraint. Querying JSON data can be
-performed by utilizing the provided JSON functions. Indexing JSON data can be
-implemented using bitmap, function-based, or composite B-tree indexes.
+JSON objects or JSON arrays. JSON syntax validation can be enforced using the
+\verb|IS JSON| condition as a \verb|CHECK| constraint. Querying JSON data can
+be performed by utilizing the provided JSON functions. Indexing JSON data can
+be implemented using bitmap, function-based, or composite B-tree indexes.
 
 As with the other database systems, Oracle Database has functions to operate on
 JSON data, but they are named differently. For example, instead of
-\code{JSON\_EXTRACT}, Oracle Database has \code{JSON\_VALUE} for extracting
-scalar values and \code{JSON\_QUERY} for extracting JSON objects and arrays. In
-addition, it has the \code{JSON\_EXISTS} function that is similar to the
-\code{JSON\_CONTAINS\_PATH} function on MariaDB and MySQL.
+\verb|JSON_EXTRACT|, Oracle Database has \verb|JSON_VALUE| for extracting
+scalar values and \verb|JSON_QUERY| for extracting JSON objects and arrays. In
+addition, it has the \verb|JSON_EXISTS| function that is similar to the
+\verb|JSON_CONTAINS_PATH| function on MariaDB and MySQL.
 
 The previous paragraphs and subsections have explained how each database
 system supported by Django manages JSON data in its own ways. Meanwhile, the
-implementation of \code{JSONField} has to provide the same programming
+implementation of \verb|JSONField| has to provide the same programming
 interface regardless which database backend is used. Therefore, it is important
-to see how the programming interface for \code{JSONField} can be used by Django
+to see how the programming interface for \verb|JSONField| can be used by Django
 programmers.
 
 %-----------------------------------------------------------------------------%
@@ -261,85 +273,88 @@ programmers.
 %-----------------------------------------------------------------------------%
 
 Django provides a variety of model fields and form fields to be used with its
-ORM and forms features. Each field defines its own data type and behavior when
-handling data. Therefore, there are fields that can store simple data such as
-\code{IntegerField} and \code{TextField}, but there are also those that can
-store fairly complex data such as \code{FileField} and \code{ImageField}.
+ORM and forms features. Each field defines its own data type and behavior to
+manage the data. There are fields that store simple data such as
+\verb|IntegerField| and \verb|TextField|, but there are also those that store
+fairly complex data such as \verb|FileField| and \verb|ImageField|.
 
-In Django, \code{JSONField} is a field for storing or accepting JSON-encoded
-data. There are two kinds of \code{JSONField} in Django: the model field and
+In Django, \verb|JSONField| is a field for storing or accepting JSON-encoded
+data. There are two kinds of \verb|JSONField| in Django: the model field and
 the form field. The model field lets Django store JSON data to the database,
 while the form field lets Django process user input in the form of JSON data
 \cite{django30_modeljsonfield, django30_formjsonfield}. In Django version
-1.9 to 3.0, \code{JSONField} was only available in the
+1.9 to 3.0, \verb|JSONField| was only available in the
 \code{django.contrib.postgres} module, which means that it could only be used
 with the PostgreSQL database backend.
 
-\lstinputlisting[language=Python, caption={A Django model named \code{Profile}
-	that stores a user's configurations in a \code{JSONField}.},
-	label=code:profilemodel]{codes/2-profilemodel.py}
+\listing
+{Python}
+{A Django model named \code{Profile} that stores a user's configurations in a
+\code{JSONField}.}
+{code:profilemodel}
+{codes/2-profilemodel.py}
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={A Python shell session that
-demonstrates how storing, modifying, and retrieving data in a
-\code{JSONField} works.}, label=code:jsonshell]{codes/2-shell.py}
-\end{minipage}
+\listing
+{Python}
+{A Python shell session that demonstrates how storing, modifying, and
+retrieving data in a \code{JSONField} works.}
+{code:jsonshell}
+{codes/2-shell.py}
 
-To use the \code{JSONField} model field, the programmer can define a Django
-model and declare a field with an instance of \code{JSONField} as shown in
-\autoref{code:profilemodel}. After that, the field can be used as demonstrated
-in \autoref{code:jsonshell}. Lines 2 and 3 of the listing demonstrate that the
-field accepts a Python object that can be encoded into JSON, in this case a
-dictionary. When calling the \code{create()} method, the object inside the
-field gets encoded before it is saved to the database. Upon retrieval, the
-data gets decoded back into a Python object, as demonstrated on lines 5 to 9.
-Since the data is a Python dictionary, modifying the data using dictionary
-operations is possible, as shown on line 10. After saving the modified model
-object and retrieving it again, it can be verified that the modification was
-successfully stored into the database, as shown on lines 11 to 13.
+To use the \verb|JSONField| model field, the programmer can define a Django
+model and declare a field with an instance of \verb|JSONField| as demonstrated
+by \autoref{code:profilemodel}. After that, the field can be used as
+demonstrated by \autoref{code:jsonshell}. Lines 2 and 3 of the listing
+demonstrate that the field accepts a Python object that can be encoded into
+JSON, in this case a dictionary. When calling the \code{create()} method, the
+object inside the field gets encoded before it is saved to the database. Upon
+retrieval, the data gets decoded back into a Python object, as demonstrated by
+lines 5 to 9. Since the data is a Python dictionary, modifying the data using
+dictionary operations is possible, as shown by line 10. After saving the
+modified model object and retrieving it again, it can be verified that the
+modification was successfully stored into the database, as shown by lines 11 to
+13.
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={A Python shell session that
-demonstrates how \code{JSONField} lookups and transforms work.},
-label=code:shelllookups]{codes/2-shelllookups.py}
-\end{minipage}
+\listing
+{Python}
+{A Python shell session that demonstrates how \code{JSONField} lookups and
+transforms work.}
+{code:shelllookups}
+{codes/2-shelllookups.py}
 
-In addition to storing or accepting JSON-encoded data, \code{JSONField} also
-includes \code{JSONField}-specific lookups and transforms that can be used to
-query JSON data as shown in \autoref{code:shelllookups}
-\cite{django30_modeljsonfield}. The lookups consisted of the containment
+In addition to storing or accepting JSON-encoded data, \verb|JSONField| also
+includes \verb|JSONField|-specific lookups and transforms that can be used to
+query JSON data, as shown by \autoref{code:shelllookups}
+\cite{django30_modeljsonfield}. The lookups consist of the containment
 lookups and the key existence lookups. The containment lookups let the users
-query for supersets or the subsets of a JSON value, as shown on lines 8 to 10
+query for supersets or the subsets of a JSON value, as shown by lines 8 to 10
 of the listing. The key existence lookups let the users query for JSON objects
-or arrays that have certain keys at a given path, as shown on lines 11 and 12.
-The transforms let the users query for JSON objects that have certain values at
-a given path by chaining the keys or indexes as the transform names to compose
-a JSON path, as shown on lines 13 to 16. These lookups and transforms can be
-implemented by utilizing the JSON functions provided by the database systems.
+or arrays that have certain keys at a given path, as shown by lines 11 and 12.
+The transforms let the users query for JSON values at a given path by chaining
+the keys or indexes as the transform names to compose a JSON path, as shown by
+lines 13 to 16. These lookups and transforms can be implemented by utilizing
+the JSON functions provided by the database systems.
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={An excerpt of the PostgreSQL-only
-\code{JSONField} implementation.},
-label=code:pgjsonfield]{codes/2-jsonfield.py}
-\end{minipage}
+\listing
+{Python}
+{An excerpt of the PostgreSQL-only \code{JSONField} implementation.}
+{code:pgjsonfield}
+{codes/2-jsonfield.py}
 
-Before this research, the existing implementation of \code{JSONField} relied on
-features that are only available on PostgreSQL as shown in
-\autoref{code:pgjsonfield} \cite{django:pgjsonfield}. For example, it used the
-\code{Json} adapter included in Psycopg 2. The adapter was used to encode a
-Python object into a JSON-encoded string before it is saved to the database
-(implemented in the \code{get\_prep\_value} method). In addition, it used the
-\code{jsonb} data type that's available on PostgreSQL, but not on other
-database backends supported by Django.
+Before this research, the existing implementation of \verb|JSONField| relied on
+features that are only available on PostgreSQL \cite{django:pgjsonfield}. For
+example, it used the \verb|Json| adapter included in Psycopg 2 (the database
+driver for PostgreSQL), as shown by lines 2 and 5 of
+\autoref{code:pgjsonfield}. The adapter was used to encode a Python object into
+a JSON-encoded string before it is saved to the database (implemented in the
+\verb|get_prep_value()| method). In addition, it used the \verb|jsonb| data
+type that is available on PostgreSQL, but not on other database systems
+supported by Django.
 
-In order to reimplement \code{JSONField} for all of the database backends, the
+In order to reimplement \verb|JSONField| for all database backends, the
 implementation design has to take into account the behavior differences of the
-database systems, as well as the compatibility with the existing
-implementation. This chapter has explained how the ORM in Django works, how
-JSON is supported on the database systems, and how the existing
-\code{JSONField} can be used by Django developers. With this information, a new
-implementation of \code{JSONField} for all of the database backends can be
-designed.
+database systems and compatibility with the existing implementation.
+This chapter has explained how the ORM in Django works, how JSON is supported
+on the database systems, and how the existing \verb|JSONField| can be used by
+Django developers. With this information, a new implementation of
+\verb|JSONField| for all database backends can be designed.
