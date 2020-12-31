@@ -10,13 +10,27 @@ validation features on the application-level, which is demonstrated in this
 chapter.
 
 %-----------------------------------------------------------------------------%
-\section{Model definitions}
+\section{Scenario}
 %-----------------------------------------------------------------------------%
 
-Before going through how the validation works, some model definitions are
-created for demonstration. The models are defined in a small Django project
-with an e-commerce scenario. The project includes two models: \verb|Product|
-and \verb|Cart|, both of which utilize \verb|JSONField| in their definitions.
+Before going through how the validation works, a small Django project with an
+e-commerce scenario is created for demonstration. The project includes two
+models: \verb|Product| and \verb|Cart|, both of which utilize \verb|JSONField|
+in their definitions. In the project, the website owner can create multiple
+\verb|Product| objects as part of the website's catalogue. Meanwhile, visitors
+can add multiple \verb|Product| objects into their \verb|Cart|. For simplicity,
+the \verb|Cart| object only holds some essential information of the
+\verb|Product| objects to be shown in the shopping cart summary.
+
+Rather than using a relational field such as \verb|ManyToManyField| to store
+the \verb|Product| objects in the \verb|Cart|, a \verb|JSONField| is used. The
+\verb|JSONField| stores a \verb|list| of simplified \verb|Product| data. In
+Python and JSON, \verb|list|s (arrays in JSON) can contain elements with
+different data types, which means that any arbitrary data can be inserted into
+a \verb|list|. Without having any validation rules, the list in the
+\verb|JSONField| may hold invalid \verb|Product| data. Thus, validation rules
+will be created to ensure that the list only contains \verb|Product| data with
+valid identifiers.
 
 \listing
 {Python}
@@ -42,8 +56,13 @@ shopping cart that is linked to a user and it can hold a list of products. The
 list of products is stored in a \verb|JSONField| in the form of a JSON array
 (\verb|list| in Python). In addition, the \verb|JSONField| is supplied with two
 validators, \verb|validate_cart_products_list| and
-\verb|validate_cart_product_ids_exist|. These validators will be used to
-validate the data in the list of \verb|products|.
+\verb|validate_cart_product_ids_exist|. The first validator validator is used
+to validate that the \verb|products| field is a \verb|list|. Meanwhile, the
+second validator ensures that the \verb|id|s in the list of \verb|products|
+also exist in the database. For simplicity, the validator only checks the
+\verb|id| and not the other \verb|Product| attributes, as they can be retrieved
+as long as the \verb|Product| with the same \verb|id| exists in the database.
+These validators will be explained in more detail in the next section.
 
 \listing
 {Python}
@@ -93,13 +112,15 @@ previous section, two custom validators are used to validate the list of
 
 The first validator function is the \verb|validate_cart_products_list()|
 function shown by \autoref{code:validatelist}. The function works by checking
-whether the \verb|products| value is an instance of \verb|list|. If it is not,
-a \verb|ValidationError| is raised. This validator function can be seen as a
-basic schema validator for the JSON data that ensures the data is a JSON array.
-To validate against a more complex schema, programmers can use a third-party
-library such as jsonschema\footnote{\url{https://github.com/Julian/jsonschema}}
-or Cerberus\footnote{\url{https://github.com/pyeve/cerberus}} and raise a
-\verb|ValidationError| if the library indicates that the data is invalid.
+whether the \verb|products| value is an instance of \verb|list| and raising a
+\verb|ValidationError| if it is not a \verb|list|. This validator function can
+be seen as a basic schema validator for the JSON data that ensures the data is
+a JSON array. To validate against a more complex schema, programmers can use a
+third-party library such as
+jsonschema\footnote{\url{https://github.com/Julian/jsonschema}} or
+Cerberus\footnote{\url{https://github.com/pyeve/cerberus}}. If the library
+indicates that the data is invalid, then a \verb|ValidationError| shall be
+raised.
 
 \listing
 {Python}
@@ -115,19 +136,19 @@ the list of \verb|products|, the validator immediately returns if the
 \autoref{code:validateids}. Otherwise, the validator takes the \verb|id|s of
 each product in the cart into a list of \verb|product_ids| (line 6).
 
-Then, a query is executed to look for the \verb|Product| objects where the
-\verb|id| is in the list of \verb|product_ids| (line 8). To retrieve the
-\verb|id|s back as strings (not as \verb|UUID| objects), the \verb|Cast|
-function is used to cast the \verb|id| into a \verb|CharField| (lines 9 and
-10). The \verb|values_list()| method is used so that the query only retrieves
-the \verb|id|s without the other information of the \verb|Product| model (line
-11). Line 13 of the listing shows that the set of \verb|product_ids| is
-subtracted by the set of \verb|id|s retrieved from the database
-(\verb|valid_ids|). If the subtraction results in a non-empty set, that means
-the list of \verb|products| contain \verb|Product| information with invalid
-\verb|id|s, so a \verb|ValidationError| is raised, as shown by lines 14 to 17
-of the listing. As all of the validators have been implemented, they can now be
-used to validate the list of \verb|products|.
+After the \verb|product_ids| list is created, a query is executed to look for
+the \verb|Product| objects where the \verb|id| is in the list of
+\verb|product_ids| (line 8). To retrieve the \verb|id|s back as strings (not as
+\verb|UUID| objects), the \verb|Cast| function is used to cast the \verb|id|
+into a \verb|CharField| (lines 9 and 10). The \verb|values_list()| method is
+used so that the query only retrieves the \verb|id|s without the other
+information of the \verb|Product| model (line 11). Line 13 of the listing shows
+that the set of \verb|product_ids| is subtracted by the set of \verb|id|s
+retrieved from the database (\verb|valid_ids|). If the subtraction results in a
+non-empty set, that means the list of \verb|products| contain \verb|Product|
+information with invalid \verb|id|s, so a \verb|ValidationError| is raised, as
+shown by lines 14 to 17 of the listing. As all of the validators have been
+implemented, they can now be used to validate the list of \verb|products|.
 
 %-----------------------------------------------------------------------------%
 \section{Demonstration}
@@ -142,7 +163,7 @@ called. The method can be called either directly or indirectly by calling the
 
 \begin{figure}
 	\centering
-    \includegraphics[width=1.00\textwidth]{pics/validation0.png}
+    \includegraphics[width=0.90\textwidth]{pics/validation0.png}
 	\caption{The initialization for the validation demonstration.}
 	\label{fig:validation0}
 \end{figure}
@@ -158,7 +179,7 @@ the validators are demonstrated below.
 
 \begin{figure}
 	\centering
-    \includegraphics[width=1.00\textwidth]{pics/validation1.png}
+    \includegraphics[width=0.90\textwidth]{pics/validation1.png}
 	\caption{The \code{validate\_cart\_products\_list()} validator in action.}
 	\label{fig:validation1}
 \end{figure}
@@ -167,13 +188,14 @@ To run the validators before the \verb|Cart| model object is saved to the
 database, an instance of the \verb|Cart| class is created (rather than using
 the \verb|create()| method). The instance is linked to the \verb|user| created
 previously and is initialized with the dictionary \verb|{'products': []}| as
-the value for the \verb|products| field. When calling the \verb|clean_fields()|
-method, a \verb|ValidationError| is raised, as shown by
+the top-level value for the \verb|products| field. When calling the
+\verb|clean_fields()| method, a \verb|ValidationError| is raised, as shown by
 \autoref{fig:validation1}. The error message (that comes from the
 \verb|validate_cart_products_list| validator) indicates that the
 \verb|products| field value should be a \verb|list|, not a dictionary. After
-changing the \verb|products| field value to an empty \verb|list| (\verb|[]|),
-calling the \verb|clean_fields()| method again does not raise any errors.
+changing the \verb|products| field's top-level value to an empty \verb|list|
+(\verb|[]|), calling the \verb|clean_fields()| method again does not raise any
+errors.
 
 \begin{figure}
 	\centering
