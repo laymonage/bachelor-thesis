@@ -19,23 +19,31 @@
 \vspace*{0.5cm}
 
 \noindent
-Skripsi ini menjelaskan tentang implementasi dan analisis JSONField pada
-\f{framework} web Django. JSONField memungkinkan penggunanya untuk menyimpan
-dan mencari data semi-terstruktur dalam basis data relasional dengan
-memanfaatkan alat \f{object-relational mapping} yang ada pada Django.
-Implementasi ini harus memperhitungkan kompatibilitas dengan semua sistem basis
-data yang didukung secara resmi oleh Django, yakni PostgreSQL, SQLite, MySQL,
-MariaDB, dan Oracle Database. Implementasi ini dibuat sebagai bagian dari
-program Google Summer of Code 2019 dan telah digabungkan ke dalam basis kode
-Django untuk perilisan Django 3.1. Selain itu, skripsi ini juga membahas
-analisis penggunaan JSONField dengan fitur validasi model yang ada pada Django
-untuk memvalidasi data JSON, serta tolok ukur penggunaan JSONField dengan data
-uji. \\
+Dalam pengembangan web, penggunaan sebuah \f{web framework} merupakan praktik
+yang umum untuk membangun aplikasi web. Salah satu \f{web framework} yang
+populer adalah Django, sebuah \f{web framework} yang bebas dan bersumber
+terbuka yang ditulis dalam bahasa Python. Di antara fitur-fitur yang tersedia
+pada Django, sistem \f{object-relational mapping} (ORM) adalah yang paling
+kompleks. Sistem ORM pada Django memetakan model data ke tabel dalam basis data
+relasional. Model data tersebut didefinisikan sebagai \f{class} dalam Python
+yang memiliki atribut yang dinamakan \f{model field}. Salah satu \f{model
+field} yang tersedia pada Django adalah \verb|JSONField| yang memungkinkan
+pemrogram untuk menyimpan dan mencari data semiterstruktur menggunakan format
+data JSON dalam basis data relasional. Sebelum penelitian ini, \verb|JSONField|
+hanya tersedia untuk sistem basis data PostgreSQL. Sementara itu, Django secara
+resmi mendukung PostgreSQL, MariaDB, MySQL, SQLite, dan Oracle Database.
+Penelitian ini bertujuan untuk mengimplementasikan \verb|JSONField| baru yang
+kompatibel dengan seluruh sistem basis data yang didukung oleh Django.
+Implementasi tersebut dibuat sebagai bagian dari program Google Summer of Code
+2019 dan telah digabungkan ke dalam basis kode Django untuk perilisan Django
+3.1. Selain dari implementasi tersebut, penelitian ini juga membahas contoh
+penggunaan \verb|JSONField| dengan fitur validasi model yang ada pada Django
+untuk memvalidasi data JSON. \\
 
 \vspace*{0.2cm}
 
 \noindent \bo{Kata kunci:} \\
-JSONField, JSON, Django, basis data, \f{object-relational mapping}, data
+\verb|JSONField|, JSON, Django, basis data, \f{object-relational mapping}, data
 semi-terstruktur \\
 
 \onehalfspacing
