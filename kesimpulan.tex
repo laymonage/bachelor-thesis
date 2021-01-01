@@ -16,7 +16,7 @@ data is managed by all of the database systems, which consist of PostgreSQL,
 MariaDB, MySQL, SQLite, and Oracle Database.
 
 To handle the differences between the database systems, some adjustments to the
-database backends were needed. The adjustments include the additions of new
+database backends were needed. The adjustments included the additions of new
 feature flags in the \verb|DatabaseFeature| classes of the database backends.
 The flags indicate the different behaviors of each database system, which can
 be used to determine how the implementation on the database system should be
@@ -42,7 +42,7 @@ small Django project with an e-commerce scenario was created. The project
 includes two models, \verb|Product| and \verb|Cart|, that represent a product
 and a shopping cart on an e-commerce website. The \verb|Cart| model has a
 \verb|JSONField| that uses validators to validate the data. The validators were
-added using the Django's validation feature. By utilizing the validators, JSON
+added using the validation feature in Django. By utilizing the validators, JSON
 data in a model field could be validated by calling the \verb|clean_fields()|
 method of the model instance and catching the \verb|ValidationError| exception.
 
@@ -67,20 +67,29 @@ as follow:
 		  through the use of built-in and custom query expressions. While the
 		  tests in this research have included the common use cases, it is not
 		  feasible to test each and every possible use case with
-		  \verb|JSONField|. Thus, more complex use cases of \verb|JSONField|
-		  and Django's ORM tool on all database backends may be a subject of
-		  future research.
-	\item Some database systems support partial updates to JSON data through
-		  the use of database functions for more efficient write operations on
-		  JSON columns. The implementation in this research does not make use
-		  of the partial update feature, which means that JSON data is always
-		  updated by rewriting the whole data. Future research on
-		  \verb|JSONField| can improve upon this research by utilizing the
-		  partial update feature on database systems that support it.
+		  \verb|JSONField|. In addition, the \verb|JSONField| implementation in
+		  this research has not yet supported efficient partial updates to JSON
+		  data using the \verb|update()| method of the QuerySet API. Thus, more
+		  complex use cases of \verb|JSONField| with Django's ORM tool on all
+		  database backends may be a subject of future research.
 	\item This research has provided some examples of JSON data validation,
 		  including a basic example of how the schema of a \verb|JSONField| can
 		  be validated. For more complex schemas, third-party packages can be
 		  utilized to create the validation rules. Integrating the third-party
 		  packages with Django's validators may be explored in future
 		  research.
+	\item Recent studies have shown interest in measuring the performance of
+		  relational databases in handling JSON data. Relational databases are
+		  not dedicated for storing JSON data, thus they may not perform well
+		  compared to NoSQL databases. However, recent benchmarks have shown
+		  that a relational database system could outperform a NoSQL database
+		  system in varied workloads with JSON data
+		  \cite{enterprisedb_benchmark}. Some extensive benchmarks on multiple
+		  database systems have also shown that the performance differences
+		  between relational and NoSQL databases were not significant,
+		  especially for smaller documents \cite{dolgov_benchmark}. However,
+		  these benchmarks were done directly on the database systems instead
+		  of using an ORM tool. Therefore, further research on relational
+		  databases' performance in handling JSON data using an ORM tool such
+		  as \verb|JSONField| would provide new insights on this topic.
 \end{enumerate}
