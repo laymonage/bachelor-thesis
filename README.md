@@ -1,4 +1,4 @@
-# Implementing Cross-DB JSONField in Django
+# Extending `JSONField` for All Databases in Django
 
 Sage Muhammad Abdullah - 1706979455 - Computer Science Universitas Indonesia (2017)
 
