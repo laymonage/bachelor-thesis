@@ -56,13 +56,13 @@ shopping cart that is linked to a user and it can hold a list of products. The
 list of products is stored in a \verb|JSONField| in the form of a JSON array
 (\verb|list| in Python). In addition, the \verb|JSONField| is supplied with two
 validators, \verb|validate_cart_products_list| and
-\verb|validate_cart_product_ids_exist|. The first validator validator is used
-to validate that the \verb|products| field is a \verb|list|. Meanwhile, the
-second validator ensures that the \verb|id|s in the list of \verb|products|
-also exist in the database. For simplicity, the validator only checks the
-\verb|id| and not the other \verb|Product| attributes, as they can be retrieved
-as long as the \verb|Product| with the same \verb|id| exists in the database.
-These validators will be explained in more detail in the next section.
+\verb|validate_cart_product_ids_exist|. The first validator is used to validate
+that the \verb|products| field is a \verb|list|. Meanwhile, the second
+validator ensures that the \verb|id|s in the list of \verb|products| also exist
+in the database. For simplicity, the validator only checks the \verb|id| and
+not the other \verb|Product| attributes, as they can be retrieved as long as
+the \verb|Product| with the same \verb|id| exists in the database. These
+validators will be explained in more detail in the next section.
 
 \listing
 {Python}
@@ -80,8 +80,8 @@ object that is added to the cart. The \verb|id| is stored as a hex string
 does not need a custom encoder. Whenever a \verb|Product| is added, the method
 iterates through the list of \verb|products| to find the \verb|Product| that
 has the same \verb|id| and increments the quantity if it is found, as shown by
-lines 15 to 18 of \autoref{code:addproduct}. Otherwise, the data is just
-appended to the list, as shown by lines 19 to 26. The list of \verb|products|
+lines 2 to 5 of \autoref{code:addproduct}. Otherwise, the data is just
+appended to the list, as shown by lines 6 to 13. The list of \verb|products|
 will be validated using the validators, as explained in the next section.
 
 %-----------------------------------------------------------------------------%
@@ -155,10 +155,10 @@ implemented, they can now be used to validate the list of \verb|products|.
 %-----------------------------------------------------------------------------%
 
 To use the validators, they need to be run manually before saving the model
-object, because the method does not run them automatically. To run the
-validators, the \verb|clean_fields()| method of the model object should be
-called. The method can be called either directly or indirectly by calling the
-\verb|full_clean()| method of the model object, which calls
+object, because the \verb|save()| method does not run them automatically. To
+run the validators, the \verb|clean_fields()| method of the model object should
+be called. The method can be called either directly or indirectly by calling
+the \verb|full_clean()| method of the model object, which calls
 \verb|clean_fields()| as part of its process.
 
 \begin{figure}
@@ -211,7 +211,7 @@ error is raised because the \verb|product| exists in the database, as shown by
 input 11 of \autoref{fig:validation2}. After that, a new \verb|Product|
 instance is created without saving it to the database (input 12). If the
 instance is added to the \verb|cart| (input 14) and the \verb|clean_fields()|
-method is called, a \verb|ValidationError| is raised (input 15). The error
+method is called (input 15), a \verb|ValidationError| is raised. The error
 message indicates that the invalid ID is equal to the new \verb|Product|
 instance \verb|id| (input and output 13). The error is raised because the
 new instance does not exist in the database yet.
