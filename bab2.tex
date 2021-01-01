@@ -190,7 +190,7 @@ manipulate JSON data with a performance that matches or surpasses
 document-based databases.
 
 For the PostgreSQL database backend, Django uses the Psycopg 2 database driver.
-Psycopg 2 supports the \verb|jsonb} and \code{jsonb| data types as of version
+Psycopg 2 supports the \verb|json| and \verb|jsonb| data types as of version
 2.5.4. It offers a JSON adapter that serializes Python objects before they are
 sent to the database. By default, it also automatically deserializes JSON data
 from the database into Python objects. Psycopg 2 uses Python's built-in JSON
@@ -306,7 +306,7 @@ model and declare a field with an instance of \verb|JSONField| as demonstrated
 by \autoref{code:profilemodel}. After that, the field can be used as
 demonstrated by \autoref{code:jsonshell}. Lines 2 and 3 of the listing
 demonstrate that the field accepts a Python object that can be encoded into
-JSON, in this case a dictionary. When calling the \code{create()} method, the
+JSON, in this case a dictionary. When calling the \verb|create()| method, the
 object inside the field gets encoded before it is saved to the database. Upon
 retrieval, the data gets decoded back into a Python object, as demonstrated by
 lines 5 to 9. Since the data is a Python dictionary, modifying the data using

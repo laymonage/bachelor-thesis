@@ -255,7 +255,7 @@ empty JSON object is a subset of any JSON object, which is also shown by lines
 The containment lookups can be implemented using JSON operators or JSON
 functions provided by some of the database systems. On PostgreSQL, the
 \verb|contains| and \verb|contained_by| lookups can be implemented using the
-\code{@>} and \code{<@} operators, respectively \cite{postgres:json_operators}.
+\verb|@>| and \verb|<@| operators, respectively \cite{postgres:json_operators}.
 On MariaDB and MySQL, both lookups can be implemented using the
 \verb|JSON_CONTAINS()| function by switching the target and candidate arguments
 for the \verb|contained_by| lookup \cite{mariadb:json_contains,
