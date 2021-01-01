@@ -85,18 +85,18 @@ overridden, as the value from \verb|BaseDatabaseFeatures| is already correct.
 {codes/4-backends-postgresql-3.py}
 
 To allow a custom decoder for \verb|JSONField| on PostgreSQL, Psycopg 2's
-automatic deserialization of JSON data should be disabled. Disabling the
-feature can be done by casting the data to \verb|text| or registering a stub
-function for Psycopg 2's \verb|jsonb| converter
-\cite{psycopg2:json-adaptation}. The casting option was chosen during this
-research, as registering a stub function may break compatibility with the
-previous implementation that relied on the automatic deserialization. The
-casting operation is efficient and does not involve a copy, hence this decision
-should not significantly affect the performance of \code{JSONField}
-\cite{psycopg2:json-adaptation}. The casting operation is stored as a method in
-the \verb|DatabaseOperations| class of the backend. In the case of PostgreSQL,
-casting data to \verb|text| can be done using the \verb|::text| syntax, as
-shown by line 6 of \autoref{code:backends-postgresql-3}.
+automatic deserialization of JSON data should be disabled. Disabling it can be
+done by casting the data to \verb|text| or registering a stub function for
+Psycopg 2's \verb|jsonb| converter \cite{psycopg2:json-adaptation}. The casting
+option was chosen during this research, as registering a stub function may
+break compatibility with the previous implementation that relied on the
+automatic deserialization. The casting operation is efficient and does not
+involve a copy, hence this decision should not significantly affect the
+performance of \code{JSONField} \cite{psycopg2:json-adaptation}. The casting
+operation is stored as a method in the \verb|DatabaseOperations| class of the
+backend. For PostgreSQL, casting data to \verb|text| can be done using the
+\verb|::text| syntax, as shown by line 6 of
+\autoref{code:backends-postgresql-3}.
 
 \listing
 {Python}
@@ -123,10 +123,10 @@ data type. Therefore, there is no need to modify
 {code:backends-mysql-2}
 {codes/4-backends-mysql-2.py}
 
-Meanwhile, the \verb|DatabaseFeatures| class is modified by turning
+For MariaDB and MySQL, the \verb|DatabaseFeatures| class is modified by turning
 \verb|supports_json_field| into a cached property method. The method returns
-\verb|True| for MariaDB version 10.2.7 or greater and MySQL version 5.7.8 or
-greater (and \verb|False| otherwise), as shown by lines 4 to 8 of
+\verb|True| for MariaDB version 10.2.7 or higher and MySQL version 5.7.8 or
+higher (and \verb|False| otherwise), as shown by lines 4 to 8 of
 \autoref{code:backends-mysql-2}. The other flags
 (\verb|supports_primitives_in_json_field| and \verb|has_native_json_field|)
 use the values from \verb|BaseDatabaseFeatures| as they are already correct.
@@ -137,11 +137,12 @@ use the values from \verb|BaseDatabaseFeatures| as they are already correct.
 {code:backends-sqlite3-1}
 {codes/4-backends-sqlite3-1.py}
 
-The \verb|DatabaseWrapper| class of the SQLite backend is modified to add the
-mapping from \verb|JSONField| to \verb|text| in the \verb|data_types| property,
-as shown by line 7 of \autoref{code:backends-sqlite3-1}. It is also modified to
-apply the \verb|JSON_VALID()| SQL \verb|CHECK| constraint to the database
-column. As the function returns \verb|0| (false) for SQL \verb|NULL| values, an
+For the SQLite database backend, the \verb|DatabaseWrapper| class is modified
+to add the mapping from \verb|JSONField| to \verb|text| in the
+\verb|data_types| property, as shown by line 7 of
+\autoref{code:backends-sqlite3-1}. It is also modified to apply the
+\verb|JSON_VALID()| SQL \verb|CHECK| constraint to the database column. As the
+function returns \verb|0| (false) for SQL \verb|NULL| values, an
 \verb|OR "%(column)s" IS NULL| clause is added to support storing SQL
 \verb|NULL| values, as shown by line 12 of the listing.
 
@@ -156,12 +157,13 @@ on SQLite. The \verb|supports_json_field| flag is turned into a cached property
 method and the value is determined by trying to execute a \verb|SELECT| query
 with the \verb|JSON()| function included in the JSON1 extension, as shown by
 lines 4 to 8 of \autoref{code:backends-sqlite3-2}. If the query does not throw
-an exception, it means the JSON1 extension is enabled and the flag is set to
+an exception, that means the JSON1 extension is enabled and the flag is set to
 \verb|True| (and \verb|False| otherwise), as shown by lines 9 to 11 of the
 listing. The support check is done this way because SQLite does not provide a
-direct way to check whether the JSON1 extension is loaded. The other flags
-(\verb|supports_primitives_in_json_field| and \verb|has_native_json_field|)
-are derived from \verb|BaseDatabaseFeatures|.
+direct way to check whether the JSON1 extension is loaded. The other
+flags (\verb|supports_primitives_in_json_field| and
+\verb|has_native_json_field|) are derived from \verb|BaseDatabaseFeatures|, as
+the values are already correct.
 
 \listing
 {Python}
@@ -212,11 +214,11 @@ version 12.2 and higher, hence \code{JSONField} is always supported. The
 \verb|has_native_json_field| flag is derived from \verb|BaseDatabaseFeatures|
 because the value is already correct.
 
-All of the database backends have now been adjusted with the necessary changes.
-The changes were mostly made for mapping \verb|JSONField| to the correct data
-type on the database, as well as the \verb|CHECK| constraints to ensure that
-the data is valid JSON. With these changes in place, the \verb|JSONField| class
-can now be implemented.
+All database backends have now been adjusted with the necessary changes. The
+changes were mostly made for mapping \verb|JSONField| to the correct data type
+on the database, as well as the \verb|CHECK| constraints to ensure that the
+data is valid JSON. With these changes in place, the \verb|JSONField| class can
+now be implemented.
 
 %-----------------------------------------------------------------------------%
 \section{\code{JSONField}}
@@ -287,9 +289,9 @@ to be returned by the \verb|check| method and shown to the programmer.
 {code:jsonfield-getinternaltype}
 {codes/4-jsonfield-getinternaltype.py}
 
-To determine the key that is used to get the data type and check constraints
-from the database backends, the \verb|get_internal_type()| method is used. By
-default, the method returns the name of the class (using
+To determine the key that is used to get the data type and \verb|CHECK|
+constraints from the database backends, the \verb|get_internal_type()| method
+is used. By default, the method returns the name of the class (using
 \verb|self.__class__.__name__|), which means that an override is not necessary.
 However, other model fields override the method to explicitly return the name
 of the class, so that other classes may extend the model fields without having
@@ -353,13 +355,13 @@ the value is returned as-is, unless a custom decoder is used. In other cases,
 the deserialization process is shown by line 7 of the listing, where
 the database value is passed to the \verb|json.loads()| function, which also
 accepts an optional decoder class as the \verb|cls| argument. Similar to
-\verb|get_prep_value()|, the \verb|None| value is reserved for SQL \verb|NULL|,
-as shown by lines 2 and 3 of the listing.
+\verb|get_prep_value()|, the \verb|None| value is reserved for the SQL
+\verb|NULL| value, as shown by lines 2 and 3 of the listing.
 
 When extracting JSON string values, the database systems return them as
 deserialized values (i.e. without JSON double quotes). Passing deserialized
 strings to \verb|json.loads()| may cause \verb|json.JSONDecodeError| to be
-raised. Therefore, as shown by lines 7 to 10 of \autoref{code:jsonfield-des},
+raised. Therefore, as shown by lines 6 to 9 of \autoref{code:jsonfield-des},
 the \verb|json.loads()| call is put inside a \verb|try ... except| block and
 the value is directly returned if \verb|json.JSONDecodeError| is raised.
 
@@ -455,8 +457,8 @@ the \verb|json.loads()| call inside the \verb|bound_data()| method, which is
 used to load the input data to the form field.
 
 The form field only handles user input and does not interact with the database
-directly. Thus, it is possible to use it with any database backend. As a
-result, the form field has now been moved from the
+directly. Thus, it is already possible to use the \verb|JSONField| form field
+with any database backend. As a result, the form field is now moved from the
 \verb|django.contrib.postgres.forms| module to the \verb|django.forms| module.
 
 \listing
@@ -529,11 +531,12 @@ The \verb|JSONField| transforms are the key, index, and path transforms that
 extract the value of JSON data at a given path. The index transform is just a
 special case of the key transform where the key is an integer. Meanwhile, the
 path transform can be viewed as a chain of key transforms. Therefore, the
-transforms are unified as \verb|KeyTransform| in the existing implementation.
+transforms were unified as \verb|KeyTransform| in the existing implementation.
+
 The value extracted by the transforms can be chained with some of the built-in
-lookups and the \verb|JSONField|-specific lookups. As these transforms may
-return values of different data types, some of the lookups also need to be
-modified when they are used with on a \verb|KeyTransform|.
+lookups and the \verb|JSONField|-specific lookups. The value returned by the
+transforms may have different data types. As a result, some of the lookups also
+need to be modified when they are used on a \verb|KeyTransform|.
 
 The lookups can be used directly on a \verb|JSONField| or on
 \verb|KeyTransform|s applied to the field. When some of the lookups are used on
@@ -569,9 +572,9 @@ To process a chain of \verb|KeyTransform|s that make up a path transform, the
 traversing the \verb|lhs| attribute of the \verb|KeyTransforms| until the
 \verb|lhs| is not a \verb|KeyTransform|. While traversing, the key names that
 construct the path are saved into a list. The method then compiles the original
-\verb|lhs| and its parameters, and return them along with the list of
-\verb|KeyTransforms|, as shown by lines 9 and 12. Lines 10 and 11 show that on
-Oracle Database, any \verb|%| character in the key name is replaced by
+\verb|lhs| and its parameters, and return them along with the list of key
+names, as shown by lines 9 and 12. Lines 10 and 11 show that on Oracle
+Database, any \verb|%| character in the key name is replaced by
 \verb|%%| to escape string formatting (this will be explained later). In
 addition, the method also has an \verb|lhs_only| parameter for optimization by
 not saving and returning the key names if they are not needed, as shown by
@@ -619,7 +622,7 @@ can only contain alphanumeric characters and underscores. However, keyword
 arguments can also be specified using a dictionary in Python, which allows any
 string as a key name.
 
-Using a malicious string as a key name in a dictionary that's passed as keyword
+Using a malicious string as a key name in a dictionary that is passed as keyword
 arguments, a user can execute an SQL injection. This vulnerability was reported
 via email to the Django security team\footnote{Security issues in Django should
 be reported to
@@ -774,9 +777,10 @@ sent to the database for the lookups (e.g.
 only needed to specify the operator. To facilitate the new implementation, the
 Django developers have moved this class from
 \verb|django.contrib.postgres.lookups| to \verb|django.db.models.lookups| and
-renamed it to \verb|PostgresOperatorLookup| \cite{gh-django:pgop-lookup}. By
-moving the class, the new implementation can reuse the same logic without
-having to rely on the \verb|django.contrib.postgres| module.
+renamed it to \verb|PostgresOperatorLookup|, as shown by
+\autoref{code:pgop-lookup} \cite{gh-django:pgop-lookup}. By moving the class,
+the new implementation can reuse the same logic without having to rely on the
+\verb|django.contrib.postgres| module.
 
 \listing
 {Python}
@@ -828,12 +832,13 @@ the \verb|ContainedBy| class shown by \autoref{code:lookups-contained_by}. The
 lookup is the inverse of the \verb|contains| lookup, thus it matches JSON
 objects (\verb|lhs|) that are a subset of the lookup value (\verb|rhs|). The
 implementation is similar to \verb|DataContains|, but the operator is changed
-for PostgreSQL and the arguments switched for MariaDB and MySQL. On PostgreSQL,
-the \verb|<@| is used. On MariaDB and MySQL, the \verb|JSON_CONTAINS(rhs, lhs)|
-function is used, with the parameters switched, as shown by lines 13 and 14 of
-the listing. As with \verb|DataContains|, the lookup is not supported by the
-other database backends. With the \verb|contains| and \verb|contained_by|
-lookups implemented, the containment lookups are now complete.
+for PostgreSQL and the arguments are switched for MariaDB and MySQL. On
+PostgreSQL, the \verb|<@| operator is used, as shown by line 3 of the listing.
+On MariaDB and MySQL, the \verb|JSON_CONTAINS(rhs, lhs)| function is used, with
+the parameters switched, as shown by lines 13 and 14. As with
+\verb|DataContains|, the lookup is not supported by the other database
+backends. With the \verb|contains| and \verb|contained_by| lookups implemented,
+the containment lookups are now complete.
 
 The next set of lookups are the key existence lookups, which consist of the
 \verb|has_key|, \verb|has_keys|, and \verb|has_any_keys| lookups. These
@@ -851,9 +856,9 @@ operators, thus the class extends the \verb|PostgresOperatorLookup| class. In
 the implementation of \verb|as_postgresql()|, the code also checks whether the
 \verb|rhs| is a \verb|KeyTransform| rather than just a string. If it is a
 \verb|KeyTransform|, then the key names of the \verb|rhs| are retrieved and
-moved to the \verb|lhs|, except the last one, as shown by lines 4 to 9 of
+moved to the \verb|lhs|, except the last one, as shown by lines 4 to 8 of
 \autoref{code:lookups-haskeylookup-1}. After that, the \verb|rhs| is replaced
-by the last key name, as shown by line 10. The adjustment is needed because the
+by the last key name, as shown by line 9. The adjustment is needed because the
 key existence operators can only be used at the top-level of the data. To
 check for keys at a certain depth, the \verb|lhs| needs to be extracted to
 reach that depth in advance, so that the operators work on the extracted value.
@@ -898,7 +903,7 @@ parameters.
 
 The differences between the database backends for \verb|HasKeyLookup| is
 defined in the \verb|as_vendor()| methods. After the unification in
-\verb|as_sql()| the \verb|as_vendor()| methods only need to define the
+\verb|as_sql()|, the \verb|as_vendor()| methods only need to define the
 functions that are used on each database backend. MariaDB and MySQL use the
 \verb|JSON_CONTAINS_PATH()| function, as shown by lines 1 to 4 of
 \autoref{code:lookups-haskeylookup-3}. SQLite uses the \verb|JSON_TYPE()|
@@ -1103,11 +1108,11 @@ SQL string. On PostgreSQL, JSON values can be extracted as \verb|text| (rather
 than \verb|jsonb|) using the \verb|->>| and \verb|#>>| operators, which have
 been implemented in the \verb|KeyTransformText| class. On MariaDB and MySQL,
 after using the \verb|JSON_EXTRACT()| function to extract the value, JSON
-strings need to be unquoted using the \verb|JSON_UNQUOTE| function. On SQLite,
-the \verb|JSON_EXTRACT()| function automatically unquotes JSON strings, thus no
-modification is needed. On Oracle Database, the \verb|JSON_VALUE()| function
-also automatically unquotes JSON strings, thus there is no modification needed
-as well.
+strings need to be unquoted using the \verb|JSON_UNQUOTE()| function. On
+SQLite, the \verb|JSON_EXTRACT()| function automatically unquotes JSON strings,
+thus no modification is needed. On Oracle Database, the \verb|JSON_VALUE()|
+function also automatically unquotes JSON strings, thus there is no
+modification needed as well.
 
 \listing
 {Python}
@@ -1135,10 +1140,10 @@ expect a string \verb|lhs| on MariaDB and MySQL, the \verb|DatabaseOperations|
 class of the MySQL backend is modified by overriding the \verb|lookup_cast()|
 method. If the \verb|lookup_type| argument of the method is one of the text
 lookups and it is performed on a \verb|JSONField|, the method returns the
-\verb|JSON_UNQUOTE()| function to be interpolated, as shown by lines 3 to 8 of
-\autoref{code:mysql-operations}. In addition, as MariaDB does not have a native
-JSON data type, it may require the \verb|JSON_UNQUOTE()| function regardless of
-the lookup. Thus, the condition for MariaDB is added accordingly.
+\verb|JSON_UNQUOTE()| function to be interpolated, as demonstrated by lines 3
+to 8 of \autoref{code:mysql-operations}. In addition, as MariaDB does not have
+a native JSON data type, it may require the \verb|JSON_UNQUOTE()| function
+regardless of the lookup. Thus, the condition for MariaDB is added accordingly.
 
 \listing
 {Python}
@@ -1151,8 +1156,8 @@ strings on MariaDB and MySQL is case-sensitive by default. The comparison is
 case-sensitive because MariaDB and MySQL handle strings in JSON context using
 the \code{utf8mb4\_bin} collation \cite{mysql:json}. To allow case-insensitive
 comparison of JSON values on MariaDB and MySQL, the \verb|CaseInsensitiveMixin|
-class is created. The mixin works by converting the \verb|lhs| and \verb|rhs|
-to lowercase using the \verb|LOWER()| function, as shown by
+class is created. The mixin class works by converting the \verb|lhs| and
+\verb|rhs| to lowercase using the \verb|LOWER()| function, as demonstrated by
 \autoref{code:mixins-caseinsensitivemixin}.
 
 \listing
@@ -1161,7 +1166,7 @@ to lowercase using the \verb|LOWER()| function, as shown by
 {code:lookups-keytransformtext}
 {codes/4-lookups-keytransformtext.py}
 
-With the necessary mixins created and the backend modification applied, the
+With the necessary mixins created and the backend modifications applied, the
 text lookups for \verb|KeyTransform| can be implemented. The lookups are
 implemented by extending the mixins and the built-in lookups accordingly, as
 shown by \autoref{code:lookups-keytransformtext}. All of the lookup classes
@@ -1195,7 +1200,7 @@ The mixin works by conditionally deserializing the rhs using the
 
 As with the text lookups, the numeric lookups can be implemented by extending
 the mixins and built-in lookups. All of the numeric lookups extend from the
-\verb|KeyTransformNumericLookupMixin| to ensure the \verb|rhs| is correct.
+\verb|KeyTransformNumericLookupMixin| to ensure that the \verb|rhs| is correct.
 After that, the classes can just extend from the built-in lookups without
 having to override any properties, as shown by
 \autoref{code:lookups-keytransformnumeric}.
@@ -1207,12 +1212,14 @@ having to override any properties, as shown by
 {codes/4-register-keytransform.py}
 
 With all of the necessary classes implemented, the lookups are now compatible
-with \verb|KeyTransform|s. As with the \verb|JSONField| lookups, they need to
-be registered on \verb|KeyTransform|. \autoref{code:register-keytransform}
-shows that all of the lookups are registered to \verb|KeyTransform| using the
-\verb|register_lookup()| method. The \verb|JSONField|-specific lookups can be
-used without explicitly registering them to \verb|KeyTransform|, because
-the output field of \verb|KeyTransform| is also \verb|JSONField|.
+with \verb|KeyTransform|s. As the lookups were modified from the built-in
+implementation, they need to be registered again on \verb|KeyTransform|.
+\autoref{code:register-keytransform} shows that all of the lookups are
+registered to \verb|KeyTransform| using the \verb|register_lookup()| method.
+The \verb|JSONField|-specific lookups can be used without explicitly
+registering them to \verb|KeyTransform|, because the output field of
+\verb|KeyTransform| is also \verb|JSONField| and none of the lookups were
+modified for \verb|KeyTransform|.
 
 In this chapter, the overall implementation of \verb|JSONField| has been
 explained. The implementation includes the \verb|JSONField| model field,
