@@ -170,7 +170,7 @@ a suitable default for empty values, such as \verb|default=dict|.
 
 To ensure that the data inserted into the database is valid JSON, the model
 field can also define the SQL \verb|CHECK| constraints on the database-level.
-On MariaDB and SQLite, the \verb|JSON_VALID| function can be used as a
+On MariaDB and SQLite, the \verb|JSON_VALID()| function can be used as a
 \verb|CHECK| constraint \cite{mariadb:json_valid, sqlite:json1}. On Oracle
 Database, the \verb|IS JSON| condition can be applied to the table column
 \cite{oracle:is_json}. On MySQL and PostgreSQL, the JSON data is automatically
@@ -257,7 +257,7 @@ functions provided by some of the database systems. On PostgreSQL, the
 \verb|contains| and \verb|contained_by| lookups can be implemented using the
 \code{@>} and \code{<@} operators, respectively \cite{postgres:json_operators}.
 On MariaDB and MySQL, both lookups can be implemented using the
-\verb|JSON_CONTAINS| function by switching the target and candidate arguments
+\verb|JSON_CONTAINS()| function by switching the target and candidate arguments
 for the \verb|contained_by| lookup \cite{mariadb:json_contains,
 mysql:json_search}. Unfortunately, SQLite and Oracle Database do not have a
 similar function, thus these lookups are left unsupported on both databases.
@@ -293,15 +293,15 @@ using JSON operators or JSON functions on the database systems. On PostgreSQL,
 the \verb|has_key|, \verb|has_keys|, and \verb|has_any_keys| lookups can be
 implemented using the \code{?}, \code{?\&}, and \code{?|} operators,
 respectively \cite{postgres:json_operators}. On MariaDB and MySQL, these
-lookups can be implemented using the \verb|JSON_CONTAINS_PATH| function
+lookups can be implemented using the \verb|JSON_CONTAINS_PATH()| function
 \cite{mariadb:json_contains_path, mysql:json_search}. This function accepts
-multiple paths as its arguments and there's a \verb|one_or_all| argument that
+multiple paths as its arguments and there is a \verb|one_or_all| argument that
 determines whether the JSON data should contain at least one path or all of the
-paths. On SQLite, there's no function that is similar to
-\verb|JSON_CONTAINS_PATH|, but the \verb|JSON_TYPE| with the \code{IS NOT
-NULL} condition can be used to determine whether a given path exists
-\cite{sqlite:json1}. On Oracle Database, a similar functionality can be
-obtained using the \verb|JSON_EXISTS| function \cite{oracle:json_exists}. Both
+paths. On SQLite, there is no function that is similar to
+\verb|JSON_CONTAINS_PATH()|, but the \verb|JSON_TYPE()| with the
+\verb|IS NOT NULL| condition can be used to determine whether a given path
+exists \cite{sqlite:json1}. On Oracle Database, a similar functionality can be
+obtained using the \verb|JSON_EXISTS()| function \cite{oracle:json_exists}. Both
 SQLite and Oracle Database need to chain the function calls with the \verb|AND|
 and \verb|OR| operators for the \verb|has_keys| and \verb|has_any_keys|
 lookups, respectively.
@@ -345,17 +345,17 @@ paths \cite{postgres:json_operators}. When the transforms are chained with
 lookups that expect a string value on the left-hand side, the \verb|->>| and
 \verb|#>>| operators are used instead, so that the value is extracted as
 \verb|text| instead of \verb|jsonb|. On MariaDB, MySQL, and SQLite, the
-\verb|JSON_EXTRACT| function can be used \cite{mariadb:json_extract,
+\verb|JSON_EXTRACT()| function can be used \cite{mariadb:json_extract,
 mysql:json_search, sqlite:json1}.\footnote{As of version 5.7.13, MySQL also has
 \code{->} and \code{->>} operators that work similarly to the \code{\#>} and
 \code{\#>>} operators on PostgreSQL. However, MariaDB does not have these
 operators, hence the function equivalents are used instead.} When extracting
-string values on MariaDB and MySQL, the \verb|JSON_UNQUOTE| function should be
+string values on MariaDB and MySQL, the \verb|JSON_UNQUOTE()| function should be
 used to unquote the JSON double quotes \cite{mariadb:json_unquote,
 mysql:json_modify}. On Oracle Database, extraction can be done using the
-\verb|JSON_VALUE| function to extract scalar values and the \verb|JSON_QUERY|
-function to extract JSON objects and JSON arrays \cite{oracle:json_value,
-oracle:json_query}.
+\verb|JSON_VALUE()| function to extract scalar values and the
+\verb|JSON_QUERY()| function to extract JSON objects and JSON arrays
+\cite{oracle:json_value, oracle:json_query}.
 
 This chapter has described how storing and loading JSON data with
 \verb|JSONField| is designed. It has also explained how the

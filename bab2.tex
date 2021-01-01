@@ -219,7 +219,7 @@ The \verb|json| data type was introduced for compatibility reasons with MySQL's
 \verb|json| data type. However, on MariaDB, the \verb|json| data type is just
 an alias for the \verb|longtext| data type. Even though the data is stored as a
 string rather than binary, it can be validated using the provided
-\verb|JSON_VALID| function as a \verb|CHECK| constraint.
+\verb|JSON_VALID()| function as a \verb|CHECK| constraint.
 
 \subsection{SQLite}
 
@@ -227,19 +227,19 @@ SQLite has the JSON1 extension as of version 3.9.0 \cite{sqlite:3.9.0}. The
 JSON1 extension is a loadable extension that includes functions that can be
 used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
 extension stores JSON data as \verb|text|. The JSON1 extension includes a
-\verb|JSON_VALID| function that can be used as a \verb|CHECK| constraint for
+\verb|JSON_VALID()| function that can be used as a \verb|CHECK| constraint for
 JSON data.
 
 Some JSON functions provided in the JSON1 extension are similar to those found
 in MariaDB and MySQL, but they have different behaviors on SQLite. For example,
-the \verb|JSON_EXTRACT| function that can be used to extract JSON values at a
+the \verb|JSON_EXTRACT()| function that can be used to extract JSON values at a
 given path is available on MySQL, MariaDB, and SQLite. However, on MariaDB and
 MySQL, the function returns string values with the JSON double quotes
 (\verb|""|) intact, whereas on SQLite, the function returns strings with the
 double quotes removed. The function also behaves differently when extracting
 the JSON \verb|null| value: it returns the SQL string \verb|'null'| on MariaDB
 and MySQL, but it returns SQL \verb|NULL| on SQLite. In addition, calling the
-\verb|JSON_VALID| function with SQL \verb|NULL| as its argument returns SQL
+\verb|JSON_VALID()| function with SQL \verb|NULL| as its argument returns SQL
 \verb|NULL| on MariaDB and MySQL, but it returns \verb|0| (false) on SQLite.
 
 \subsection{Oracle Database}
@@ -256,10 +256,10 @@ be implemented using bitmap, function-based, or composite B-tree indexes.
 
 As with the other database systems, Oracle Database has functions to operate on
 JSON data, but they are named differently. For example, instead of
-\verb|JSON_EXTRACT|, Oracle Database has \verb|JSON_VALUE| for extracting
-scalar values and \verb|JSON_QUERY| for extracting JSON objects and arrays. In
-addition, it has the \verb|JSON_EXISTS| function that is similar to the
-\verb|JSON_CONTAINS_PATH| function on MariaDB and MySQL.
+\verb|JSON_EXTRACT()|, Oracle Database has \verb|JSON_VALUE()| for extracting
+scalar values and \verb|JSON_QUERY()| for extracting JSON objects and arrays.
+In addition, it has the \verb|JSON_EXISTS()| function that is similar to the
+\verb|JSON_CONTAINS_PATH()| function on MariaDB and MySQL.
 
 The previous paragraphs and subsections have explained how each database
 system supported by Django manages JSON data in its own ways. Meanwhile, the
