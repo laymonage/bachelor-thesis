@@ -2,27 +2,26 @@
 \chapter{\babTiga}
 %-----------------------------------------------------------------------------%
 
-This chapter explains the design and analysis of the \code{JSONField}
-implementation that can be used on all of the database backends supported by
-Django.
+This chapter explains the design and analysis of the \verb|JSONField|
+implementation that can be used on all database backends supported by Django.
 
 %-----------------------------------------------------------------------------%
 \section{\code{JSONField}}
 %-----------------------------------------------------------------------------%
 
-There are two kinds of \code{JSONField}: the model field and the form field.
+There are two kinds of \verb|JSONField|: the model field and the form field.
 The model field is used as an abstraction of the JSON data in the database,
 which lets its users manipulate JSON data in the form of Python objects.
 The form field is used for accepting JSON data in forms, such as a Django
-\code{ModelForm}.
+\verb|ModelForm|.
 
 The model field holds JSON data that can be stored to and retrieved from the
 database. In Python, the data is represented in Python's built-in formats:
-dictionaries, lists, strings, numbers, booleans, and \code{None}. When saving
-the model, Django executes an SQL \code{INSERT} or \code{UPDATE} query to the
+dictionaries, lists, strings, numbers, booleans, and \verb|None|. When saving
+the model, Django executes an SQL \verb|INSERT| or \verb|UPDATE| query to the
 database. In order to pass the JSON data in the SQL query, the Python object
 has to be serialized into a JSON-encoded string. When retrieving the model
-instance, Django executes an SQL \code{SELECT} query to the database. The data
+instance, Django executes an SQL \verb|SELECT| query to the database. The data
 is retrieved as a JSON-encoded string, which needs to be deserialized, or
 decoded, into a Python object.
 
@@ -36,24 +35,24 @@ decoded, into a Python object.
 \end{figure}
 
 To serialize/deserialize Python objects into/from JSON-encoded strings, the
-built-in \code{json} library in Python can be used \cite{python:json}. The
+built-in \verb|json| library in Python can be used \cite{python:json}. The
 encoding and decoding functionalities are provided through the
-\code{json.dumps()} and \code{json.loads()} functions, respectively, as shown
-in \autoref{fig:encodecode}. By default, the \code{json.dumps()} function uses
-the \code{json.JSONEncoder} class, while the \code{json.loads()} function uses
-the \code{json.JSONDecoder} class. These classes support the Python
-\code{dict}, \code{list}, \code{str}, \code{int}, \code{float}, \code{True},
-\code{False}, and \code{None} data types and objects. To support other data
-types and objects, customized \code{json.JSONEncoder} and
-\code{json.JSONDecoder} subclasses can be used for the functions by supplying
-the subclass as the \code{cls} argument.
+\verb|json.dumps()| and \verb|json.loads()| functions, respectively, as shown
+in \autoref{fig:encodecode}. By default, the \verb|json.dumps()| function uses
+the \verb|json.JSONEncoder| class, while the \verb|json.loads()| function uses
+the \verb|json.JSONDecoder| class. These classes support the Python
+\verb|dict|, \verb|list|, \verb|str|, \verb|int|, \verb|float|, \verb|True|,
+\verb|False|, and \verb|None| data types and objects. To support other data
+types and objects, customized \verb|json.JSONEncoder| and
+\verb|json.JSONDecoder| subclasses can be used for the functions by supplying
+the subclass as the \verb|cls| argument.
 
-The form field utilizes the \code{json} library for serialization and
+The form field utilizes the \verb|json| library for serialization and
 deserialization when handling JSON input from the client. If the data being
-deserialized is not a valid JSON document, the \code{json.loads()} function
-will raise a \code{JSONDecodeError}. This error is used by Django to provide
+deserialized is not a valid JSON document, the \verb|json.loads()| function
+will raise a \verb|JSONDecodeError|. This error is used by Django to provide
 a basic validation functionality by catching the error and raising a
-\code{ValidationError} instead.
+\verb|ValidationError| instead.
 
 \begin{table}
 	\centering
@@ -74,81 +73,80 @@ None           & null      & NULL                & 'null'                   \\ \
 \end{table}
 
 When serializing and deserializing JSON data for the model field, the Python
-\code{None} object, the JSON \code{null} value, and the SQL \code{NULL} value
+\verb|None| object, the JSON \verb|null| value, and the SQL \verb|NULL| value
 should be taken into consideration. The model field uses JSON-encoded strings
 to store JSON values, as there are no SQL equivalents for JSON objects and
-arrays. Following the patterns of other values shown in
-\autoref{table:emptyvalues}, the \code{None} object should be stored as the
-JSON-encoded \code{'null'} string on the database. However, according to the
-Python DB-API 2.0 specification (which Django follows), the \code{None} object
-is reserved for the SQL \code{NULL} value for both input and output
-\cite{db-api2}. Therefore, the model field should skip the serialization and
-deserialization for \code{None} (if it is stored as the top-level value) and let
-the database driver store it as SQL \code{NULL}.\footnote{Storing some data as
-the top-level value means that the data is stored directly inside the field,
-rather than contained inside a Python dictionary or list.}
+arrays. Following the patterns of other values shown by
+\autoref{table:emptyvalues}, the \verb|None| object should be stored as the
+JSON-encoded \verb|'null'| string in the database. However, according to the
+Python DB-API 2.0 specification (which Django follows), the \verb|None| object
+is reserved for the SQL \verb|NULL| value for input and output \cite{db-api2}.
+Therefore, the model field should skip the serialization and deserialization
+for \verb|None| (if it is stored as the top-level value) and let the database
+driver store it as SQL \verb|NULL|.\footnote{Storing some data as the top-level
+value means that the data is stored directly inside the field, rather than
+contained inside a Python dictionary or list.}
 
-In order to store and query the JSON \code{null} value as the top-level value
-of \code{JSONField}, the \code{Value} class from the \code{django.db.models}
-module can be utilized. A \code{Value()} object wraps a literal SQL value to be
+In order to store and query the JSON \verb|null| value as the top-level value
+of \verb|JSONField|, the \verb|Value| class from the \verb|django.db.models|
+module can be utilized. A \verb|Value()| object wraps a literal SQL value to be
 used in an SQL expression \cite{django:value}. This literal SQL value is not
-processed by Django. In the case of \code{JSONField}, that means the value is
-not passed into the \code{json.dumps()} function. Therefore, the JSON
-\code{null} value can be stored as a JSON-encoded SQL string literal (i.e.
-\code{Value('null')}). The value will be stored as \code{'null'}, which is
-not \code{'"null"'} and not \code{NULL}.
+processed by Django. In the case of \verb|JSONField|, that means the value is
+not passed into the \verb|json.dumps()| function. Therefore, the JSON
+\verb|null| value can be stored as a JSON-encoded SQL string literal (i.e.
+\verb|Value('null')|). The value will be stored as \verb|'null'|, which is
+not \verb|'"null"'| and not \verb|NULL|.
 
-However, when retrieved from the database, both SQL \code{NULL} and
-JSON-encoded \code{'null'} are represented in Python as \code{None}. This
-happens because Django processes the \code{'null'} value using
-\code{json.loads()}, which will return \code{None}. When \code{None} is saved
-as a top-level value in the database, it will be saved as SQL \code{NULL}.
-Meanwhile, when querying, \code{None} is always interpreted as JSON
-\code{null}. To query for SQL \code{NULL}, the \code{isnull} lookup is used.
+However, when retrieved from the database, both SQL \verb|NULL| and
+JSON-encoded \verb|'null'| are represented in Python as \verb|None|. The reason
+is that Django processes the \verb|'null'| value using \verb|json.loads()|,
+which returns \verb|None|. When \verb|None| is saved as a top-level value in
+the database, it is saved as SQL \verb|NULL|. Meanwhile, when querying,
+\verb|None| is always interpreted as JSON \verb|null|. To query for SQL
+\verb|NULL|, the \verb|isnull| lookup is used.
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={A \code{Dog} model with a
-\code{CharField} for its name and a \code{JSONField} for additional data.},
-label=code:dog]{codes/3-dog.py}
-\end{minipage}
+\listing
+{Python}
+{A \code{Dog} model with a \code{CharField} for its name and a \code{JSONField}
+for additional data.}
+{code:dog}
+{codes/3-dog.py}
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={\code{JSONField} behavior with
-SQL \code{NULL} and JSON \code{null}.},
-label=code:null]{codes/3-null.py}
-\end{minipage}
+\listing
+{Python}
+{\code{JSONField} behavior with SQL \code{NULL} and JSON \code{null}.}
+{code:null}
+{codes/3-null.py}
 
 \autoref{code:null} shows a demonstration of how storing and querying SQL
-\code{NULL} and JSON \code{null} work with a \code{JSONField} defined in the
-\code{Dog} model shown in \autoref{code:dog}. Lines 1 and 2 of
-\autoref{code:null} demonstrate storing SQL \code{NULL}, while lines 3 and 4
-demonstrate storing JSON \code{null} as the top-level value of the field. When
-querying as shown by lines 5 and 6, \code{None} is interpreted as JSON
-\code{null}, hence the query returns the second object. Lines 7 and 8 show that
-when querying, using \code{None} is similar to \code{Value('null')}. Lines
-9 and 10 show that querying for SQL \code{NULL} can be done using the
-\code{isnull} lookup. Lines 11 and 12 show that JSON \code{null} is different
-from SQL \code{NULL}, hence the query returns the second object. The
-\code{data} field in both objects are represented in Python as \code{None},
-thus it may be hard to distinguish between the two.
+\verb|NULL| and JSON \verb|null| values work with a \verb|JSONField| defined in
+the \verb|Dog| model shown by \autoref{code:dog}. Lines 1 and 2 of
+\autoref{code:null} demonstrate storing SQL \verb|NULL|, while lines 3 and 4
+demonstrate storing JSON \verb|null| as the top-level value of the field. When
+querying as shown by lines 5 and 6, \verb|None| is interpreted as JSON
+\verb|null|, hence the query returns the second object. Lines 7 and 8 show that
+when querying, using \verb|None| is similar to \verb|Value('null')|. Lines 9
+and 10 show that querying for SQL \verb|NULL| can be done using the
+\verb|isnull| lookup. Lines 11 and 12 show that JSON \verb|null| is different
+from SQL \verb|NULL|, hence the query returns the second object. Lines 13 to 16
+show that the \verb|data| field in both objects are represented in Python as
+\verb|None|, thus it may be difficult to distinguish between the two.
 
-The behavior of \code{JSONField} in regards to SQL \code{NULL} and JSON
-\code{null} may cause confusion, as briefly discussed on the GitHub pull
-request shown in
+The behavior of \verb|JSONField| in regards to SQL \verb|NULL| and JSON
+\verb|null| may cause confusion, as briefly discussed on the GitHub pull
+request shown by
 \autoref{fig:nulldiscussion}.\footnote{\url{
 	https://github.com/django/django/pull/11452\#discussion\_r335375254}}
-The discussion revolved around how Django should deal with JSON \code{null} as
-the top-level value of \code{JSONField}. It was acknowledged that storing JSON
-\code{null} as the top-level value of \code{JSONField} is possible by using
-\code{Value}. However, the value will be \code{None} when retrieved, which
-corresponds to SQL \code{NULL} rather than JSON \code{null}. As the Django
+The discussion revolved around how Django should deal with JSON \verb|null| as
+the top-level value of \verb|JSONField|. It was acknowledged that storing JSON
+\verb|null| as the top-level value of \verb|JSONField| is possible by using
+\verb|Value|. However, the value will be \verb|None| when retrieved, which
+corresponds to SQL \verb|NULL| rather than JSON \verb|null|. As the Django
 contributors wrote, the behavior is "tricky and unexpected". While it is
-possible to convert the JSON \code{null} value back into \code{Value('null')}
+possible to convert the JSON \verb|null| value back into \verb|Value('null')|
 when loading it from the database, it is considered as unexpected and "even
 less fun". Therefore, to avoid this confusion, Django does not recommend
-working with JSON \code{null} as the top-level value of \code{JSONField}.
+working with JSON \verb|null| as the top-level value of \verb|JSONField|.
 
 \begin{figure}
 	\centering
@@ -158,32 +156,32 @@ working with JSON \code{null} as the top-level value of \code{JSONField}.
 	\label{fig:nulldiscussion}
 \end{figure}
 
-As with string-based fields such as \code{CharField} and \code{TextField},
-Django also recommends avoiding the use of SQL \code{NULL} on \code{JSONField}
-\cite{django:model_fields}. If the SQL \code{NULL} is used on a string-based
-field, it means that there are two possible values for "no data": \code{NULL}
-and the empty string (\code{''}). On \code{JSONField}, it gets more complex:
-to represent "no data", there are the empty JSON object (\code{'\{\}'}), the
-empty JSON array (\code{'[]'}), the empty JSON string (\code{'""'}), the JSON
-\code{null} value (\code{'null'}), and the SQL \code{NULL}. Because of this
-redundancy, Django recommends setting \code{null=False} (to enforce
-database-level \code{NOT NULL} constraint) on \code{JSONField} and providing
-a suitable default for empty values, such as \code{default=dict}.
+As with string-based fields such as \verb|CharField| and \verb|TextField|,
+Django also recommends avoiding the use of SQL \verb|NULL| on \verb|JSONField|
+\cite{django:model_fields}. If the SQL \verb|NULL| is used on a string-based
+field, it means that there are two possible values for "no data": \verb|NULL|
+and the empty string (\verb|''|). On \verb|JSONField|, it gets more complex:
+to represent "no data", there are the empty JSON object (\verb|'{}'|), the
+empty JSON array (\verb|'[]'|), the empty JSON string (\verb|'""'|), the JSON
+\verb|null| value (\verb|'null'|), and the SQL \verb|NULL|. To avoid
+redundancy, it is recommended to set \verb|null=False| (to enforce
+database-level \verb|NOT NULL| constraint) on \verb|JSONField| and provide
+a suitable default for empty values, such as \verb|default=dict|.
 
 To ensure that the data inserted into the database is valid JSON, the model
-field can also define the SQL \code{CHECK} constraints on the database-level.
-On MariaDB and SQLite, the \code{JSON\_VALID} function can be used as a
-\code{CHECK} constraint \cite{mariadb:json_valid, sqlite:json1}. On Oracle
-Database, the \code{IS JSON} condition can be applied to the table column
-\cite{oracle:is_json}. On PostgreSQL and MySQL, the JSON data is automatically
-validated when using the \code{json} data type (or \code{jsonb} on PostgreSQL)
+field can also define the SQL \verb|CHECK| constraints on the database-level.
+On MariaDB and SQLite, the \verb|JSON_VALID| function can be used as a
+\verb|CHECK| constraint \cite{mariadb:json_valid, sqlite:json1}. On Oracle
+Database, the \verb|IS JSON| condition can be applied to the table column
+\cite{oracle:is_json}. On MySQL and PostgreSQL, the JSON data is automatically
+validated when using the \verb|json| data type (or \verb|jsonb| on PostgreSQL)
 \cite{postgres:json, mysql:json}. These constraints only validate the syntax of
 the JSON data and not the information contained within the data.
 
-This section has covered the design of \code{JSONField} in terms of storing and
+This section has covered the design of \verb|JSONField| in terms of storing and
 loading JSON data. In addition to storing and loading data, the ORM system in
 Django also provides querying capabilities by translating Python method calls
-into SQL \code{SELECT} queries. In order to fully utilize Django's ORM, the
+into SQL \verb|SELECT| queries. In order to fully utilize Django's ORM, the
 lookups and transforms features of the ORM can be extended to use the JSON
 functions provided by the database systems.
 
@@ -193,8 +191,9 @@ functions provided by the database systems.
 
 In Django, lookups and transforms are part of the query expression API. The
 API consists of classes that define methods that translate instances of the
-classes into SQL expressions. Therefore, lookups and transforms can be used to
-change how SQL queries are composed by Django.
+classes into SQL expressions. Thus, lookups and transforms can be used to
+change how SQL queries are composed by Django, particularly the \verb|WHERE|
+clause of \verb|SELECT| queries.
 
 A lookup is a query expression with a left-hand side (\verb|lhs|), right-hand
 side (\verb|rhs|), and a \verb|lookup_name| that is used to create a boolean
@@ -208,161 +207,159 @@ field (in an expression) into another field. To use a transform, the notation
 is \verb|<expression>__<transform>|. For example, the year transform (e.g.
 \verb|date_field__year|) transforms a \verb|DateField| into an
 \verb|IntegerField|. As transforms also follow the query expression API, it is
-possible to chain multiple transforms in a query expression, e.g.
-(\verb|<expression>__<transform1>__<transform2>|).
+possible to chain multiple transforms in a query expression (e.g.
+\verb|<expression>__<transform1>__<transform2>|).
 
-To query JSON data, the previous implementation of \code{JSONField} included
-\code{JSONField}-specific lookups and transforms. The lookups and transforms
+To query JSON data, the previous implementation of \verb|JSONField| included
+\verb|JSONField|-specific lookups and transforms. The lookups and transforms
 consisted of containment lookups, key existence lookups, and path transforms.
 These lookups and transforms were implemented by using JSON operators that are
 only available on PostgreSQL. To implement them on other database systems,
-those operators need to be substituted with their JSON function equivalents.
-The lookups will be demonstrated using the \code{Dog} model from
-\autoref{code:dog} with the objects created in \autoref{code:dogobjects}.
+those operators need to be substituted with their JSON function equivalents. To
+provide a better picture of how lookups and transforms work, they will be
+demonstrated using the \verb|Dog| model from \autoref{code:dog} with the
+objects created in
+\autoref{code:dogobjects}.
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={Some \code{Dog} objects created with
-different JSON data.},
-label=code:dogobjects]{codes/3-dogobjects.py}
-\end{minipage}
+\listing
+{Python}
+{Some \code{Dog} objects created with different JSON data.}
+{code:dogobjects}
+{codes/3-dogobjects.py}
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={A demonstration of how the
-\code{contains} and \code{contained\_by} lookups are used.},
-label=code:containment]{codes/3-containment.py}
-\end{minipage}
+\listing
+{Python}
+{A demonstration of the \code{contains} and \code{contained\_by} lookups.}
+{code:containment}
+{codes/3-containment.py}
 
-The containment lookups consist of the \code{contains} and \code{contained\_by}
-lookups. The \code{contains} lookup, which normally is used to query for
+The containment lookups consist of the \verb|contains| and \verb|contained_by|
+lookups. The \verb|contains| lookup, which normally is used to query for
 strings using a case-sensitive substring containment test, is overridden. On
-\code{JSONField}, the lookup is used to query for JSON data using a non-strict
+\verb|JSONField|, the lookup is used to query for JSON data using a non-strict
 subset containment test. The query will return objects with JSON data that
-contains the lookup value as a subset. Meanwhile, the \code{contained\_by}
+contains the lookup value as a subset. Meanwhile, the \verb|contained_by|
 lookup is the inverse: it looks for objects where the key-value pairs in the
 JSON data are a subset of the lookup value.
 
-The \code{contains} and \code{contained\_by} lookups are demonstrated in
-\autoref{code:containment}. Lines 1 and 2 of the listing show that the query
+The \verb|contains| and \verb|contained_by| lookups are demonstrated by
+\autoref{code:containment}. In the listing, lines 1 and 2 show that the query
 returns objects where the JSON data contains the \verb|{'owner': 'Bob'}|
 key-value pair in the top-level. The subset containment test also works with
-arrays, as shown by lines 3 and 4. Lines 5 and 6 demonstrate that the query
+arrays, as shown by lines 3 and 4. Lines 5 to 7 demonstrate that the query
 matches the \verb|<Dog: Meg>| object because its JSON data is a subset of the
 lookup value. The query also matches the \verb|<Dog: Fred>| object because an
 empty JSON object is a subset of any JSON object, which is also shown by lines
-7 and 8.
+8 and 9.
 
 The containment lookups can be implemented using JSON operators or JSON
 functions provided by some of the database systems. On PostgreSQL, the
-\code{contains} and \code{contained\_by} lookups can be implemented using the
+\verb|contains| and \verb|contained_by| lookups can be implemented using the
 \code{@>} and \code{<@} operators, respectively \cite{postgres:json_operators}.
 On MariaDB and MySQL, both lookups can be implemented using the
-\code{JSON\_CONTAINS} function by switching the target and candidate arguments
-for the \code{contained\_by} lookup \cite{mariadb:json_contains,
+\verb|JSON_CONTAINS| function by switching the target and candidate arguments
+for the \verb|contained_by| lookup \cite{mariadb:json_contains,
 mysql:json_search}. Unfortunately, SQLite and Oracle Database do not have a
 similar function, thus these lookups are left unsupported on both databases.
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={A demonstration of how the
-\code{has\_key}, \code{has\_keys}, and \code{has\_any\_keys} lookups are
-used.},
-label=code:keyexistence]{codes/3-keyexistence.py}
-\end{minipage}
+\listing
+{Python}
+{A demonstration of the
+\code{has\_key}, \code{has\_keys}, and \code{has\_any\_keys} lookups.}
+{code:keyexistence}
+{codes/3-keyexistence.py}
 
-The key existence lookups consist of the \code{has\_key}, \code{has\_keys}, and
-\code{has\_any\_keys} lookups. The \code{has\_key} lookup is used to query for
+The key existence lookups consist of the \verb|has_key|, \verb|has_keys|, and
+\verb|has_any_keys| lookups. The \verb|has_key| lookup is used to query for
 objects where the given key is in the top-level of the JSON data. The
-\code{has\_keys} lookup is similar to \code{has\_key}, but it accepts a list of
+\verb|has_keys| lookup is similar to \verb|has_key|, but it accepts a list of
 strings and it is used to query for objects where all of the given keys are
-in the top-level of the JSON data. The \code{has\_any\_keys} lookup is similar
-to \code{has\_keys}, but the objects only need to have at least one of the
+in the top-level of the JSON data. The \verb|has_any_keys| lookup is similar
+to \verb|has_keys|, but the objects only need to have at least one of the
 given keys in the top-level of the JSON data.
 
-The key existence lookups are demonstrated in \autoref{code:keyexistence}.
-Lines 1 and 2 of the listing demonstrate that the \code{has\_key} lookup
-returns objects that have the specified key (\code{'breed'}) in the top-level
-of the JSON data. The \code{has\_keys} lookup shown by lines 3 and 4 only
-returns objects that have all of the given keys (\code{'breed'} and
-\code{'favorite\_toys'}) in the top-level of the JSON data. As shown by lines 5
-and 6, the \code{has\_any\_keys} lookup returns objects that have at least one
-of the given keys (\code{'breed'}, \code{'age'}, or \code{'favorite\_toys'}) in
+The key existence lookups are demonstrated by \autoref{code:keyexistence}.
+Lines 1 and 2 of the listing demonstrate that the \verb|has_key| lookup
+returns objects that have the specified key (\verb|'breed'|) in the top-level
+of the JSON data. The \verb|has_keys| lookup shown by lines 3 and 4 only
+returns objects that have all of the given keys (\verb|'breed'| and
+\verb|'favorite_toys'|) in the top-level of the JSON data. As shown by lines 5
+and 6, the \verb|has_any_keys| lookup returns objects that have at least one
+of the given keys (\verb|'breed'|, \verb|'age'|, or \verb|'favorite_toys'|) in
 the top-level of the JSON data.
 
 As with the containment lookups, the key existence lookups can be implemented
 using JSON operators or JSON functions on the database systems. On PostgreSQL,
-the \code{has\_key}, \code{has\_keys}, and \code{has\_any\_keys} lookups can be
+the \verb|has_key|, \verb|has_keys|, and \verb|has_any_keys| lookups can be
 implemented using the \code{?}, \code{?\&}, and \code{?|} operators,
 respectively \cite{postgres:json_operators}. On MariaDB and MySQL, these
-lookups can be implemented using the \code{JSON\_CONTAINS\_PATH} function
+lookups can be implemented using the \verb|JSON_CONTAINS_PATH| function
 \cite{mariadb:json_contains_path, mysql:json_search}. This function accepts
-multiple paths as its arguments and there's a \code{one\_or\_all} argument that
+multiple paths as its arguments and there's a \verb|one_or_all| argument that
 determines whether the JSON data should contain at least one path or all of the
 paths. On SQLite, there's no function that is similar to
-\code{JSON\_CONTAINS\_PATH}, but the \code{JSON\_TYPE} with the \code{IS NOT
+\verb|JSON_CONTAINS_PATH|, but the \verb|JSON_TYPE| with the \code{IS NOT
 NULL} condition can be used to determine whether a given path exists
 \cite{sqlite:json1}. On Oracle Database, a similar functionality can be
-obtained using the \code{JSON\_EXISTS} function \cite{oracle:json_exists}. Both
-SQLite and Oracle Database need to chain the function calls with the \code{AND}
-and \code{OR} operators for the \code{has\_keys} and \code{has\_any\_keys}
+obtained using the \verb|JSON_EXISTS| function \cite{oracle:json_exists}. Both
+SQLite and Oracle Database need to chain the function calls with the \verb|AND|
+and \verb|OR| operators for the \verb|has_keys| and \verb|has_any_keys|
 lookups, respectively.
 
-\noindent
-\begin{minipage}{\linewidth}
-\lstinputlisting[language=Python, caption={A demonstration of how the
-key, index, and path transforms are used.},
-label=code:transforms]{codes/3-transforms.py}
-\end{minipage}
+\listing
+{Python}
+{A demonstration of the key, index, and path transforms.}
+{code:transforms}
+{codes/3-transforms.py}
 
 The key, index, and path transforms can be used to query based on a certain
-location in the JSON data as shown in \autoref{code:transforms}. To query based
+location in the JSON data as shown by \autoref{code:transforms}. To query based
 on a given key, the key can be used as the transform name (e.g.
-\code{data\_\_breed}), as shown by lines 1 and 2 of the listing. To query based
+\verb|data__breed|), as shown by lines 1 and 2 of the listing. To query based
 on a given path, multiple keys can be chained together using a double
-underscore (e.g. \code{data\_\_owner\_\_name}), as shown by lines 3 and 4. An
+underscore (e.g. \verb|data__owner__name|), as shown by lines 3 and 4. An
 integer key, as shown by lines 5 and 6, is interpreted as an array index.
 
-As with other transforms, the \code{JSONField} transforms can be chained with
-lookups. If the lookup is not specified, the \code{exact} lookup is used. If
-the value for the \code{exact} lookup is \code{None}, it will be interpreted as
-JSON \code{null}, as shown by lines 7 and 8. To query for missing keys, the
-\code{isnull} lookup can be used, as shown by lines 9 and 10.
+As with other transforms, the \verb|JSONField| transforms can be chained with
+lookups. If the lookup is not specified, the \verb|exact| lookup is used. If
+the value for the \verb|exact| lookup is \verb|None|, it will be interpreted as
+JSON \verb|null|, as shown by lines 7 and 8. To query for missing keys, the
+\verb|isnull| lookup can be used, as shown by lines 9 and 10.
 
 The transforms can be chained with Django's built-in lookups and the
-\code{JSONField}-specific lookups described previously. Lines 11 and 12 show
-the transforms chained with the built-in \code{startswith} lookup, which
-matches objects with JSON data at the path \code{'breed'} that have a value
-starting with \code{'col'}. Line 13 and 14 demonstrate chaining the transforms
-with the \code{contains} lookup, which matches objects that contain
+\verb|JSONField|-specific lookups described previously. Lines 11 and 12 show
+the transforms chained with the built-in \verb|startswith| lookup, which
+matches objects with JSON data at the path \verb|'breed'| that have a value
+starting with \verb|'col'|. Lines 13 and 14 demonstrate chaining the transforms
+with the \verb|contains| lookup, which matches objects that contain
 \verb|{'type': 'ball'}| in any element in the array at the path
-\code{'favorite\_toys'} of the JSON data. Chaining the transforms with the
-\code{has\_key} lookup is also possible, as shown by lines 15 and 16 where the
-query matches objects that have the key \code{'color'} in the second element of
-the array at the \code{'favorite\_toys'} path of the JSON data.
+\verb|'favorite_toys'| of the JSON data. Chaining the transforms with the
+\verb|has_key| lookup is also possible, as shown by lines 15 and 16 where the
+query matches objects that have the key \verb|'color'| in the second element of
+the array at the \verb|'favorite_toys'| path of the JSON data.
 
 To implement the path transforms, the JSON value specified at the given path
 should be extracted. On PostgreSQL, this functionality can be achieved by using
-the \code{->} operator for shallow paths and the \code{\#>} operator for nested
+the \verb|->| operator for shallow paths and the \verb|#>| operator for nested
 paths \cite{postgres:json_operators}. When the transforms are chained with
-lookups that expect a string value on the left-hand side, the \code{->>} and
-\code{\#>>} operators are used instead, so that the value is extracted as
-\code{text} instead of \code{jsonb}. On MariaDB, MySQL, and SQLite, the
-\code{JSON\_EXTRACT} function can be used \cite{mariadb:json_extract,
+lookups that expect a string value on the left-hand side, the \verb|->>| and
+\verb|#>>| operators are used instead, so that the value is extracted as
+\verb|text| instead of \verb|jsonb|. On MariaDB, MySQL, and SQLite, the
+\verb|JSON_EXTRACT| function can be used \cite{mariadb:json_extract,
 mysql:json_search, sqlite:json1}.\footnote{As of version 5.7.13, MySQL also has
 \code{->} and \code{->>} operators that work similarly to the \code{\#>} and
 \code{\#>>} operators on PostgreSQL. However, MariaDB does not have these
 operators, hence the function equivalents are used instead.} When extracting
-string values on MariaDB and MySQL, the \code{JSON\_UNQUOTE} function should be
+string values on MariaDB and MySQL, the \verb|JSON_UNQUOTE| function should be
 used to unquote the JSON double quotes \cite{mariadb:json_unquote,
 mysql:json_modify}. On Oracle Database, extraction can be done using the
-\code{JSON\_VALUE} function to extract scalar values and the \code{JSON\_QUERY}
+\verb|JSON_VALUE| function to extract scalar values and the \verb|JSON_QUERY|
 function to extract JSON objects and JSON arrays \cite{oracle:json_value,
 oracle:json_query}.
 
 This chapter has described how storing and loading JSON data with
-\code{JSONField} is designed. It has also explained how the
-\code{JSONField}-specific lookups and transforms work, as well as the database
+\verb|JSONField| is designed. It has also explained how the
+\verb|JSONField|-specific lookups and transforms work, as well as the database
 functions that can be used to implement them. In order to implement the design,
 some modifications to the Django codebase are required, as explained in the
 next chapter.
