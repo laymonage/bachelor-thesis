@@ -40,9 +40,9 @@ Django's test files structure. The majority of the tests are written in the
 \verb|model_fields.test_jsonfield| module, which consists of 70 test cases
 divided into 7 test classes, as shown by \autoref{table:testclasses}. As seen
 in the table, the \verb|JSONField| querying functionalities have the largest
-number of tests for different querying scenarios. In addition to tests from the
-previous PostgreSQL-only implementation, the \verb|JSONField| tests also
-include new tests for new features and documented behaviors.
+number of tests for different querying scenarios. In addition to tests that
+were moved from the PostgreSQL-only implementation, the \verb|JSONField| tests
+also include new tests for new features and documented behaviors.
 
 Aside from the tests specific to the model field, there are also tests for the
 other parts of the ORM as well as the form field. The tests for the other ORM
@@ -63,15 +63,15 @@ which consists of 12 test cases in a single test class.
 
 One of the new tests is \verb|test_custom_encoder_decoder()| shown by
 \autoref{code:testencodecoder}. The test is modified from
-\verb|test_custom_encoder()| in the PostgreSQL-only implementation, which does
+\verb|test_custom_encoder()| in the PostgreSQL-only implementation, which did
 not support a custom decoder. The test describes the process of creating a
 \verb|NullableJSONModel| object that contains a \verb|UUID| object inside a
-\verb|JSONField| (lines 3 and 4). The \verb|NullableJSONModel| class is a model
+\verb|JSONField| (lines 4 and 5). The \verb|NullableJSONModel| class is a model
 class (for \verb|JSONField| tests) that has a \verb|JSONField| named
 \verb|value_custom| that is equipped with custom encoder and decoder.  Upon
-cleaning the fields (line 5) and saving the object to the database (line 6),
-the object is retrieved (refreshed) from the database (line 7). The retrieved
-object is asserted to be equal to the initial object (line 8), which means that
+cleaning the fields (line 6) and saving the object to the database (line 7),
+the object is retrieved (refreshed) from the database (line 8). The retrieved
+object is asserted to be equal to the initial object (line 9), which means that
 the JSON object is successfully deserialized to retain the \verb|UUID| object.
 The deserialization is only possible if a custom decoder is used because the
 default decoder does not provide deserialization to \verb|UUID| objects.
@@ -102,10 +102,10 @@ values are asserted to be equal in Python, i.e. \verb|None|.
 	\label{fig:checks}
 \end{figure}
 
-At the time of research, the tests were run on all of the database systems with
-Python 3.6, 3.7, and 3.8. The tests were run on Django's Jenkins
+At the time of research, the tests were run on all database systems and Python
+3.6, 3.7, and 3.8. The tests were run on Django's Jenkins
 instance\footnote{\url{https://djangoci.com}} and the summary that shows the
-tests have passed on all of the database systems can be seen on
+tests have passed on all database systems can be seen on
 GitHub\footnote{\url{https://github.com/django/django/commit/6789ded0a6ab797f0dcdfa6ad5d1cfa46e23abcd}},
 as shown by \autoref{fig:checks}. For Oracle Database, the tests have to be
 triggered manually by the Django maintainers. In the final version of the Git
@@ -148,8 +148,8 @@ methods. Thus, the replica works the same way as the new implementation. The
 only differences between the two are the module locations and the
 \verb|system_check_deprecated_details| property defined in the replica (lines 2
 to 10), which makes the replica raise a system check warning on initialization.
-The warning has a hint to use the \verb|django.db.models.JSONField| instead
-(line 8). The Django developers assigned the warning \verb|id| to be
+The warning includes a hint to use the \verb|django.db.models.JSONField| class
+instead (line 8). The Django developers assigned the warning \verb|id| to be
 \verb|fields.W904| (line 9).
 
 \listing
@@ -197,5 +197,5 @@ deprecation is now complete. The tests described in the previous section also
 guarantee the new implementation to be compatible with the previous
 PostgreSQL-only implementation. Thus, backward compatibility is preserved and
 programmers will be notified to update their code. With the deprecation and
-tests written, the goals of this research are completed. Therefore, the next
-chapter will discuss the conclusions of this research.
+tests written, the goals of this research have been completed. Therefore, the
+next chapter will discuss the conclusions of this research.
