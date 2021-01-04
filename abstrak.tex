@@ -34,16 +34,19 @@ hanya tersedia untuk sistem basis data PostgreSQL. Sementara itu, Django secara
 resmi mendukung PostgreSQL, MariaDB, MySQL, SQLite, dan Oracle Database.
 Penelitian ini bertujuan untuk mengimplementasikan \verb|JSONField| baru yang
 kompatibel dengan seluruh sistem basis data yang didukung oleh Django.
-Implementasi tersebut dibuat sebagai bagian dari program Google Summer of Code
-2019 dan telah digabungkan ke dalam basis kode Django untuk perilisan Django
-3.1. Selain dari implementasi tersebut, penelitian ini juga membahas contoh
+Selain dari implementasi tersebut, penelitian ini juga membahas contoh
 penggunaan \verb|JSONField| dengan fitur validasi model yang ada pada Django
-untuk memvalidasi data JSON. \\
+untuk memvalidasi data JSON. Proses implementasi \verb|JSONField| terdiri atas
+mempelajari dukungan data JSON pada sistem basis data yang didukung oleh
+Django, mendesain, dan mengimplementasikan \verb|JSONField|. Implementasi
+\verb|JSONField| diuji pada semua sistem basis data menggunakan pengujian
+otomatis. Penelitian ini berharapan untuk memberikan wawasan kepada pengguna
+Django mengenai cara kerja dan contoh validasi \verb|JSONField|. \\
 
 \vspace*{0.2cm}
 
 \noindent \bo{Kata kunci:} \\
-\verb|JSONField|, JSON, Django, basis data, \f{object-relational mapping}, data
+\verb|JSONField|, JSON, Django, Basis data, \f{Object-relational mapping}, Data
 semiterstruktur \\
 
 \onehalfspacing

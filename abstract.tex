@@ -31,17 +31,21 @@ format in a relational database. Before this research, \verb|JSONField| was
 only available for the PostgreSQL database system. Meanwhile, Django officially
 supports PostgreSQL, MariaDB, MySQL, SQLite, and Oracle Database. This research
 aimed to implement a new \verb|JSONField| that is compatible with all database
-systems supported by Django. The implementation was created as part of the
-Google Summer of Code 2019 program and was merged into the Django codebase for
-the release of Django 3.1. In addition to the implementation, this research
+systems supported by Django. In addition to the implementation, this research
 also covers some examples of \verb|JSONField| usage with Django's built-in
-model validation feature to validate JSON data in a \verb|JSONField|.\\
+model validation feature to validate JSON data in a \verb|JSONField|.
+The process for implementing \verb|JSONField| includes researching JSON data
+support on the database systems supported by Django, designing, and
+implementing \verb|JSONField|. The \verb|JSONField| implementation is tested on
+all database systems using automated tests. This research would hopefully
+provide insights to Django users about the inner workings and validation
+examples of \verb|JSONField|.\\
 
 \vspace*{0.2cm}
 
 \noindent \bo{Keywords:} \\
-\verb|JSONField|, JSON, Django, database, object-relational mapping,
-semi-structured data \\
+\verb|JSONField|, JSON, Django, Database, Object-relational mapping,
+Semi-structured data \\
 
 \onehalfspacing
 \newpage
