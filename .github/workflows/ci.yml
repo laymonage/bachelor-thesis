@@ -1,0 +1,40 @@
+name: Lint and Build
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container: blang/latex:latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Lint with chktex
+      run: chktex thesis.tex
+
+  build:
+    runs-on: ubuntu-latest
+    container: blang/latex:latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Lint with chktex
+      run: |
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        bibtex thesis
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+        pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
+    - name: Upload PDF build
+      uses: actions/upload-artifact@v2
+      with:
+        name: thesis
+        path: thesis.pdf
