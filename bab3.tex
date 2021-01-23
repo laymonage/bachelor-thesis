@@ -29,23 +29,17 @@ decoded, into a Python object.
 	\centering
     \includegraphics[width=0.66\textwidth]{pics/encodecode.png}
 	\caption{The use of the \code{json.dumps()} and \code{json.loads()}
-	functions to encode a Python object and decode a JSON-encoded string,
-	respectively.}
+	functions.}
 	\label{fig:encodecode}
 \end{figure}
 
 To serialize/deserialize Python objects into/from JSON-encoded strings, the
 built-in \verb|json| library in Python can be used \cite{python:json}. The
 encoding and decoding functionalities are provided through the
-\verb|json.dumps()| and \verb|json.loads()| functions, respectively, as shown
-in \autoref{fig:encodecode}. By default, the \verb|json.dumps()| function uses
-the \verb|json.JSONEncoder| class, while the \verb|json.loads()| function uses
-the \verb|json.JSONDecoder| class. These classes support the Python
-\verb|dict|, \verb|list|, \verb|str|, \verb|int|, \verb|float|, \verb|True|,
-\verb|False|, and \verb|None| data types and objects. To support other data
-types and objects, customized \verb|json.JSONEncoder| and
-\verb|json.JSONDecoder| subclasses can be used for the functions by supplying
-the subclass as the \verb|cls| argument.
+\verb|json.dumps()| and \verb|json.loads()| functions, respectively. As shown
+by \autoref{fig:encodecode}, the \verb|json.dumps()| function serializes Python
+objects into JSON-encoded strings, while the \verb|json.loads()| function
+deserializes JSON-encoded strings into Python objects.
 
 The form field utilizes the \verb|json| library for serialization and
 deserialization when handling JSON input from the client. If the data being
@@ -57,9 +51,61 @@ a basic validation functionality by catching the error and raising a
 \begin{table}
 	\centering
 	\texttt{
+\begin{tabular}{|l|l|}
+\hline
+\no{\textbf{Python}} & \no{\textbf{JSON}} \\ \hline
+dict                 & object    \\ \hline
+list \no{or} tuple   & array     \\ \hline
+str                  & string    \\ \hline
+int\no{,} float\no{,} int\no{- \& }float\no{-derived} Enum\no{s} & number \\ \hline
+True                 & true      \\ \hline
+False                & false     \\ \hline
+None                 & null      \\ \hline
+\end{tabular}
+}
+\captionsource{The data types supported by the built-in \code{JSONEncoder}.}{\cite{python:json}}
+\label{table:types-jsonencoder}
+\end{table}
+
+\begin{table}
+	\centering
+	\texttt{
+\begin{tabular}{|l|l|}
+\hline
+\no{\textbf{JSON}} & \no{\textbf{Python}} \\ \hline
+object             & dict                 \\ \hline
+array              & list                 \\ \hline
+string             & str                  \\ \hline
+number (int)       & int                  \\ \hline
+number (real)      & float                \\ \hline
+true               & True                 \\ \hline
+false              & False                \\ \hline
+null               & None                 \\ \hline
+\end{tabular}
+}
+\captionsource{The data types supported by the built-in \code{JSONDecoder}.}{\cite{python:json}}
+\label{table:types-jsondecoder}
+\end{table}
+
+By default, the \verb|json.dumps()| function uses the \verb|json.JSONEncoder|
+class, while the \verb|json.loads()| function uses the \verb|json.JSONDecoder|
+class. These classes support the data types as specified in the JSON
+specification and their Python counterparts, as shown by
+\autoref{table:types-jsonencoder} and \autoref{table:types-jsondecoder}. To
+support other data types and objects, customized \verb|json.JSONEncoder| and
+\verb|json.JSONDecoder| subclasses can be used for the functions by supplying
+the subclass as the \verb|cls| argument. However, when using a custom decoder,
+the deserialization may need to account for the fact that one cannot be certain
+of the input type. For example, there is the risk of returning a
+\code{datetime} object when decoding a string that just happened to be in the
+same format chosen for \code{datetime}s.
+
+\begin{table}
+	\centering
+	\texttt{
 \begin{tabular}{|c|c|c|c|}
 \hline
-\no{Python}    & \no{JSON} & \no{SQL}            & \no{JSON-encoded string} \\ \hline
+\no{\textbf{Python}}    & \no{\textbf{JSON}} & \no{\textbf{SQL}}            & \no{\textbf{JSON-encoded string}} \\ \hline
 '' \no{or} ""  & ""        & ''                  & '""'                     \\ \hline
 \{\}           & \{\}      & \no{not applicable} & '\{\}'                   \\ \hline
 []             & []        & \no{not applicable} & '[]'                     \\ \hline
