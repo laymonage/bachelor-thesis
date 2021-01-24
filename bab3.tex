@@ -367,17 +367,21 @@ underscore (e.g. \verb|data__owner__name|), as shown by lines 3 and 4. An
 integer key, as shown by lines 5 and 6, is interpreted as an array index.
 
 As with other transforms, the \verb|JSONField| transforms can be chained with
-lookups. If the lookup is not specified, the \verb|exact| lookup is used. If
+the built-in lookups in Django. The built-in lookups consist of the
+\verb|exact|, \verb|iexact|, \verb|isnull|, \verb|icontains|,
+\verb|startswith|, \verb|istartswith|, \verb|endswith|, \verb|iendswith|,
+\verb|regex|, \verb|iregex|, \verb|lt|, \verb|lte|, \verb|gt|, and \verb|gte|
+lookups. If there is no lookup specified, the \verb|exact| lookup is used. If
 the value for the \verb|exact| lookup is \verb|None|, it will be interpreted as
 JSON \verb|null|, as shown by lines 7 and 8. To query for missing keys, the
-\verb|isnull| lookup can be used, as shown by lines 9 and 10.
-
-The transforms can be chained with Django's built-in lookups and the
-\verb|JSONField|-specific lookups described previously. Lines 11 and 12 show
-the transforms chained with the built-in \verb|startswith| lookup, which
+\verb|isnull| lookup can be used, as shown by lines 9 and 10. Lines 11 and 12
+show the transforms chained with the built-in \verb|startswith| lookup, which
 matches objects with JSON data at the path \verb|'breed'| that have a value
-starting with \verb|'col'|. Lines 13 and 14 demonstrate chaining the transforms
-with the \verb|contains| lookup, which matches objects that contain
+starting with \verb|'col'|.
+
+The transforms can also be chained with the \verb|JSONField|-specific lookups
+described previously. Chaining the transforms with the \verb|contains| lookup
+is demonstrated by lines 13 and 14. The lookup matches objects that contain
 \verb|{'type': 'ball'}| in any element in the array at the path
 \verb|'favorite_toys'| of the JSON data. Chaining the transforms with the
 \verb|has_key| lookup is also possible, as shown by lines 15 and 16 where the
