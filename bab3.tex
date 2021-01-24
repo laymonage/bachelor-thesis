@@ -15,6 +15,29 @@ which lets its users manipulate JSON data in the form of Python objects.
 The form field is used for accepting JSON data in forms, such as a Django
 \verb|ModelForm|.
 
+\begin{figure}
+	\centering
+    \includegraphics[width=0.92\textwidth]{pics/structure-design.png}
+	\caption{The \code{JSONField} implementation structure (highlighted in
+	blue) within the Django codebase.}
+	\label{fig:structure}
+\end{figure}
+
+In the Django codebase, model fields are defined in the
+\verb|django.db.models.fields| module as subclasses of \verb|Field|. Model
+fields that are relatively simple are implemented in the \verb|__init__.py|
+file of the module. For model fields that require more complex implementation
+(e.g. file fields and relational fields), they are defined in their own files
+in the \verb|fields| directory. Due to the complexity of \verb|JSONField| and
+its extended querying capabilities, the implementation is designed to be in its
+own file (\verb|json.py|) in the \verb|fields| directory, as shown by
+\autoref{fig:structure}. The file consists of \verb|JSONField|, the
+\verb|JSONField|-specific lookups and transforms, and the built-in lookups that
+are modified to work with \verb|JSONField|. Meanwhile, the \verb|JSONField|
+form field is implemented in the \verb|django.forms.fields| module as a
+subclass of \verb|CharField| because it is a text-based field with JSON
+validation added.
+
 The model field holds JSON data that can be stored to and retrieved from the
 database. In Python, the data is represented in Python's built-in formats:
 dictionaries, lists, strings, numbers, booleans, and \verb|None|. When saving
@@ -53,7 +76,7 @@ a basic validation functionality by catching the error and raising a
 	\texttt{
 \begin{tabular}{|l|l|}
 \hline
-\no{\textbf{Python}} & \no{\textbf{JSON}} \\ \hline
+\no{\bo{Python}} & \no{\bo{JSON}} \\ \hline
 dict                 & object    \\ \hline
 list \no{or} tuple   & array     \\ \hline
 str                  & string    \\ \hline
@@ -72,7 +95,7 @@ None                 & null      \\ \hline
 	\texttt{
 \begin{tabular}{|l|l|}
 \hline
-\no{\textbf{JSON}} & \no{\textbf{Python}} \\ \hline
+\no{\bo{JSON}} & \no{\bo{Python}} \\ \hline
 object             & dict                 \\ \hline
 array              & list                 \\ \hline
 string             & str                  \\ \hline
@@ -98,21 +121,21 @@ the subclass as the \verb|cls| argument. However, when using a custom decoder,
 the deserialization may need to account for the fact that one cannot be certain
 of the input type. For example, there is the risk of returning a
 \code{datetime} object when decoding a string that just happened to be in the
-same format chosen for \code{datetime}s.
+same format chosen for \code{datetime} objects.
 
 \begin{table}
 	\centering
 	\texttt{
 \begin{tabular}{|c|c|c|c|}
 \hline
-\no{\textbf{Python}}    & \no{\textbf{JSON}} & \no{\textbf{SQL}}            & \no{\textbf{JSON-encoded string}} \\ \hline
+\no{\bo{Python}}    & \no{\bo{JSON}} & \no{\bo{SQL}}            & \no{\bo{JSON-encoded string}} \\ \hline
 '' \no{or} ""  & ""        & ''                  & '""'                     \\ \hline
 \{\}           & \{\}      & \no{not applicable} & '\{\}'                   \\ \hline
 []             & []        & \no{not applicable} & '[]'                     \\ \hline
 None           & null      & NULL                & 'null'                   \\ \hline
 \end{tabular}
 }
-	\caption{Comparison of empty values and their equivalents in Python, JSON, and SQL.
+	\caption{A comparison of empty values and their equivalents in Python, JSON, and SQL.
 	The "JSON-encoded string" column shows the Python values after serialization
 	with \code{json.dumps()}.}
 	\label{table:emptyvalues}
@@ -407,9 +430,31 @@ mysql:json_modify}. On Oracle Database, extraction can be done using the
 \verb|JSON_QUERY()| function to extract JSON objects and JSON arrays
 \cite{oracle:json_value, oracle:json_query}.
 
-This chapter has described how storing and loading JSON data with
-\verb|JSONField| is designed. It has also explained how the
-\verb|JSONField|-specific lookups and transforms work, as well as the database
-functions that can be used to implement them. In order to implement the design,
-some modifications to the Django codebase are required, as explained in the
-next chapter.
+\begin{table}
+	\centering
+	\footnotesize
+	\texttt{
+\begin{tabular}{|p{2.25cm}|p{1.7cm}|p{3.7cm}|p{2.6cm}|p{2.4cm}|}
+\hline
+\no{\bo{Feature}}    & \no{\bo{PostgreSQL}} & \no{\bo{MariaDB and MySQL}} & \no{\bo{SQLite}} & \no{\bo{Oracle Database}} \\ \hline
+\no{Data type} & jsonb     & JSON                  & text & nclob                     \\ \hline
+CHECK \no{\vbox{constraint}}      & \no{not \vbox{necessary}}      & JSON\_VALID() \no{(\vbox{only needed for} \vbox{MariaDB $<$ 10.4.3)}} & JSON\_VALID() OR "column" IS NULL & IS JSON \\ \hline
+contains \no{and} contained\_by & \code{@>} \no{and} \code{<@} & JSON\_CONTAINS() & \no{not supported} & \no{not supported} \\ \hline
+has\_key\no{,} has\_keys\no{, and} has\_any\_keys & ?\no{,} ?\&\no{, and} ?| & JSON\_CONTAINS\_PATH() & JSON\_TYPE() IS NOT NULL & JSON\_EXISTS() \\ \hline
+\no{Key, index, and path transforms} & ->\no{,} \#>\no{,} ->>\no{, and} \#>> & JSON\_EXTRACT() \no{with} JSON\_UNQUOTE() & JSON\_EXTRACT() & JSON\_VALUE() \no{and} JSON\_QUERY() \\ \hline
+\end{tabular}
+}
+	\caption{A summary of the \code{JSONField} features and how they can be
+	implemented on the database systems.}
+	\label{table:summary}
+\end{table}
+
+This chapter has described how the features of \verb|JSONField| are designed.
+Before moving on to the implementation, it is useful to get a summary of how
+the features of \verb|JSONField| can be implemented on each database backend.
+\autoref{table:summary} shows the data types and \verb|CHECK| constraints for
+\verb|JSONField| that were described in the previous chapter. In addition, it
+also shows the functions and operators that can be used to implement the
+lookups and transforms for \verb|JSONField|. In order to implement the design,
+modifications to the Django codebase are required, as explained in the next
+chapter.

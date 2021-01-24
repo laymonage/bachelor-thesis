@@ -73,10 +73,10 @@ date of birth.
 \begin{table}
 	\centering
 	\texttt{\begin{tabular}{|l|l|l|}
-		\multicolumn{1}{c}{\textbf{myapp\_person}} \\ \hline
-		id & name          & dob        \\ \hline
-		42 & Sage Abdullah & 1999-06-09 \\ \hline
-		21 & Alice Doe     & NULL       \\ \hline
+		\multicolumn{1}{c}{\bo{myapp\_person}} \\ \hline
+		\bo{id} & \bo{name}     & \bo{dob}     \\ \hline
+		42      & Sage Abdullah & 1999-06-09   \\ \hline
+		21      & Alice Doe     & NULL         \\ \hline
 	\end{tabular}}
 	\caption{A relational database table \code{myapp\_person} represented by
 	the \code{Person} model in \autoref{code:personmodel}.}
@@ -219,7 +219,8 @@ The \verb|json| data type was introduced for compatibility reasons with MySQL's
 \verb|json| data type. However, on MariaDB, the \verb|json| data type is just
 an alias for the \verb|longtext| data type. Even though the data is stored as a
 string rather than binary, it can be validated using the provided
-\verb|JSON_VALID()| function as a \verb|CHECK| constraint.
+\verb|JSON_VALID()| function as a \verb|CHECK| constraint (automatically
+applied on MariaDB 10.4.3 and later).
 
 \subsection{SQLite}
 
@@ -228,7 +229,10 @@ JSON1 extension is a loadable extension that includes functions that can be
 used to manage JSON content \cite{sqlite:json1}. As of this writing, the JSON1
 extension stores JSON data as \verb|text|. The JSON1 extension includes a
 \verb|JSON_VALID()| function that can be used as a \verb|CHECK| constraint for
-JSON data.
+JSON data. However, unlike on MariaDB and MySQL, the function returns \verb|0|
+(false) if given SQL \verb|NULL| as the argument, preventing insertion of SQL
+\verb|NULL| values. To allow storing SQL \verb|NULL| values, an
+\verb|OR "column" IS NULL| condition should be added.
 
 Some JSON functions provided in the JSON1 extension are similar to those found
 in MariaDB and MySQL, but they have different behaviors on SQLite. For example,
