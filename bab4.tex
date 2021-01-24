@@ -225,14 +225,11 @@ now be implemented.
 %-----------------------------------------------------------------------------%
 
 In the Django codebase, model fields are defined in the
-\verb|django.db.models.fields| module as subclasses of \verb|Field|, but they
-can be imported from the \verb|django.db.models| module for convenience. Model
-fields that are relatively simple are implemented in the \verb|__init__.py|
-file of the module. For model fields that require more complex implementation
-(e.g. file fields and relational fields), they are defined in their own files
-in the \verb|fields| directory. Due to the complexity of \verb|JSONField| and
-its extended querying capabilities, the implementation is defined in the
-\verb|json.py| file in the \verb|fields| directory.
+\verb|django.db.models.fields| module as subclasses of \verb|Field|. However,
+they can be imported from the \verb|django.db.models| module for convenience.
+As described in the previous chapter, the implementation of \verb|JSONField|
+and its extended querying capabilities is defined in a separate \verb|json.py|
+file due to its complexity.
 
 \listing
 {Python}

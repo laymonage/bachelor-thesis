@@ -1,11 +1,7 @@
 import json
 from psycopg2.extras import Json
 ...
-
 class JsonAdapter(Json):
-    """
-    Customized psycopg2.extras.Json to allow for a custom encoder.
-    """
     def __init__(self, adapted, dumps=None, encoder=None):
         self.encoder = encoder
         super().__init__(adapted, dumps=dumps)
