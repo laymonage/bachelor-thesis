@@ -94,6 +94,21 @@ and \verb|None| (lines 10 to 17). Meanwhile, the SQL \verb|NULL| value is
 verified by using the \verb|isnull| lookup (lines 18 to 21). Finally, both
 values are asserted to be equal in Python, i.e. \verb|None|.
 
+\listing
+{Python}
+{The \code{test\_nested\_key\_transform\_expression()} test method.}
+{code:testcomplex}
+{codes/6-testcomplex.py}
+
+Some complex use cases of \verb|JSONField| and its lookups and transforms with
+other features of the Django ORM are also tested. An example test for such use
+cases is the \verb|test_nested_key_transform_expression()| test method shown by
+\autoref{code:testcomplex}. The test verifies that \verb|JSONField| can be used
+with \verb|KeyTransform|s, both implicitly through keyword arguments and
+explicitly through direct instantiation. It also chains the
+\verb|KeyTransform|s with the \verb|isnull| lookup, then combines them with
+\verb|annotate()| and \verb|filter()| methods, as well as an \verb|F| object.
+
 \begin{figure}
 	\centering
     \includegraphics[width=1.00\textwidth]{pics/github-checks.png}
@@ -151,6 +166,20 @@ to 10), which makes the replica raise a system check warning on initialization.
 The warning includes a hint to use the \verb|django.db.models.JSONField| class
 instead (line 8). The Django developers assigned the warning \verb|id| to be
 \verb|fields.W904| (line 9).
+
+With the deprecation, programmers only need to update their models to use the
+new implementation as suggested in the warning. After updating the models, they
+need to generate the migrations using Django's \verb|makemigrations| command
+and run them using the \verb|migrate| command. The generated migration will not
+modify the database because the new implementation does not need any changes to
+the database. However, it is necessary to run the migration so that Django
+updates the model state to use the new implementation. The same migration path
+also works for programmers who previously used a text-based custom
+\verb|JSONField| implementation, but the migration may replace the column with
+a new one that uses the correct data type and \verb|CHECK| constraint if the
+database supports them. If the column contains invalid JSON data, Django will
+raise an error which fails the migration unless the column is updated to only
+contain valid JSON data.
 
 \listing
 {Python}
