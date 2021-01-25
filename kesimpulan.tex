@@ -59,8 +59,46 @@ replicas of the classes and raising system warnings about the deprecation.
 %---------------------------------------------------------------
 \section{Suggestions}
 %---------------------------------------------------------------
-Based on the results of this research, some suggestions for future research are
-as follow:
+
+During the development of this research, some tools were very helpful in aiding
+the implementation process. These tools may also be helpful for those who want
+to continue improving the Django web framework or those who maintain
+third-party packages for Django. Some of the tools in particular are as follow:
+
+\begin{enumerate}
+	\item  For running the Django test suite, it is highly recommended to use
+	       the django-docker-box
+	       tool.\footnote{\url{https://github.com/django/django-docker-box}}
+	       The tool makes it easy to run the Django test suite across all
+	       supported databases and Python versions by running them inside
+	       Docker containers. During the development of this research,
+	       django-docker-box proved to be an indispensable tool as it allowed
+	       the \verb|JSONField| implementation to be tested quickly on a local
+	       machine prior to pushing the changes to the forked Django
+	       repository.
+	\item  For trying out SQL queries on different database systems, the DB
+		   Fiddle tool is
+		   recommended.\footnote{\url{https://www.db-fiddle.com}} The tool
+		   allows its users to execute SQL queries through the web interface
+		   without having to run a database server or client on their machine.
+		   When implementing the lookups and transforms for \verb|JSONField|,
+		   the tool was very helpful in verifying the behavior of JSON
+		   functions on each database system.
+	\item  For code style checking, the pre-commit tool is
+		   recommended.\footnote{\url{https://pre-commit.com}} The tool can be
+		   configured to automatically run the
+		   flake8\footnote{\url{https://flake8.pycqa.org}} and
+		   isort\footnote{\url{https://pycqa.github.io/isort}} linters (which
+		   are used by Django) before creating a Git commit. Thus, it can
+		   prevent code style issues that do not follow Django's code style
+		   guide from being included in Git commits, simplifying the review
+		   process for the Django maintainers. In fact, Django has since
+		   integrated the pre-commit tool into the repository at the time of
+		   this writing.\footnote{https://github.com/django/django/blob/master/.pre-commit-config.yaml}
+\end{enumerate}
+
+In addition, there are some suggestions for future research based on the
+results of this research. Some of those suggestions are as follow:
 
 \begin{enumerate}
 	\item The Query Expression API in Django supports a variety of use cases
@@ -81,9 +119,9 @@ as follow:
 	\item Recent studies have shown interest in measuring the performance of
 		  relational databases in handling JSON data. Relational databases are
 		  not dedicated for storing JSON data, thus they may not perform well
-		  compared to NoSQL databases. However, recent benchmarks have shown
-		  that a relational database system could outperform a NoSQL database
-		  system in varied workloads with JSON data
+		  compared to NoSQL databases. By contrast, recent benchmarks have
+		  shown that a relational database system could outperform a NoSQL
+		  database system in varied workloads with JSON data
 		  \cite{enterprisedb_benchmark}. Some extensive benchmarks on multiple
 		  database systems have also shown that the performance differences
 		  between relational and NoSQL databases were not significant,
