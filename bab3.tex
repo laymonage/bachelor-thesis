@@ -329,7 +329,12 @@ On MariaDB and MySQL, both lookups can be implemented using the
 \verb|JSON_CONTAINS()| function by switching the target and candidate arguments
 for the \verb|contained_by| lookup \cite{mariadb:json_contains,
 mysql:json_search}. Unfortunately, SQLite and Oracle Database do not have a
-similar function, thus these lookups are left unsupported on both databases.
+similar function. While it is possible to implement custom functions on the
+database systems, the Django developers decided that it would be too complex to
+replicate the same containment rules to be at the same standard as the other
+database systems. Thus, these lookups are left unsupported on both databases
+until the database systems provide built-in support for JSON containment
+checking.
 
 \listing
 {Python}
