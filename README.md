@@ -78,7 +78,9 @@ The following are several things I would like to note.
   that my advisors could supervise the research process, and the fifth chapter
   is the result of that.
 - The fifth chapter could probably use a simpler scenario and/or better
-  validation examples.
+  validation examples. Also, for some reason I forgot to include a link to the
+  repository for the validation examples in the fifth chapter. You can access
+  them [here][validation-repo].
 - A benchmark of `JSONField` performance across all the database systems was
   originally going to be a part of the "new addition" to the thesis.
   Unfortunately, I was unable to find (or construct) a proper testbed that
@@ -103,4 +105,5 @@ using the same essential concepts explained in this thesis.
 [stub-loads]: https://github.com/django/django/pull/13358/files#diff-56374f35499bd669398d3100ef7fcea371a8e9e38f92dbd3569d75b8cea2ad93
 [cleanup-pr]: https://github.com/django/django/pull/13749
 [isnull-fix]: https://github.com/django/django/pull/13757
+[validation-repo]: https://github.com/laymonage/jsonfield-validation
 [backport]: https://github.com/laymonage/django-jsonfield-backport
