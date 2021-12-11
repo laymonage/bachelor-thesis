@@ -33,8 +33,11 @@ jobs:
         pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
         pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
         pdflatex -synctex=1 -interaction=nonstopmode thesis.tex
-    - name: Upload PDF build
+    - name: Rename PDF file
+      run: |
+        mv thesis.pdf laymonage-jsonfield-bachelor-thesis.pdf
+    - name: Upload PDF file
       uses: actions/upload-artifact@v2
       with:
-        name: thesis
-        path: thesis.pdf
+        name: bachelor-thesis
+        path: laymonage-jsonfield-bachelor-thesis.pdf
