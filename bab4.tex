@@ -111,7 +111,7 @@ data type in the \verb|data_types| property, as shown by line 6 of
 \autoref{code:backends-mysql-1}. The \verb|data_type_check_constraints|
 property method is also modified to add the \verb|JSON_VALID()| function as a
 \verb|CHECK| constraint for MariaDB prior to version 10.4.3, as shown by lines
-15 and 16 of the listing. Later versions of MariaDB have the \verb|CHECK|
+17 and 18 of the listing. Later versions of MariaDB have the \verb|CHECK|
 constraint automatically enabled when using the \verb|JSON| data type alias,
 while MySQL automatically validates the JSON syntax when using the \verb|JSON|
 data type. Therefore, there is no need to modify
