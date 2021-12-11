@@ -348,7 +348,7 @@ the JSON functions provided by the database systems.
 Before this research, the existing implementation of \verb|JSONField| relied on
 features that are only available on PostgreSQL \cite{django:pgjsonfield}. For
 example, it used the \verb|Json| adapter included in Psycopg 2 (the database
-driver for PostgreSQL), as shown by lines 2 and 5 of
+driver for PostgreSQL), as shown by lines 2 and 4 of
 \autoref{code:pgjsonfield}. The adapter was used to encode a Python object into
 a JSON-encoded string before it is saved to the database (implemented in the
 \verb|get_prep_value()| method). In addition, it used the \verb|jsonb| data
