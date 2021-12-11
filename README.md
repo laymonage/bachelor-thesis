@@ -34,6 +34,10 @@ In addition, this thesis was initialized using
 
 See [`references.bib`](references.bib).
 
+## Reading
+
+Download [the latest PDF release][latest-pdf].
+
 ## Addendum
 
 This bachelor thesis is far from perfect. There are parts of this thesis that
@@ -59,7 +63,7 @@ The following are several things I would like to note.
   In particular, [this paragraph][null-paragraph].
 - Disabling Psycopg 2's automatic JSON decoding (described in section 4.1) is
   no longer done by casting the value to text (using the `select_format()` and
-  `json_cast_text_sql` methods). Instead, Django registers a stub `loads()`
+  `json_cast_text_sql()` methods). Instead, Django registers a stub `loads()`
   function to Psycopg 2 during the connection initialization as of
   [this change][stub-loads].
 - The `KeyTransform.preprocess_lhs()` function no longer has an `lhs_only`
@@ -101,6 +105,7 @@ using the same essential concepts explained in this thesis.
 
 [latex-template]: https://gitlab.com/ichlaffterlalu/latex-skripsi-ui-2017
 [affan]: https://github.com/ichlaffterlalu
+[latest-pdf]: https://github.com/laymonage/bachelor-thesis/releases/latest/download/laymonage-jsonfield-bachelor-thesis.pdf
 [null-paragraph]: https://github.com/laymonage/thesis/blob/f783ae00b86c6edcb0477fb2c12d7783f7cafb1e/bab3.tex#L169-L175
 [stub-loads]: https://github.com/django/django/pull/13358/files#diff-56374f35499bd669398d3100ef7fcea371a8e9e38f92dbd3569d75b8cea2ad93
 [cleanup-pr]: https://github.com/django/django/pull/13749
